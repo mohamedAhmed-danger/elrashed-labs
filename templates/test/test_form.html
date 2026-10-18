@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if is_edit and service %}تعديل التحليل الطبي — {{ service.name }}{% else %}إضافة تحليل طبي جديد{% endif %} — معمل صدارة
+{% endblock %}
+
+{% block topbar_title %}
+<div style="display: flex; align-items: center; gap: 12px;">
+  <div class="header-icon-badge">
+    <i data-lucide="flask-conical"></i>
+  </div>
+  <span style="font-size: 1.35rem; font-weight: 800; color: var(--navy-900);">
+    {% if is_edit and service %}تعديل فحص مخبري{% else %}إضافة تحليل طبي جديد{% endif %}
+  </span>
+</div>
+{% endblock %}
+
+{% block topbar_sub %}
+{% if is_edit and service %}
+تحديث وتعديل بيانات الفحص الطبي ومعلومات الذكاء الاصطناعي
+{% else %}
+إدارة وإضافة خدمات التحاليل المعملية
+{% endif %}
+{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('test.test_service') }}" class="btn btn-outline btn-sm" style="height: 38px; padding: 0 14px; font-weight: 600;">
+  <i data-lucide="arrow-right"></i>
+  العودة لدليل التحاليل
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+
+  <!-- Progress / context ribbon -->
+  <div class="tf-progress-ribbon">
+    <div class="tf-progress-step tf-progress-active">
+      <span class="tf-progress-dot">١</span>
+      المعلومات الأساسية
+    </div>
+    <span class="tf-progress-line"></span>
+    <div class="tf-progress-step">
+      <span class="tf-progress-dot">٢</span>
+      المساعد الطبي الذكي
+    </div>
+    <span class="tf-progress-line"></span>
+    <div class="tf-progress-step">
+      <span class="tf-progress-dot">٣</span>
+      الحفظ والمراجعة
+    </div>
+  </div>
+
+  <form id="testForm" method="POST"
+        action="{% if is_edit and service %}{{ url_for('test.edit_test', test_id=service.id) }}{% else %}{{ url_for('test.create_test') }}{% endif %}"
+        data-is-edit="{% if is_edit %}true{% else %}false{% endif %}">
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION A — BASIC INFORMATION (المعلومات الأساسية للتحليل)
+         ══════════════════════════════════════════════════════════ -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon">
+            <i data-lucide="clipboard-list"></i>
+          </div>
+          <div>
+            <h3 class="section-title">المعلومات الأساسية للتحليل</h3>
+            <p class="section-subtitle">أدخل البيانات الأساسية للتحليل قبل حفظه.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test Name (Prominent full-width field) -->
+      <div class="test-name-field">
+        <label for="testNameInput" class="test-name-label">
+          اسم التحليل الطبي <span class="required-star">*</span>
+        </label>
+        <div class="tf-input-icon-wrap">
+          <i data-lucide="flask-conical" class="tf-input-icon"></i>
+          <input
+            type="text"
+            id="testNameInput"
+            name="name"
+            value="{{ service.name if service else (form_data.name if form_data else '') }}"
+            class="test-name-input tf-input-with-icon"
+            placeholder="مثال: Complete Blood Count (CBC) أو صورة دم كاملة"
+            autocomplete="off"
+            required>
+        </div>
+        <div class="field-hint">
+          <i data-lucide="sparkles"></i>
+          <span>اكتب اسم التحليل، وسيقوم المساعد الذكي باقتراح المعلومات الإضافية تلقائيًا.</span>
+        </div>
+      </div>
+
+      <!-- 4-Column Balanced Grid (Desktop) -->
+      <div class="basic-info-grid">
+
+        <!-- 1. Laboratory Selection -->
+        <div>
+          <label for="labSelect" class="field-label">
+            <i data-lucide="building-2" class="tf-field-label-icon"></i>
+            المعمل التابع له <span class="required-star">*</span>
+          </label>
+          <select id="labSelect" name="laboratory_id" class="form-control" required>
+            <option value="">اختر المعمل أو الفرع...</option>
+            {% for lab in laboratories %}
+            <option value="{{ lab.id }}"
+              {% if (service and service.laboratory_id == lab.id) or (form_data and form_data.laboratory_id|int == lab.id) or (not service and loop.first) %}selected{% endif %}>
+              {{ lab.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- 2. Price -->
+        <div>
+          <label for="testPriceInput" class="field-label">
+            <i data-lucide="banknote" class="tf-field-label-icon"></i>
+            السعر (ج.م) <span class="required-star">*</span>
+          </label>
+          <div class="tf-input-icon-wrap">
+            <span class="tf-input-suffix">ج.م</span>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              id="testPriceInput"
+              name="price"
+              value="{{ service.price if service else (form_data.price if form_data else '') }}"
+              class="form-control tf-input-with-suffix"
+              placeholder="0.00"
+              required>
+          </div>
+        </div>
+
+        <!-- 3. Duration -->
+        <div>
+          <label for="testDurationInput" class="field-label">
+            <i data-lucide="clock" class="tf-field-label-icon"></i>
+            المدة المتوقعة (بالساعات)
+          </label>
+          <div class="tf-input-icon-wrap">
+            <span class="tf-input-suffix">ساعة</span>
+            <input
+              type="number"
+              min="1"
+              id="testDurationInput"
+              name="duration"
+              value="{{ service.duration if service else (form_data.duration if form_data else '') }}"
+              class="form-control tf-input-with-suffix"
+              placeholder="24">
+          </div>
+        </div>
+
+        <!-- 4. Sample Type -->
+        <div>
+          <label for="testSampleTypeInput" class="field-label">
+            <i data-lucide="droplet" class="tf-field-label-icon"></i>
+            نوع العينة المطلوبة
+          </label>
+          <input
+            type="text"
+            id="testSampleTypeInput"
+            name="sample_type"
+            value="{{ service.sample_type if service else (form_data.sample_type if form_data else '') }}"
+            class="form-control"
+            placeholder="مثال: دم، سيرم، بول...">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION B — AI ASSISTANT (المساعد الطبي الذكي)
+         ══════════════════════════════════════════════════════════ -->
+    <div class="ai-assistant-card">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <div class="section-icon tf-ai-icon-pulse">
+            <i data-lucide="bot"></i>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center;">
+              <h3 class="section-title">المساعد الطبي الذكي</h3>
+              <span class="ai-assistant-badge"><i data-lucide="sparkles" style="width:11px;height:11px;"></i> AI Assistant</span>
+            </div>
+            <p class="section-subtitle">
+              يقترح وصف التحليل وتعليمات المريض والكلمات المفتاحية والأسماء البديلة.
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Buttons (Generate: Primary / Regenerate: Secondary) -->
+        <div class="ai-actions-group">
+          <button type="button" id="generateBtn" class="ai-btn-generate">
+            <i data-lucide="sparkles"></i>
+            توليد بالذكاء الاصطناعي
+          </button>
+
+          <button type="button" id="regenerateBtn" class="ai-btn-regenerate" title="إعادة التوليد بصياغة بديلة">
+            <i data-lucide="refresh-cw"></i>
+            إعادة التوليد
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Loading / Status Banner -->
+      <div id="aiStatusBox" class="ai-status-box"></div>
+
+      <div style="display: flex; flex-direction: column; gap: 18px;">
+
+        <!-- 1. Description -->
+        <div>
+          <label for="testDescriptionInput" class="field-label">
+            <i data-lucide="file-text" class="tf-field-label-icon"></i>
+            الوصف الطبي للفحص
+          </label>
+          <textarea
+            id="testDescriptionInput"
+            name="description"
+            class="form-control"
+            rows="3"
+            placeholder="وصف طبي دقيق للتحليل، وأهميته التشخيصية ودواعي إجرائه...">{{ service.description if service else (form_data.description if form_data else '') }}</textarea>
+        </div>
+
+        <!-- 2. Patient Instructions -->
+        <div>
+          <label for="testInstructionsInput" class="field-label">
+            <i data-lucide="clipboard-check" class="tf-field-label-icon"></i>
+            شروط وتعليمات المريض (التحضيرات)
+          </label>
+          <textarea
+            id="testInstructionsInput"
+            name="patient_instructions"
+            class="form-control"
+            rows="3"
+            placeholder="شروط أخذ العينة مثل: الصيام 8-12 ساعة، التوقف عن أدوية معينة، توقيت سحب العينة...">{{ service.patient_instructions if service else (form_data.patient_instructions if form_data else '') }}</textarea>
+        </div>
+
+        <!-- 3 & 4. Keywords and Aliases (2-Column Grid) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;" class="basic-info-grid">
+
+          <!-- Keywords -->
+          <div>
+            <label class="field-label">
+              <i data-lucide="tags" class="tf-field-label-icon"></i>
+              الكلمات المفتاحية (Keywords)
+            </label>
+            <div class="tag-input-box" id="keywordsContainer">
+              {% if service and service.keywords %}
+                {% for kw in service.keywords %}
+                  {% if kw %}
+                  <span class="tag-chip">
+                    <span>{{ kw }}</span>
+                    <input type="hidden" name="keywords" value="{{ kw }}">
+                    <button type="button" class="tag-chip-remove" title="حذف">&times;</button>
+                  </span>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              <input
+                type="text"
+                id="keywordsTextInput"
+                class="tag-input-field"
+                placeholder="اكتب واضغط Enter أو فاصلة...">
+            </div>
+            <div class="field-hint">
+              <span>اضغط Enter أو فاصلة لإضافة كلمة جديدة.</span>
+            </div>
+          </div>
+
+          <!-- Aliases -->
+          <div>
+            <label class="field-label">
+              <i data-lucide="badge-check" class="tf-field-label-icon"></i>
+              الأسماء البديلة والشائعة (Aliases)
+            </label>
+            <div class="tag-input-box" id="aliasesContainer">
+              {% if service and service.alias_name %}
+                {% for al in service.alias_name %}
+                  {% if al %}
+                  <span class="tag-chip">
+                    <span>{{ al }}</span>
+                    <input type="hidden" name="alias_name" value="{{ al }}">
+                    <button type="button" class="tag-chip-remove" title="حذف">&times;</button>
+                  </span>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              <input
+                type="text"
+                id="aliasesTextInput"
+                class="tag-input-field"
+                placeholder="اكتب اسماً واضغط Enter...">
+            </div>
+            <div class="field-hint">
+              <span>اضغط Enter أو فاصلة لإضافة اسم بديل.</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- AI Trust Indicator Note -->
+      <div class="ai-trust-note">
+        <i data-lucide="shield-check"></i>
+        <span>المحتوى المقترح بواسطة الذكاء الاصطناعي قابل للمراجعة والتعديل قبل الحفظ.</span>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         FINAL ACTION BAR (حفظ / إلغاء)
+         ══════════════════════════════════════════════════════════ -->
+    <div class="form-actions-bar">
+      <button type="submit" id="saveTestBtn" class="btn-save-test">
+        <i data-lucide="check"></i>
+        {% if is_edit and service %}حفظ التعديلات{% else %}حفظ بيانات التحليل ✓{% endif %}
+      </button>
+
+      <a href="{{ url_for('test.test_service') }}" class="btn-cancel-test">
+        إلغاء والعودة
+      </a>
+    </div>
+
+  </form>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/test_service.js') }}"></script>
+{% endblock %}

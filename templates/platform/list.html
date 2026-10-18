@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}المنصات — معمل صدارة{% endblock %}
+{% block topbar_title %}المنصات{% endblock %}
+{% block topbar_sub %}منصات التواصل الاجتماعي المتاحة للربط{% endblock %}
+{% block topbar_actions %}
+  <a href="{{ url_for('platforms.create_platform') }}" class="btn btn-primary">
+    <i data-lucide="plus-circle"></i>
+    إضافة منصة
+  </a>
+{% endblock %}
+
+{% block content %}
+
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width: 80px;">#</th>
+        <th>اسم المنصة</th>
+        <th>عدد الصفحات المرتبطة</th>
+        <th style="width: 140px; text-align: center;">إجراءات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for platform in platforms %}
+      <tr>
+        <td><strong>#{{ platform.id }}</strong></td>
+        <td>
+          <div style="font-weight: 700; color: var(--ink-900);">{{ platform.name }}</div>
+        </td>
+        <td>
+          <span class="status-chip new">
+            {{ platform.pages|length }} صفحة
+          </span>
+        </td>
+        <td style="text-align: center;">
+          <a href="{{ url_for('platforms.edit_platform', platform_id=platform.id) }}" class="btn btn-outline btn-sm">
+            <i data-lucide="edit-2"></i>
+            تعديل
+          </a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" style="text-align: center; padding: 40px; color: var(--ink-500);">
+          <i data-lucide="share-2" style="width: 44px; height: 44px; margin: 0 auto 10px; display: block; opacity: 0.5;"></i>
+          لا توجد منصات مضافة حتى الآن
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

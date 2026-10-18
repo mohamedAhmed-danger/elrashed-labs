@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة المعامل — معمل صدارة{% endblock %}
+
+{% block topbar_title %}إدارة المعامل والفروع{% endblock %}
+{% block topbar_sub %}قائمة الفروع والمعامل التابعة للمنظومة{% endblock %}
+
+
+
+{% block content %}
+
+<div class="ts-stats-strip">
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-blue"><i data-lucide="building-2"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ laboratories|length }}</div>
+      <div class="ts-stat-pill-label">إجمالي المعامل والفروع</div>
+    </div>
+  </div>
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-purple"><i data-lucide="test-tube-2"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ laboratories|map(attribute='lab_services')|map('length')|sum }}</div>
+      <div class="ts-stat-pill-label">إجمالي التحاليل المرتبطة</div>
+    </div>
+  </div>
+</div>
+
+<div class="table-wrap ts-table-wrap">
+  <table class="data-table ts-data-table">
+    <thead>
+      <tr>
+        <th style="width: 60px;">#</th>
+        <th>اسم المعمل / الفرع</th>
+        <th>الموقع والمدينة</th>
+        <th>الوصف</th>
+        <th>التحاليل المرتبطة</th>
+        <th style="width: 140px; text-align: center;">الإجراءات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lab in laboratories %}
+      <tr>
+        <td><span class="ts-id-chip">#{{ lab.id }}</span></td>
+        <td>
+          <div class="ts-test-name-cell">
+            <div class="ts-test-avatar lb-avatar"><i data-lucide="building-2"></i></div>
+            <div class="ts-test-name-text">{{ lab.name }}</div>
+          </div>
+        </td>
+        <td>
+          <span class="ts-lab-tag">
+            <i data-lucide="map-pin"></i>
+            {{ lab.location }}
+          </span>
+        </td>
+        <td>
+          <span style="font-size: 0.82rem; color: var(--ink-500);">
+            {{ lab.description or '—' }}
+          </span>
+        </td>
+        <td>
+          <span class="status-chip new">
+            <i data-lucide="test-tube-2" style="width: 12px; height: 12px;"></i>
+            {{ lab.lab_services|length if lab.lab_services else 0 }} تحليل
+          </span>
+        </td>
+        <td style="text-align: center;">
+          <a href="{{ url_for('laboratory.edit_laboratory', lab_id=lab.id) }}"
+             class="btn btn-outline btn-sm ts-action-btn">
+            <i data-lucide="edit-2"></i>
+            تعديل
+          </a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 56px 20px;">
+          <div class="ts-empty-icon"><i data-lucide="building-2"></i></div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 6px;">لا توجد معامل مضافة حالياً</h4>
+          <p style="color: var(--ink-500); font-size: 0.85rem; margin-bottom: 18px;">
+            ابدأ بإضافة معمل أو فرع جديد إلى المنظومة.
+          </p>
+          <a href="{{ url_for('laboratory.create_laboratory') }}" class="btn btn-primary">
+            <i data-lucide="plus-circle"></i>
+            إضافة معمل / فرع جديد
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

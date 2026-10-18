@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}معمل صدارة للتحاليل الطبية الكيميائية — لوحة التحكم{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<!-- Mobile sidebar toggle button -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="فتح القائمة">
+  <i data-lucide="menu"></i>
+</button>
+
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-header">
+    <div class="brand-badge brand-logo-badge">
+      <div class="brand-logo-ring">
+        <img src="{{ url_for('static', filename='images/sadara_logo.jpg') }}" alt="معمل صدارة" class="brand-logo-img">
+      </div>
+      <div class="brand-text-container">
+        <div class="lab-name">معمل صدارة</div>
+        <div class="lab-sub">للتحاليل الطبية الكيميائية</div>
+      </div>
+    </div>
+    <div class="sidebar-status">
+      <span class="status-pulse"></span>
+      النظام نشط
+    </div>
+  </div>
+
+  <nav class="nav-section">
+
+    <p class="nav-section-label">الرئيسية</p>
+
+    <a href="{{ url_for('main.dashboard') }}"
+       class="nav-item {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
+      <i data-lucide="layout-dashboard" class="nav-icon"></i>
+      لوحة التحكم
+    </a>
+
+    <a href="{{ url_for('inquiries.list_inquiries') }}"
+       class="nav-item {% if request.endpoint in ['inquiries.list_inquiries', 'inquiries.inquiry_detail'] %}active{% endif %}">
+      <i data-lucide="file-text" class="nav-icon"></i>
+      الروشتات
+      {% if pending_inquiries_count and pending_inquiries_count > 0 %}
+      <span class="nav-badge">{{ pending_inquiries_count }}</span>
+      {% endif %}
+    </a>
+
+    <a href="{{ url_for('bookings.list_bookings') }}"
+       class="nav-item {% if request.endpoint in ['bookings.list_bookings'] %}active{% endif %}">
+      <i data-lucide="calendar-check" class="nav-icon"></i>
+      الحجوزات المنزليه
+    </a>
+
+    <a href="{{ url_for('complaints.list_complaints') }}"
+       class="nav-item {% if request.endpoint in ['complaints.list_complaints'] %}active{% endif %}">
+      <i data-lucide="message-square-warning" class="nav-icon"></i>
+      الشكاوى
+    </a>
+
+    <p class="nav-section-label">الخدمات والباقات</p>
+
+    <a href="{{ url_for('test.test_service') }}"
+       class="nav-item {% if request.endpoint in ['test.test_service','test.create_test','test.edit_test'] %}active{% endif %}">
+      <i data-lucide="clipboard-list" class="nav-icon"></i>
+      التحاليل الطبية
+    </a>
+
+    <!-- 🌟 تم إضافة رابط الباقات الفحصية هنا 🌟 -->
+    <a href="{{ url_for('bundle.list_bundles') }}"
+       class="nav-item {% if request.endpoint in ['bundle.list_bundles', 'bundle.add_bundle', 'bundle.bundle_detail'] %}active{% endif %}">
+      <i data-lucide="layers" class="nav-icon"></i>
+      الباقات الفحصية
+    </a>
+
+    <a href="{{ url_for('feedbacks.list_feedbacks_page') }}"
+       class="nav-item {% if request.endpoint in ['feedbacks.list_feedbacks_page'] %}active{% endif %}">
+      <i data-lucide="star" class="nav-icon"></i>
+      تقييمات العملاء
+    </a>
+
+    <p class="nav-section-label">الإعدادات والمستخدمين</p>
+
+    <a href="{{ url_for('laboratory.list_laboratories') }}"
+       class="nav-item {% if request.endpoint in ['laboratory.list_laboratories','laboratory.create_laboratory','laboratory.edit_laboratory'] %}active{% endif %}">
+      <i data-lucide="building-2" class="nav-icon"></i>
+      إدارة المعامل
+    </a>
+
+    <a href="{{ url_for('platforms.list_platforms') }}"
+       class="nav-item {% if request.endpoint in ['platforms.list_platforms','platforms.create_platform','platforms.edit_platform'] %}active{% endif %}">
+      <i data-lucide="share-2" class="nav-icon"></i>
+      منصات التواصل
+    </a>
+
+    <a href="{{ url_for('pages.list_pages') }}"
+       class="nav-item {% if request.endpoint in ['pages.list_pages','pages.create_page','pages.edit_page'] %}active{% endif %}">
+      <i data-lucide="file-code" class="nav-icon"></i>
+      صفحات التواصل
+    </a>
+
+    <a href="{{ url_for('users.list_users') }}"
+       class="nav-item {% if request.endpoint in ['users.list_users','users.create_user','users.edit_user'] %}active{% endif %}">
+      <i data-lucide="users" class="nav-icon"></i>
+      المستخدمون
+    </a>
+
+    <a href="{{ url_for('gmail_auth.settings_page') }}"
+       class="nav-item {% if request.endpoint == 'gmail_auth.settings_page' %}active{% endif %}">
+      <i data-lucide="mail" class="nav-icon"></i>
+      إعدادات الإشعارات
+    </a>
+
+    
+
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="avatar avatar-ring">{{ (current_user.name[0] if current_user.name else (current_user.username[0] if current_user.username else 'A'))|upper if current_user.is_authenticated else 'A' }}</div>
+      <div class="user-info">
+        <div class="user-name">{{ current_user.name if current_user.is_authenticated and current_user.name else (current_user.username if current_user.is_authenticated else 'مدير النظام') }}</div>
+        <div class="user-role">لوحة الإدارة</div>
+      </div>
+      <a href="{{ url_for('main.logout') }}" class="logout-btn" title="تسجيل الخروج">
+        <i data-lucide="log-out"></i>
+      </a>
+    </div>
+  </div>
+
+</aside>
+
+<!-- ── FLASH MESSAGES ──────────────────────────────────────── -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+        <div class="flash-msg flash-{{ category }}">
+          <div class="flash-content">
+            <i data-lucide="info" class="flash-icon"></i>
+            <span>{{ message }}</span>
+          </div>
+          <button class="flash-close" onclick="this.parentElement.remove()">&#10005;</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- ── DELETE MODAL ───────────────────────────────────────── -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-icon text-danger">
+      <i data-lucide="trash-2"></i>
+    </div>
+    <h3 class="modal-title">تأكيد الحذف</h3>
+    <p class="modal-body">
+      هل أنت متأكد من حذف هذا العنصر؟<br>
+      لا يمكن التراجع عن هذا الإجراء بعد إتمامه.
+    </p>
+    <div class="modal-actions">
+      <button onclick="closeDeleteModal()" class="btn btn-ghost">إلغاء</button>
+      <button id="confirmDeleteBtn" class="btn btn-danger">تأكيد الحذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN WRAPPER ───────────────────────────────────────── -->
+<div class="main-wrapper">
+
+  <!-- Topbar -->
+  <header class="topbar" id="mainTopbar">
+    <div class="topbar-left">
+      <h1 class="topbar-title">{% block topbar_title %}{% endblock %}</h1>
+      <p class="topbar-sub">{% block topbar_sub %}{% endblock %}</p>
+    </div>
+    <div class="topbar-actions">
+      {% block topbar_actions %}{% endblock %}
+    </div>
+  </header>
+
+  <!-- Page content -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <span>مجموعة معمل صدارة &copy; 2026</span>
+    <span class="footer-divider">•</span>
+    <span>تطوير <a href="https://revyai.tech" target="_blank" rel="noopener">RevyAI</a> (<a href="https://wa.me/201554019172" target="_blank" rel="noopener" style="color:#25d366;font-weight:700;">01554019172</a>)</span>
+  </footer>
+
+</div>
+
+<!-- ── SCRIPTS ────────────────────────────────────────────── -->
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

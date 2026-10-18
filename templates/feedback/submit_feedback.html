@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقييم تجربتك — معمل صدارة للتحاليل الطبية الكيميائية</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        :root {
+            --navy-900: #0a1c3d;
+            --navy-700: #163a6e;
+            --blue-600: #2563eb;
+            --blue-500: #3b82f6;
+            --teal-500: #14b8a6;
+            --amber-500: #f5b301;
+            --green-600: #15803d;
+            --red-500: #ef4444;
+            --ink-900: #0f1b31;
+            --ink-700: #33415c;
+            --ink-500: #64748b;
+            --border: #e4e9f2;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(160deg, #eef2fb 0%, #f4f7fc 45%, #eef7f5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 15px;
+            margin: 0;
+            color: var(--ink-900);
+        }
+
+        .card {
+            background: #fff;
+            width: 100%;
+            max-width: 440px;
+            border-radius: 22px;
+            box-shadow: 0 8px 30px rgba(10, 28, 61, 0.08), 0 2px 8px rgba(10, 28, 61, 0.04);
+            padding: 36px 28px 30px;
+            text-align: center;
+            border: 1px solid rgba(226, 232, 240, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--teal-500), var(--blue-600));
+        }
+
+        .brand-lockup { display: flex; flex-direction: column; align-items: center; margin-bottom: 4px; }
+        .logo-badge {
+            width: 52px; height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 18px rgba(10, 28, 61, 0.25);
+        }
+        .logo-badge i { width: 24px; height: 24px; color: #fff; }
+
+        .logo { font-size: 20px; font-weight: 800; color: var(--navy-900); }
+        .subtitle { font-size: 12.5px; color: var(--ink-500); margin-top: 2px; margin-bottom: 18px; font-weight: 600; }
+        .title { color: var(--ink-900); font-size: 16px; font-weight: 700; margin-bottom: 22px; }
+
+        .form-box {
+            border: 1px solid var(--border);
+            background: #fbfcfe;
+            border-radius: 16px;
+            padding: 22px 20px 20px;
+            text-align: right;
+        }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-weight: 700;
+            font-size: 13.5px;
+            margin: 18px 0 10px;
+            color: var(--ink-900);
+        }
+        label:first-of-type { margin-top: 0; }
+        label i { width: 15px; height: 15px; color: var(--blue-600); flex-shrink: 0; }
+
+        .visitor-info {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 4px 14px;
+            text-align: right;
+            margin-bottom: 4px;
+        }
+        .visitor-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13.5px;
+            padding: 9px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        .visitor-info-row:last-child { border-bottom: none; }
+        .visitor-info-row span:first-child { color: var(--ink-500); display: flex; align-items: center; gap: 6px; font-weight: 600; }
+        .visitor-info-row span:first-child i { width: 13px; height: 13px; }
+        .visitor-info-row span:last-child { font-weight: 700; color: var(--navy-900); }
+
+        .stars { display: flex; justify-content: center; gap: 4px; direction: ltr; flex-direction: row-reverse; }
+        .stars input { display: none; }
+        .stars label {
+            font-size: 34px;
+            color: #e2e8f0;
+            cursor: pointer;
+            margin: 0;
+            transition: transform 0.15s ease, color 0.15s ease;
+            line-height: 1;
+        }
+        .stars label:hover { transform: scale(1.12); }
+        .stars input:checked ~ label,
+        .stars label:hover,
+        .stars label:hover ~ label { color: var(--amber-500); }
+
+        .scale {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        .scale input { display: none; }
+        .scale label {
+            flex: 0 0 50px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 0;
+            font-weight: 700;
+            font-size: 14px;
+            text-align: center;
+            color: var(--ink-700);
+            background: #fff;
+            transition: all 0.15s ease;
+        }
+        .scale label:hover { border-color: var(--blue-500); color: var(--blue-600); }
+        .scale input:checked + label {
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+            color: #fff;
+            border-color: var(--blue-600);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 90px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-family: inherit;
+            font-size: 13.5px;
+            resize: vertical;
+            background: #fff;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--blue-500);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+        textarea::placeholder { color: #94a3b8; }
+
+        button {
+            width: 100%;
+            margin-top: 22px;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 15.5px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
+            transition: transform 0.12s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+        }
+        button:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35); }
+        button:active { transform: translateY(1px); }
+        button:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+        .msg { margin-top: 14px; font-weight: 700; font-size: 13.5px; }
+        .msg.success { color: var(--green-600); }
+        .msg.error { color: var(--red-500); }
+
+        .not-found {
+            color: var(--red-500);
+            font-weight: 600;
+            padding: 24px 10px;
+            background: rgba(239, 68, 68, 0.06);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .thank-you-icon {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.08);
+            display: flex; align-items: center; justify-content: center;
+            margin: 6px auto 16px;
+        }
+        .thank-you-icon i { width: 30px; height: 30px; color: var(--blue-600); }
+        .thank-you-title { font-size: 18px; font-weight: 800; color: var(--navy-900); margin-bottom: 10px; }
+        .thank-you-text { font-size: 14px; color: var(--ink-700); line-height: 1.9; }
+    </style>
+</head>
+<body>
+    <div class="card" id="feedbackCard">
+        <div class="brand-lockup">
+            <div class="logo-badge"><i data-lucide="flask-conical"></i></div>
+            <div class="logo">معمل صدارة</div>
+            <div class="subtitle">للتحاليل الطبية الكيميائية</div>
+        </div>
+        <div class="title" id="cardTitle">تقييم تجربتك معنا</div>
+
+        {% if not_found %}
+        <div class="not-found">
+            عذرًا، لم نتمكن من العثور على بيانات هذا الحجز.<br>
+            تأكد من الرابط أو تواصل معنا مباشرة.
+        </div>
+        {% else %}
+        <form id="feedbackForm" class="form-box">
+            <input type="hidden" name="reference_id" value="{{ reference_id or '' }}">
+            <input type="hidden" name="name" value="{{ visit_name or '' }}">
+            <input type="hidden" name="phone_number" value="{{ visit_phone or '' }}">
+
+            <div class="visitor-info">
+                <div class="visitor-info-row">
+                    <span><i data-lucide="user"></i>الاسم</span>
+                    <span>{{ visit_name or '-' }}</span>
+                </div>
+                <div class="visitor-info-row">
+                    <span><i data-lucide="phone"></i>رقم الهاتف</span>
+                    <span dir="ltr">{{ visit_phone or '-' }}</span>
+                </div>
+            </div>
+
+            <label><i data-lucide="star"></i>كيف تقيّم تجربتك معنا؟</label>
+            <div class="stars">
+                <input type="radio" name="overall_rating" id="star5" value="5" required><label for="star5">★</label>
+                <input type="radio" name="overall_rating" id="star4" value="4"><label for="star4">★</label>
+                <input type="radio" name="overall_rating" id="star3" value="3"><label for="star3">★</label>
+                <input type="radio" name="overall_rating" id="star2" value="2"><label for="star2">★</label>
+                <input type="radio" name="overall_rating" id="star1" value="1"><label for="star1">★</label>
+            </div>
+
+            <label><i data-lucide="gauge"></i>سهولة استخدام الخدمة؟</label>
+            <div class="scale">
+                {% for i in range(1, 6) %}
+                <input type="radio" name="ease_of_use" id="ease{{ i }}" value="{{ i }}" {% if i == 1 %}required{% endif %}>
+                <label for="ease{{ i }}">{{ i }}</label>
+                {% endfor %}
+            </div>
+
+            <label><i data-lucide="message-square"></i>ملاحظاتك (اختياري)</label>
+            <textarea name="feedback_text" placeholder="اكتب ملاحظاتك هنا..."></textarea>
+
+            <button type="submit" id="submitFeedbackBtn">
+                <i data-lucide="send"></i>
+                إرسال التقييم
+            </button>
+            <div id="formMsg" class="msg"></div>
+        </form>
+        {% endif %}
+    </div>
+
+    <script>
+        if (window.lucide) lucide.createIcons();
+
+        const form = document.getElementById('feedbackForm');
+        if (form) {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const msgEl = document.getElementById('formMsg');
+                const btn = document.getElementById('submitFeedbackBtn');
+                msgEl.textContent = '';
+                msgEl.className = 'msg';
+
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i data-lucide="loader-2" style="animation:spin .8s linear infinite;"></i> جاري الإرسال...';
+                    if (window.lucide) lucide.createIcons();
+                }
+
+                const formData = new FormData(this);
+                const payload = Object.fromEntries(formData.entries());
+
+                try {
+                    const res = await fetch("{{ url_for('feedbacks.submit_feedback') }}", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        document.getElementById('cardTitle').style.display = 'none';
+                        form.style.display = 'none';
+
+                        const thankYouBox = document.createElement('div');
+                        thankYouBox.innerHTML = `
+                            <div class="thank-you-icon"><i data-lucide="heart-handshake"></i></div>
+                            <div class="thank-you-title">شكراً لك على وقتك!</div>
+                            <div class="thank-you-text">
+                                رأيك وصلنا واحنا بجد بنقدّره.<br>
+                                كل تقييم بيساعدنا نبقى أحسن ونقدملك خدمة أفضل في كل مرة.<br>
+                                نتمنالك دايماً الصحة والعافية 🌿
+                            </div>
+                        `;
+                        document.getElementById('feedbackCard').appendChild(thankYouBox);
+                        if (window.lucide) lucide.createIcons();
+                    } else {
+                        msgEl.textContent = data.error || 'حصل خطأ، حاول تاني.';
+                        msgEl.classList.add('error');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i data-lucide="send"></i> إرسال التقييم';
+                            if (window.lucide) lucide.createIcons();
+                        }
+                    }
+                } catch (err) {
+                    msgEl.textContent = 'مش قادرين نوصل السيرفر دلوقتي.';
+                    msgEl.classList.add('error');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i data-lucide="send"></i> إرسال التقييم';
+                        if (window.lucide) lucide.createIcons();
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

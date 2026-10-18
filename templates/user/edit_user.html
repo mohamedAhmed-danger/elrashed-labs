@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{% if user %}تعديل مستخدم{% else %}إضافة مستخدم{% endif %} — معمل صدارة{% endblock %}
+
+{% block topbar_title %}
+{% if user %}تعديل مستخدم{% else %}إضافة مستخدم جديد{% endif %}
+{% endblock %}
+
+{% block topbar_sub %}
+{% if user %}تعديل بيانات وبيانات الدخول للمستخدم {{ user.name or user.username }}{% else %}إنشاء حساب مستخدم جديد للوحة التحكم{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="card" style="max-width: 650px; padding: 28px;">
+    <form method="POST">
+        <div class="form-grid" style="grid-template-columns: 1fr;">
+            <div class="form-group">
+                <label>اسم المستخدم</label>
+                <input
+                    type="text"
+                    name="name"
+                    value="{{ user.name if user and user.name else (user.username if user and user.username else '') }}"
+                    class="form-control"
+                    placeholder="أدخل اسم المستخدم"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input
+                    type="password"
+                    name="password"
+                    value="{{ user.password if user else '' }}"
+                    class="form-control"
+                    placeholder="أدخل كلمة المرور"
+                    required>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; display: flex; gap: 12px;">
+            <button type="submit" class="btn btn-primary">
+                <i data-lucide="check"></i>
+                {% if user %}حفظ التعديلات{% else %}إنشاء المستخدم{% endif %}
+            </button>
+
+            <a href="{{ url_for('users.list_users') }}"
+               class="btn btn-outline">
+                رجوع
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

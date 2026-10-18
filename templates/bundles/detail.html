@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}تعديل الباقة — معمل صدارة{% endblock %}
+{% block topbar_title %}تعديل الباقة{% endblock %}
+{% block topbar_sub %}عدّل بيانات الباقة #{{ bundle.id }} ثم احفظ التغييرات{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+
+  <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+    <div style="background: #eff6ff; color: #2563eb; padding: 0.85rem; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+      <i data-lucide="edit-3" style="width: 28px; height: 28px;"></i>
+    </div>
+    <div>
+      <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700;">تعديل بيانات الباقة</h3>
+      <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.875rem;">التعديلات هتظهر فورًا في النظام وفي ردود الذكاء الاصطناعي</p>
+    </div>
+  </div>
+
+  <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
+
+  <form method="POST" action="{{ url_for('bundle.bundle_detail', bundle_id=bundle.id) }}">
+
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+      <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">
+        اسم الباقة <span class="text-danger">*</span>
+      </label>
+      <input type="text" name="name" class="form-control" required
+             value="{{ request.form.get('name', bundle.name) }}"
+             style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px;">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+      <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">
+        سعر الباقة (بالجنيه) <span class="text-danger">*</span>
+      </label>
+      <input type="number" step="1" min="0" name="price" class="form-control" required
+             value="{{ request.form.get('price', '%g'|format(bundle.price)) }}"
+             style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px;">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+      <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">
+        الوصف والتحاليل المشمولة (اختياري)
+      </label>
+      <textarea name="description" class="form-control" rows="5"
+                style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; line-height: 1.6;">{{ request.form.get('description', bundle.description or '') }}</textarea>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.75rem;">
+      <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">
+        تعليمات المريض قبل التحليل (اختياري)
+      </label>
+      <textarea name="instructions" class="form-control" rows="4" placeholder="مثال: صيام 8 ساعات قبل التحليل..."
+                style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; line-height: 1.6;">{{ request.form.get('instructions', bundle.instructions or '') }}</textarea>
+      <div style="margin-top: 0.4rem; color: #64748b; font-size: 0.8rem;">
+        هتظهر للمريض مع تفاصيل الباقة وبيستخدمها الذكاء الاصطناعي في الرد.
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <button type="submit" class="btn btn-primary" style="padding: 0.65rem 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+        <i data-lucide="check"></i>
+        <span>حفظ التعديلات</span>
+      </button>
+      <a href="{{ url_for('bundle.list_bundles') }}" class="btn btn-ghost" style="padding: 0.65rem 1.25rem;">
+        إلغاء والعودة
+      </a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

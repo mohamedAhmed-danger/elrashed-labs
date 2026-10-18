@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة التحكم — معمل صدارة{% endblock %}
+
+{% block topbar_title %}لوحة التحكم{% endblock %}
+{% block topbar_sub %}متابعة التحاليل، الحجوزات، والروشتات لحظياً — معمل صدارة للتحاليل الطبية الكيميائية{% endblock %}
+
+{% block topbar_actions %}
+  <button class="icon-btn" title="الإشعارات">
+    <i data-lucide="bell"></i>
+    {% if pending_inquiries_count and pending_inquiries_count > 0 %}<span class="icon-dot">{{ pending_inquiries_count }}</span>{% endif %}
+  </button>
+  <button class="icon-btn" title="الرسائل">
+    <i data-lucide="message-circle"></i>
+  </button>
+  <div class="date-pill">
+    <i data-lucide="calendar"></i>
+    {{ today_display if today_display else 'اليوم' }}
+  </div>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-hero brand-hero">
+  <div class="hero-decor-blob hero-decor-blob-1"></div>
+  <div class="hero-decor-blob hero-decor-blob-2"></div>
+
+  <div class="hero-welcome">
+    <div class="welcome-badge brand-welcome-badge">
+      <span class="pulse-dot"></span>
+      النظام نشط — معمل صدارة للتحاليل الطبية الكيميائية
+    </div>
+    <div class="dashboard-brand-header">
+      <div class="dashboard-logo-container">
+        <img src="{{ url_for('static', filename='images/sadara_logo.jpg') }}" alt="معمل صدارة" class="dashboard-logo-img">
+      </div>
+      <div>
+        <h2>أهلاً بك، {{ current_user.name if current_user.is_authenticated and current_user.name else (current_user.username if current_user.is_authenticated else 'المسؤول') }} 👋</h2>
+        <p>مرحباً بك في المنصة الذكية لإدارة <strong>معمل صدارة</strong>. يمكنك متابعة طلبات الروشتات، الحجوزات المنزلية، وإدارة الخدمات الطبية بكل سلاسة.</p>
+      </div>
+    </div>
+  </div>
+  <div class="hero-actions">
+    <a href="{{ url_for('inquiries.list_inquiries') }}" class="btn btn-primary btn-lg">
+      <i data-lucide="file-text"></i>
+      مراجعة الروشتات
+      {% if pending_inquiries_count and pending_inquiries_count > 0 %}
+      <span class="badge-count">{{ pending_inquiries_count }}</span>
+      {% endif %}
+    </a>
+    <a href="{{ url_for('test.create_test') }}" class="btn btn-outline btn-lg">
+      <i data-lucide="plus-circle"></i>
+      إضافة تحليل جديد
+    </a>
+  </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+
+  <div class="stat-card stat-card-hover">
+    <div class="stat-icon si-blue">
+      <i data-lucide="users"></i>
+    </div>
+    <div class="stat-details">
+      <div class="stat-value">{{ clients_count if clients_count is defined else 0 }}</div>
+      <div class="stat-label">إجمالي العملاء</div>
+      <div class="stat-sub text-blue"><i data-lucide="trending-up" class="stat-sub-icon"></i>منذ بدء التشغيل</div>
+    </div>
+  </div>
+
+  <div class="stat-card stat-card-hover">
+    <div class="stat-icon si-cyan">
+      <i data-lucide="calendar-clock"></i>
+    </div>
+    <div class="stat-details">
+      <div class="stat-value">{{ booking_stats.total if booking_stats else 0 }}</div>
+      <div class="stat-label">إجمالي الحجوزات</div>
+      <div class="stat-sub text-cyan"><i data-lucide="trending-up" class="stat-sub-icon"></i>من الشهر الماضي</div>
+    </div>
+  </div>
+
+  <div class="stat-card stat-card-hover">
+    <div class="stat-icon si-amber">
+      <i data-lucide="file-clock"></i>
+    </div>
+    <div class="stat-details">
+      <div class="stat-value">{{ pending_inquiries_count or 0 }}</div>
+      <div class="stat-label">إجمالي الروشتات</div>
+      <div class="stat-sub text-amber"><i data-lucide="clock" class="stat-sub-icon"></i>تحتاج إلى تأكيد الطبيب</div>
+    </div>
+  </div>
+
+  <div class="stat-card stat-card-hover">
+    <div class="stat-icon si-purple">
+      <i data-lucide="test-tube-2"></i>
+    </div>
+    <div class="stat-details">
+      <div class="stat-value">{{ tests_count if tests_count is defined else 0 }}</div>
+      <div class="stat-label">إجمالي التحاليل</div>
+      <div class="stat-sub text-blue"><i data-lucide="book-open" class="stat-sub-icon"></i>في دليل التحاليل</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     Subscription Section
+     ══════════════════════════════════════════════════════════ -->
+{% if subscription %}
+<div class="section-title">
+  <h3><i data-lucide="shield-check"></i> الاشتراك الحالي</h3>
+</div>
+
+<div class="panel-row">
+
+  <div class="subscription-card glass-card">
+    <div class="subscription-side subscription-side-status">
+
+      {% if subscription_status.text == "Active" %}
+      <div class="sub-status-badge sub-status-active">
+        <span class="sub-status-dot"></span>
+        <i data-lucide="check-circle-2"></i>
+        الاشتراك مفعل
+      </div>
+      {% elif subscription_status.text == "Limit Reached" %}
+      <div class="sub-status-badge sub-status-grace">
+        <span class="sub-status-dot"></span>
+        <i data-lucide="alert-triangle"></i>
+        داخل فترة السماح
+      </div>
+      {% elif subscription_status.text == "Suspended" %}
+      <div class="sub-status-badge sub-status-suspended">
+        <span class="sub-status-dot"></span>
+        <i data-lucide="ban"></i>
+        الاشتراك موقوف
+      </div>
+      {% else %}
+      <div class="sub-status-badge sub-status-suspended">
+        <span class="sub-status-dot"></span>
+        <i data-lucide="help-circle"></i>
+        لا يوجد اشتراك
+      </div>
+      {% endif %}
+
+      <div class="sub-plan-name">
+        <i data-lucide="crown"></i>
+        خطة {{ subscription.plan_name if subscription.plan_name else 'Professional' }}
+      </div>
+
+      <div class="sub-period">
+        <div class="sub-period-label">
+          <i data-lucide="calendar-range"></i>
+          عرض:
+        </div>
+        <div class="sub-period-dates">
+          <div class="sub-period-item">
+            <span class="sub-period-tag">من</span>
+            <span>{{ subscription.start_date.strftime('%d %b %Y') if subscription.start_date else '—' }}</span>
+          </div>
+          <div class="sub-period-item">
+            <span class="sub-period-tag">إلى</span>
+            <span>{{ subscription.end_date.strftime('%d %b %Y') if subscription.end_date else '—' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subscription-divider"></div>
+
+    <div class="subscription-side subscription-side-usage">
+      <div class="sub-usage-header">
+        <span class="sub-usage-title">
+          <i data-lucide="activity"></i>
+          الاستخدام
+        </span>
+        <span class="sub-usage-numbers">
+          {{ subscription.message_used }} / {{ subscription.message_limit }}
+        </span>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-bar
+          {% if usage_percentage < 70 %}progress-green
+          {% elif usage_percentage < 90 %}progress-orange
+          {% elif usage_percentage <= 100 %}progress-red
+          {% else %}progress-danger
+          {% endif %}"
+          style="width: {{ usage_percentage if usage_percentage <= 100 else 100 }}%">
+        </div>
+      </div>
+
+      <div class="sub-usage-footer">
+        <span class="sub-usage-percent">{{ usage_percentage }}%</span>
+        <span class="sub-usage-remaining">
+          <i data-lucide="mail"></i>
+          متبقي {{ remaining_messages }} رسالة
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card glass-card">
+    <div class="panel-header">
+      <h4><i data-lucide="line-chart" style="width:16px;height:16px;color:var(--blue-600);vertical-align:-3px;margin-left:6px;"></i>أداء المعمل</h4>
+    </div>
+    <div class="panel-body">
+      <canvas id="performanceChart" height="150"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Alerts Section ── -->
+<div class="section-title">
+  <h3><i data-lucide="bell-ring"></i> التنبيهات</h3>
+</div>
+
+<div class="alerts-wrapper">
+  {% if subscription_status.text == "Suspended" %}
+  <div class="alert-card alert-red">
+    <div class="alert-icon"><i data-lucide="ban"></i></div>
+    <div class="alert-text">
+      <h4>الاشتراك موقوف</h4>
+      <p>تم إيقاف الاشتراك، يرجى التواصل مع الدعم لإعادة التفعيل.</p>
+    </div>
+  </div>
+  {% elif subscription_status.text == "Limit Reached" %}
+  <div class="alert-card alert-orange">
+    <div class="alert-icon"><i data-lucide="alert-triangle"></i></div>
+    <div class="alert-text">
+      <h4>فترة السماح مفعلة</h4>
+      <p>لقد تجاوزت الحد الأساسي للرسائل، ويتم استخدام رسائل فترة السماح حالياً.</p>
+    </div>
+  </div>
+  {% elif remaining_messages is defined and remaining_messages <= 500 %}
+  <div class="alert-card alert-orange">
+    <div class="alert-icon"><i data-lucide="mail-warning"></i></div>
+    <div class="alert-text">
+      <h4>اقتراب الحد المسموح</h4>
+      <p>تبقى فقط {{ remaining_messages }} رسالة ضمن باقة الاشتراك الحالية.</p>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert-card alert-green">
+    <div class="alert-icon"><i data-lucide="check-circle-2"></i></div>
+    <div class="alert-text">
+      <h4>كل شيء يعمل بشكل طبيعي</h4>
+      <p>الاشتراك مفعل والاستخدام ضمن الحدود الطبيعية.</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     Danger Zone Section — إيقاف/تفعيل الذكاء الاصطناعي
+     ══════════════════════════════════════════════════════════ -->
+<div class="section-title">
+  <h3><i data-lucide="octagon-alert"></i> منطقة التحكم الحرجة</h3>
+</div>
+
+<div class="card glass-card danger-zone">
+  <div class="danger-zone-header">
+    <div class="danger-zone-icon">
+      <i data-lucide="alert-octagon"></i>
+    </div>
+    <div>
+      <div class="danger-zone-title">إجراءات حساسة</div>
+      <div class="danger-zone-sub">هذه الإجراءات تؤثر مباشرة على عمل الذكاء الاصطناعي لهذا المعمل، يرجى التعامل بحذر.</div>
+    </div>
+  </div>
+
+  <div class="danger-zone-actions">
+    {% if subscription.is_active %}
+    <form action="{{ url_for('subscription.suspend_subscription') }}" method="POST"
+          onsubmit="return confirm('هل أنت متأكد من إيقاف خدمة الذكاء الاصطناعي؟ لن يتم الرد على العملاء تلقائياً.');">
+      <button type="submit" class="btn btn-danger">
+        <i data-lucide="power-off"></i>
+        إيقاف الذكاء الاصطناعي
+      </button>
+    </form>
+    {% else %}
+    <form action="{{ url_for('subscription.activate_subscription') }}" method="POST"
+          onsubmit="return confirm('هل تريد إعادة تفعيل خدمة الذكاء الاصطناعي؟');">
+      <button type="submit" class="btn btn-success">
+        <i data-lucide="power"></i>
+        تفعيل الذكاء الاصطناعي
+      </button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Quick Shortcuts -->
+<div class="section-title">
+  <h3><i data-lucide="layout-grid"></i> الوصول السريع</h3>
+</div>
+
+<div class="quick-grid">
+
+  <a href="{{ url_for('inquiries.list_inquiries') }}" class="quick-card">
+    <div class="quick-icon bg-amber">
+      <i data-lucide="file-text"></i>
+    </div>
+    <div class="quick-info">
+      <h4>قائمة الروشتات</h4>
+      <p>عرض الصور المستخرجة بواسطة الذكاء الاصطناعي وتحقق الأطباء</p>
+    </div>
+    <i data-lucide="arrow-left" class="quick-arrow"></i>
+  </a>
+
+  <a href="{{ url_for('bookings.list_bookings') }}" class="quick-card">
+    <div class="quick-icon bg-blue">
+      <i data-lucide="calendar"></i>
+    </div>
+    <div class="quick-info">
+      <h4>إدارة الحجوزات</h4>
+      <p>متابعة وتأكيد حجوزات التحاليل المنزلية والزيارات</p>
+    </div>
+    <i data-lucide="arrow-left" class="quick-arrow"></i>
+  </a>
+
+  <a href="{{ url_for('test.test_service') }}" class="quick-card">
+    <div class="quick-icon bg-purple">
+      <i data-lucide="clipboard-list"></i>
+    </div>
+    <div class="quick-info">
+      <h4>دليل التحاليل</h4>
+      <p>إضافة وتعديل أسعار التحاليل والشروط والتعليمات الطبية</p>
+    </div>
+    <i data-lucide="arrow-left" class="quick-arrow"></i>
+  </a>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  .icon-btn {
+    position: relative; width: 40px; height: 40px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink-700);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .icon-btn:hover { border-color: var(--blue-500); color: var(--blue-600); }
+  .icon-btn svg, .icon-btn i { width: 18px; height: 18px; }
+  .icon-dot {
+    position: absolute; top: -4px; left: -4px; background: var(--red-500); color: #fff;
+    font-size: 0.62rem; font-weight: 800; min-width: 16px; height: 16px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; padding: 0 2px;
+  }
+  .date-pill {
+    display: flex; align-items: center; gap: 7px; padding: 9px 14px;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 0.82rem; font-weight: 600; color: var(--ink-700);
+  }
+  .date-pill svg, .date-pill i { width: 15px; height: 15px; color: var(--blue-600); }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('performanceChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    const labels = {{ (performance_labels | default(['اليوم1','اليوم2','اليوم3','اليوم4','اليوم5','اليوم6','اليوم7'])) | tojson }};
+    const values = {{ (performance_values | default([560, 430, 820, 690, 410, 705, 780])) | tojson }};
+
+    const gradient = canvas.getContext('2d').createLinearGradient(0, 0, 0, 220);
+    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.22)');
+    gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+
+    new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: '#2563eb',
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#2563eb',
+          tension: 0.35,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#edf1f8' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

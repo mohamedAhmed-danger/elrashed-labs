@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة الشكاوى والمقترحات — معمل صدارة{% endblock %}
+
+{% block topbar_title %}إدارة الشكاوى والمقترحات{% endblock %}
+{% block topbar_sub %}متابعة شكاوى المرضى والعملاء الواردة من مختلف المنصات والرد عليها{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('complaints.export_complaints', search=search, status=status) }}" class="btn btn-outline">
+  <i data-lucide="file-spreadsheet"></i>
+  تصدير إلى Excel
+</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Stats Strip ─────────────────────────────────────────── -->
+<div class="ts-stats-strip">
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-amber"><i data-lucide="message-square-warning"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ pagination.total if pagination else (complaints|length) }}</div>
+      <div class="ts-stat-pill-label">إجمالي الشكاوى المسجلة</div>
+    </div>
+  </div>
+
+  {% if search or status %}
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-blue"><i data-lucide="filter"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ complaints|length }}</div>
+      <div class="ts-stat-pill-label">نتائج التصفية</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── Filter & Search Bar ─────────────────────────────────── -->
+<div class="card ts-filter-card">
+  <form method="GET" action="{{ url_for('complaints.list_complaints') }}" class="ts-filter-form">
+    <div class="ts-filter-field ts-filter-search">
+      <label class="ts-filter-label">بحث برقم الهاتف أو نص الشكوى</label>
+      <div class="ts-input-icon-wrap">
+        <i data-lucide="search" class="ts-input-icon"></i>
+        <input
+          type="text"
+          name="search"
+          value="{{ search or '' }}"
+          placeholder="ابحث برقم الهاتف أو الكلمات المفتاحية..."
+          class="form-control ts-input-with-icon">
+      </div>
+    </div>
+
+    <div class="ts-filter-field">
+      <label class="ts-filter-label">حالة الشكوى</label>
+      <select name="status" class="form-control">
+        <option value="">جميع الحالات</option>
+        {% for s in Status %}
+        <option value="{{ s.value }}" {% if status == s.value %}selected{% endif %}>
+          {% if s.name == 'PENDING' %}قيد الانتظار (Pending)
+          {% elif s.name == 'REVIEWED' %}تمت المعالجة (Reviewed)
+          {% elif s.name == 'ATTENDED' %}تم المتابعة (Attended)
+          {% elif s.name == 'NO_SHOW' %}مغلقة (Closed)
+          {% else %}{{ s.value }}{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="ts-filter-actions">
+      <button type="submit" class="btn btn-primary ts-filter-btn">
+        <i data-lucide="filter"></i>
+        تصفية
+      </button>
+      {% if search or status %}
+      <a href="{{ url_for('complaints.list_complaints') }}" class="btn btn-ghost ts-filter-btn ts-filter-reset" title="إعادة تعيين">
+        <i data-lucide="rotate-ccw"></i>
+      </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- ── Complaints Table (long text truncated — full text on detail page) ── -->
+<div class="table-wrap ts-table-wrap">
+  <table class="data-table ts-data-table">
+    <thead>
+      <tr>
+        <th style="width: 70px;">#</th>
+        <th style="width: 150px;">رقم الهاتف</th>
+        <th>نص الشكوى أو الملاحظة</th>
+        <th style="width: 140px;">تاريخ الإنشاء</th>
+        <th style="width: 130px;">المنصة</th>
+        <th style="width: 160px; text-align: center;">الحالة</th>
+        <th style="width: 100px; text-align: center;">التفاصيل</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in complaints %}
+      <tr>
+        <td><span class="ts-id-chip">#{{ c.id }}</span></td>
+        <td>
+          <div style="font-weight: 700; direction: ltr; text-align: right; color: var(--navy-900);">
+            <i data-lucide="phone" style="width:13px;height:13px;vertical-align:-2px;color:var(--blue-600);"></i>
+            {{ c.phone_number }}
+          </div>
+        </td>
+        <td>
+          <div class="fb-note" style="max-width: 380px;">
+            {{ c.complaint_text }}
+          </div>
+        </td>
+        <td>
+          <span style="font-size: 0.82rem; color: var(--ink-500);">
+            <i data-lucide="clock" style="width: 12px; height: 12px; vertical-align: -2px;"></i>
+            {{ c.created_at.strftime('%Y-%m-%d %H:%M') if c.created_at else '—' }}
+          </span>
+        </td>
+        <td>
+          <span class="status-chip" style="background: rgba(37,99,235,0.08); color: var(--blue-600); font-weight: 600;">
+            <i data-lucide="share-2" style="width: 11px; height: 11px;"></i>
+            {{ c.comes_from or 'غير محدد' }}
+          </span>
+        </td>
+        <td style="text-align: center;">
+          <form action="{{ url_for('complaints.update_complaint_status', complaint_id=c.id) }}" method="POST" style="margin: 0;">
+            <select name="status_val" onchange="this.form.submit()" class="form-control" style="height: 32px; padding: 2px 8px; font-size: 0.8rem; font-weight: 700; border-radius: 6px;
+              {% if c.status.name == 'PENDING' %}background:#fef3c7; color:#b45309; border-color:#fde68a;
+              {% elif c.status.name == 'REVIEWED' %}background:#dbeafe; color:#1d4ed8; border-color:#bfdbfe;
+              {% elif c.status.name == 'ATTENDED' %}background:#dcfce7; color:#15803d; border-color:#bbf7d0;
+              {% elif c.status.name == 'NO_SHOW' %}background:#fee2e2; color:#b91c1c; border-color:#fecaca;
+              {% endif %}">
+              {% for s in Status %}
+              <option value="{{ s.value }}" {% if c.status == s %}selected{% endif %}>
+                {% if s.name == 'PENDING' %}قيد الانتظار
+                {% elif s.name == 'REVIEWED' %}تمت المعالجة
+                {% elif s.name == 'ATTENDED' %}تم المتابعة
+                {% elif s.name == 'NO_SHOW' %}مغلقة
+                {% else %}{{ s.value }}{% endif %}
+              </option>
+              {% endfor %}
+            </select>
+          </form>
+        </td>
+        <td style="text-align: center;">
+          <a href="{{ url_for('complaints.complaint_detail', complaint_id=c.id) }}" class="btn btn-outline ts-action-btn" style="padding: 7px 12px;" title="عرض النص كاملاً">
+            <i data-lucide="eye" style="width:15px;height:15px;"></i>
+          </a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 56px 20px;">
+          <div class="ts-empty-icon"><i data-lucide="check-circle-2"></i></div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 6px;">لا توجد شكاوى مسجلة</h4>
+          <p style="color: var(--ink-500); font-size: 0.85rem;">جميع الطلبات والخدمات تعمل بصورة طبيعية ومستقرة.</p>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- ── Pagination ──────────────────────────────────────────── -->
+{% if pagination and pagination.pages > 1 %}
+<div class="pagination-wrapper">
+  <div class="pagination-info">
+    عرض {{ (pagination.page - 1) * pagination.per_page + 1 }} إلى {{ [pagination.page * pagination.per_page, pagination.total]|min }} من إجمالي {{ pagination.total }} شكوى
+  </div>
+
+  <nav class="pagination">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('complaints.list_complaints', page=pagination.prev_num, search=search, status=status) }}"
+       class="pagination-btn" title="الصفحة السابقة">
+      <i data-lucide="chevron-right"></i> السابق
+    </a>
+    {% else %}
+    <span class="pagination-btn disabled"><i data-lucide="chevron-right"></i> السابق</span>
+    {% endif %}
+
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        {% if p == pagination.page %}
+        <span class="pagination-page active">{{ p }}</span>
+        {% else %}
+        <a href="{{ url_for('complaints.list_complaints', page=p, search=search, status=status) }}" class="pagination-page">{{ p }}</a>
+        {% endif %}
+      {% else %}
+        <span class="pagination-ellipsis">…</span>
+      {% endif %}
+    {% endfor %}
+
+    {% if pagination.has_next %}
+    <a href="{{ url_for('complaints.list_complaints', page=pagination.next_num, search=search, status=status) }}"
+       class="pagination-btn" title="الصفحة التالية">
+      التالي <i data-lucide="chevron-left"></i>
+    </a>
+    {% else %}
+    <span class="pagination-btn disabled">التالي <i data-lucide="chevron-left"></i></span>
+    {% endif %}
+  </nav>
+</div>
+{% endif %}
+
+{% endblock %}

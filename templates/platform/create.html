@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}إضافة منصة — معمل صدارة{% endblock %}
+{% block topbar_title %}إضافة منصة جديدة{% endblock %}
+{% block topbar_sub %}إنشاء منصة تواصل اجتماعي جديدة للربط{% endblock %}
+
+{% block content %}
+
+<div class="card" style="max-width: 650px; padding: 28px;">
+  <form action="{{ url_for('platforms.create_platform') }}" method="POST">
+    <div class="form-grid" style="grid-template-columns: 1fr;">
+
+      <div class="form-group">
+        <label>اسم المنصة <span style="color: var(--red-500);">*</span></label>
+        <input type="text" name="name" class="form-control" placeholder="مثال: Facebook, Instagram, WhatsApp" required>
+      </div>
+
+    </div>
+    <div style="margin-top: 24px; display: flex; gap: 12px;">
+      <button type="submit" class="btn btn-primary">
+        <i data-lucide="check"></i>
+        حفظ المنصة
+      </button>
+      <a href="{{ url_for('platforms.list_platforms') }}" class="btn btn-outline">رجوع</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

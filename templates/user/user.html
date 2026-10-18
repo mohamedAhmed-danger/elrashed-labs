@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}المستخدمون — معمل صدارة{% endblock %}
+
+{% block topbar_title %}
+المستخدمون
+{% endblock %}
+
+{% block topbar_sub %}
+إدارة مستخدمي النظام والصلاحيات
+{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('users.create_user') }}" class="btn btn-primary">
+    <i data-lucide="user-plus"></i>
+    إضافة مستخدم
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="table-wrap">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 80px;">#</th>
+                <th>اسم المستخدم</th>
+                <th style="width: 160px; text-align: center;">الإجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for user in users %}
+        <tr>
+            <td><strong>#{{ user.id }}</strong></td>
+            <td>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="avatar" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                        {{ (user.name[0] if user.name else (user.username[0] if user.username else 'U'))|upper }}
+                    </div>
+                    <span>{{ user.name or user.username }}</span>
+                </div>
+            </td>
+            <td style="text-align: center;">
+                <a href="{{ url_for('users.edit_user', user_id=user.id) }}"
+                   class="btn btn-outline btn-sm">
+                    <i data-lucide="edit-3"></i>
+                    تعديل
+                </a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="3" style="text-align: center; padding: 32px; color: var(--ink-500);">
+                <i data-lucide="users" style="width: 36px; height: 36px; margin: 0 auto 8px; display: block; opacity: 0.5;"></i>
+                لا يوجد مستخدمون مسجلون حالياً
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

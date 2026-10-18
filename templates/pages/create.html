@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}إضافة صفحة تواصل جديدة — معمل صدارة{% endblock %}
+
+{% block topbar_title %}إضافة صفحة تواصل جديدة{% endblock %}
+{% block topbar_sub %}ربط معرّف ورمز وصول لصفحة الفيسبوك أو رقم الواتساب بالمعمل{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('pages.list_pages') }}" class="btn btn-outline btn-sm">
+  <i data-lucide="arrow-right"></i>
+  العودة للقائمة
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container" style="max-width: 680px; margin: 0 auto;">
+  <div class="card glass-card" style="padding: 32px;">
+    <form method="POST" action="{{ url_for('pages.create_page') }}">
+      
+      <div class="form-group" style="margin-bottom: 22px;">
+        <label class="form-label" style="font-weight: 700;">منصة التواصل <span style="color:red;">*</span></label>
+        <select name="platform_id" class="form-control" required>
+          <option value="">اختر المنصة...</option>
+          {% for p in platforms %}
+          <option value="{{ p.id }}">{{ p.name }}</option>
+          {% endfor %}
+        </select>
+        <div style="font-size: 0.78rem; color: var(--ink-500); margin-top: 4px;">اختر المنصة المناسبة (مثال: Facebook أو WhatsApp).</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 22px;">
+        <label class="form-label" style="font-weight: 700;">معرّف الصفحة / الرقم (Page ID) <span style="color:red;">*</span></label>
+        <input type="text" name="page_id" class="form-control" placeholder="أدخل Page ID للفيسبوك أو رقم الهاتف للواتساب..." required>
+        <div style="font-size: 0.78rem; color: var(--ink-500); margin-top: 4px;">المعرّف الفريد للصفحة على المنصة.</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 28px;">
+        <label class="form-label" style="font-weight: 700;">رمز الوصول (Access Token) <span style="color:red;">*</span></label>
+        <textarea name="token" rows="3" class="form-control" placeholder="أدخل Token المنصة أو مفتاح واجهة الـ API..." required style="font-family: monospace; font-size: 0.85rem;"></textarea>
+        <div style="font-size: 0.78rem; color: var(--ink-500); margin-top: 4px;">يستخدم للمصادقة وإرسال الرسائل للعملاء تلقائياً.</div>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <a href="{{ url_for('pages.list_pages') }}" class="btn btn-ghost">إلغاء</a>
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="plus-circle"></i>
+          حفظ وإضافة الصفحة
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}

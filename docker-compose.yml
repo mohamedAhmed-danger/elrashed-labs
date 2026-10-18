@@ -1,0 +1,127 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: sadara-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysqldata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - internal
+
+  qdrant:
+   
+    image: qdrant/qdrant:v1.19.0
+    container_name: sadara-qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrantdata:/qdrant/storage
+    networks:
+      - internal
+
+  web:
+    build: .
+    container_name: sadara-labs-agent
+    restart: always
+    ports:
+      - "6152:4500"      
+    env_file:
+      - .env
+    volumes:
+      - ./instance:/app/instance
+      - ./static/uploads:/app/static/uploads
+      - ./credentials.json:/app/credentials.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      waha1:
+        condition: service_started
+      redis:
+        condition: service_started
+    networks:
+      - internal
+
+  waha1:
+    image: devlikeapro/waha
+    container_name: sadara-waha1
+    restart: always
+    shm_size: '2gb'
+    ports:
+      - "3014:3000"     
+    environment:
+      - WAHA_DASHBOARD_USERNAME=${WAHA_DASHBOARD_USERNAME}
+      - WAHA_DASHBOARD_PASSWORD=${WAHA_DASHBOARD_PASSWORD}
+      - WAHA_LOG_LEVEL=warn
+      - WAHA_API_KEY=${WAHA_API_KEY}
+      - WH_URL=http://web:4500/webhook/waha
+      - WH_EVENTS=message.upsert,message.any
+      - WAHA_SESSION_STORE=FILE
+      - WAHA_SESSIONS_DIR=/app/.sessions
+      - WHATSAPP_DEFAULT_ENGINE=WEBJS
+      - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--no-zygote,--disable-extensions
+      - WAHA_SESSION_CONFIG_IGNORE_STATUS=true
+      - WAHA_SESSION_CONFIG_IGNORE_BROADCAST=true
+      - WAHA_BASE_URL=http://waha1:3000
+    volumes:
+      - ./waha_sessions1:/app/.sessions
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+    networks:
+      - internal
+
+  redis:
+    image: redis:7-alpine
+    container_name: sadara-redis
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - internal
+
+  redis_worker:
+    build: .
+    container_name: sadara-redis-worker
+    restart: always
+    command: ["python", "-m", "services.messaging.redis_worker"]
+    env_file:
+      - .env
+    volumes:
+      - ./instance:/app/instance
+      - ./static/uploads:/app/static/uploads
+      - ./credentials.json:/app/credentials.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  mysqldata:
+  qdrantdata:
+  redisdata:

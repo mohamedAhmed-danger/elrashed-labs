@@ -1,0 +1,17 @@
+.git
+.gitignore
+.env
+.env.*
+credentials.json
+token.json
+*.sql
+venv/
+.venv/
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+static/uploads/*
+instance/*
+qdrant_storage/
+*.snapshot

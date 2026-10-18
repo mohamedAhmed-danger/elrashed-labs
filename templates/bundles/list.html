@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}إدارة الباقات الفحصية — معمل صدارة{% endblock %}
+{% block topbar_title %}إدارة الباقات الفحصية{% endblock %}
+{% block topbar_sub %}قائمة الباقات والعروض المتاحة لمنظومة المعمل{% endblock %}
+
+{% block topbar_actions %}
+  {% if bundles|length < max_bundles %}
+    <a href="{{ url_for('bundle.add_bundle') }}" class="btn btn-primary">
+      <i data-lucide="plus-circle"></i>
+      <span>إضافة باقة جديدة ({{ bundles|length }}/{{ max_bundles }})</span>
+    </a>
+  {% else %}
+    <button class="btn btn-secondary" disabled>
+      <i data-lucide="lock"></i>
+      <span>الحد الأقصى ({{ max_bundles }}/{{ max_bundles }})</span>
+    </button>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<style>
+  .bundles-summary {
+    display: flex; align-items: center; gap: .6rem;
+    margin-bottom: 1.25rem; font-size: .9rem; color: #64748b;
+  }
+  .bundles-summary strong { color: #1e293b; font-size: 1.05rem; }
+  .bundles-summary .bar {
+    flex: 0 0 140px; height: 6px; border-radius: 99px;
+    background: #e2e8f0; overflow: hidden;
+  }
+  .bundles-summary .bar > span {
+    display: block; height: 100%; background: #2563eb; border-radius: 99px;
+  }
+
+  .bundles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .bundle-card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
+    padding: 1.4rem 1.5rem 1.1rem; display: flex; flex-direction: column;
+  }
+  .bundle-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #f1f5f9;
+  }
+  .bundle-name { font-size: 1.1rem; font-weight: 700; color: #1e293b; line-height: 1.5; margin: 0; }
+  .bundle-id { font-size: .8rem; color: #94a3b8; margin-top: .15rem; }
+  .bundle-price { text-align: left; white-space: nowrap; }
+  .bundle-price b { font-size: 1.6rem; font-weight: 800; color: #0369a1; line-height: 1.1; }
+  .bundle-price small { font-size: .85rem; color: #64748b; margin-right: .25rem; }
+
+  .bundle-desc {
+    margin: 1rem 0 .4rem; font-size: .92rem; line-height: 1.9; color: #475569;
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .bundle-desc.open { -webkit-line-clamp: unset; display: block; }
+  .bundle-more {
+    align-self: flex-start; background: none; border: 0; padding: 0;
+    color: #2563eb; font-size: .85rem; font-weight: 600; cursor: pointer;
+  }
+  .bundle-more:hover { text-decoration: underline; }
+  .bundle-more:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; border-radius: 4px; }
+
+  .bundle-instructions {
+    margin: .9rem 0 .2rem; padding: .7rem .9rem; border-radius: 10px;
+    background: #fffbeb; border: 1px solid #fde68a; color: #92400e;
+    font-size: .85rem; line-height: 1.8;
+  }
+  .bundle-instructions strong { display: block; margin-bottom: .15rem; font-size: .8rem; }
+
+  .bundle-actions {
+    display: flex; gap: .5rem; margin-top: 1.1rem; padding-top: 1rem;
+    border-top: 1px solid #f1f5f9;
+  }
+  .bundle-actions form { margin: 0; }
+  .bundle-actions .btn { display: inline-flex; align-items: center; gap: .4rem; }
+
+  .bundles-empty {
+    text-align: center; padding: 3rem 1rem; color: #64748b;
+    background: #fff; border: 1px dashed #cbd5e1; border-radius: 14px;
+  }
+</style>
+
+<div class="bundles-summary">
+  <span><strong>{{ bundles|length }}</strong> من {{ max_bundles }} باقات</span>
+  <div class="bar"><span style="width: {{ (bundles|length / max_bundles * 100)|round|int }}%;"></span></div>
+</div>
+
+{% if bundles %}
+<div class="bundles-grid">
+  {% for b in bundles %}
+  <article class="bundle-card">
+    <div class="bundle-head">
+      <div>
+        <h3 class="bundle-name">{{ b.name }}</h3>
+        <div class="bundle-id">باقة رقم {{ b.id }}</div>
+      </div>
+      <div class="bundle-price">
+        <b>{{ "%.0f"|format(b.price) }}</b><small>ج.م</small>
+      </div>
+    </div>
+
+    <p class="bundle-desc" id="desc-{{ b.id }}">{{ b.description or 'لا يوجد وصف' }}</p>
+    <button type="button" class="bundle-more" data-target="desc-{{ b.id }}" hidden>عرض المزيد</button>
+
+    {% if b.instructions %}
+    <div class="bundle-instructions">
+      <strong>تعليمات المريض</strong>
+      {{ b.instructions }}
+    </div>
+    {% endif %}
+
+    <div class="bundle-actions">
+      <a href="{{ url_for('bundle.bundle_detail', bundle_id=b.id) }}" class="btn btn-sm btn-secondary">
+        <i data-lucide="edit-3"></i><span>تعديل</span>
+      </a>
+      <form action="{{ url_for('bundle.delete_bundle', bundle_id=b.id) }}" method="POST"
+            onsubmit="return confirm('هل أنت متأكد من حذف هذه الباقة؟');">
+        <button type="submit" class="btn btn-sm btn-ghost text-danger">
+          <i data-lucide="trash-2"></i><span>حذف</span>
+        </button>
+      </form>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="bundles-empty">لا يوجد باقات مضافة حتى الآن.</div>
+{% endif %}
+
+<script>
+  // Show "عرض المزيد" only when the description is actually clamped
+  document.querySelectorAll('.bundle-more').forEach(function (btn) {
+    var desc = document.getElementById(btn.dataset.target);
+    if (desc.scrollHeight > desc.clientHeight + 1) btn.hidden = false;
+    btn.addEventListener('click', function () {
+      var open = desc.classList.toggle('open');
+      btn.textContent = open ? 'عرض أقل' : 'عرض المزيد';
+    });
+  });
+</script>
+{% endblock %}

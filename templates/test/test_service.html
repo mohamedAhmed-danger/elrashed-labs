@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}خدمات التحاليل الطبية — معمل صدارة{% endblock %}
+
+{% block topbar_title %}خدمات التحاليل الطبية{% endblock %}
+{% block topbar_sub %}إدارة وتحديث باقات وفحوصات التحاليل الطبية وتحديد الأسعار والشروط{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('test.create_test') }}" class="btn btn-primary">
+  <i data-lucide="plus-circle"></i>
+  + إضافة تحليل جديد
+</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Quick Stats Strip ───────────────────────────────────── -->
+<div class="ts-stats-strip">
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-purple"><i data-lucide="flask-conical"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ pagination.total if pagination else (services|length) }}</div>
+      <div class="ts-stat-pill-label">إجمالي التحاليل</div>
+    </div>
+  </div>
+
+  {% if laboratories %}
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-blue"><i data-lucide="building-2"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ laboratories|length }}</div>
+      <div class="ts-stat-pill-label">معمل وفرع</div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if search %}
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-amber"><i data-lucide="search"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ services|length }}</div>
+      <div class="ts-stat-pill-label">نتيجة مطابقة لـ "{{ search }}"</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── Search & Filter Bar ─────────────────────────────────── -->
+<div class="card ts-filter-card">
+  <form method="GET" action="{{ url_for('test.test_service') }}" class="ts-filter-form">
+    <div class="ts-filter-field ts-filter-search">
+      <label class="ts-filter-label">بحث عن تحليل</label>
+      <div class="ts-input-icon-wrap">
+        <i data-lucide="search" class="ts-input-icon"></i>
+        <input
+          type="text"
+          name="search"
+          value="{{ search or '' }}"
+          placeholder="ابحث باسم التحليل (مثال: صورة دم كاملة، CBC، وظائف كلى)..."
+          class="form-control ts-input-with-icon">
+      </div>
+    </div>
+
+    {% if laboratories %}
+    <div class="ts-filter-field">
+      <label class="ts-filter-label">المعمل</label>
+      <select name="laboratory_id" class="form-control">
+        <option value="">جميع المعامل والفروع</option>
+        {% for lab in laboratories %}
+        <option value="{{ lab.id }}" {% if laboratory_id == lab.id %}selected{% endif %}>{{ lab.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+
+    <div class="ts-filter-field ts-filter-narrow">
+      <label class="ts-filter-label">عرض بالصفحة</label>
+      <select name="per_page" class="form-control">
+        <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+        <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+        <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+      </select>
+    </div>
+
+    <div class="ts-filter-actions">
+      <button type="submit" class="btn btn-primary ts-filter-btn">
+        <i data-lucide="filter"></i>
+        تصفية
+      </button>
+      {% if search or laboratory_id %}
+      <a href="{{ url_for('test.test_service') }}" class="btn btn-ghost ts-filter-btn ts-filter-reset" title="إعادة تعيين البحث">
+        <i data-lucide="rotate-ccw"></i>
+      </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- ── Laboratory Services Table ───────────────────────────── -->
+<div class="table-wrap ts-table-wrap">
+  <table class="data-table ts-data-table">
+    <thead>
+      <tr>
+        <th style="width: 60px;">#</th>
+        <th>اسم التحليل</th>
+        <th>المعمل التابع له</th>
+        <th>السعر</th>
+        <th>المدة المتوقعة</th>
+        <th>نوع العينة</th>
+        <th style="width: 170px; text-align: center;">الإجراءات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for service in services %}
+      <tr>
+        <td><span class="ts-id-chip">#{{ service.id }}</span></td>
+        <td>
+          <div class="ts-test-name-cell">
+            <div class="ts-test-avatar"><i data-lucide="test-tube-diagonal"></i></div>
+            <div class="ts-test-name-text">{{ service.name }}</div>
+          </div>
+        </td>
+        <td>
+          <span class="ts-lab-tag">
+            <i data-lucide="building-2"></i>
+            {{ service.laboratory.name if service.laboratory else 'المعمل الرئيسي' }}
+          </span>
+        </td>
+        <td>
+          <span class="ts-price-badge">
+            {{ '%.2f'|format(service.price) }} <span class="ts-price-currency">ج.م</span>
+          </span>
+        </td>
+        <td>
+          {% if service.duration %}
+          <span class="status-chip new" style="display: inline-flex; align-items: center; gap: 4px;">
+            <i data-lucide="clock" style="width: 13px; height: 13px;"></i>
+            {{ service.duration }} ساعة
+          </span>
+          {% else %}
+          <span class="ts-muted-dash">—</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if service.sample_type %}
+          <span class="ts-sample-tag">
+            <i data-lucide="droplet"></i>
+            {{ service.sample_type }}
+          </span>
+          {% else %}
+          <span class="ts-muted-dash">—</span>
+          {% endif %}
+        </td>
+        <td style="text-align: center;">
+          <div class="ts-row-actions">
+            <a href="{{ url_for('test.edit_test', test_id=service.id) }}"
+               class="btn btn-outline btn-sm ts-action-btn"
+               title="تعديل بيانات التحليل">
+              <i data-lucide="edit-2"></i>
+              تعديل
+            </a>
+
+            <form action="{{ url_for('test.delete_test', test_id=service.id) }}" method="POST" style="display: inline; margin: 0;">
+              <button type="button" class="btn btn-outline btn-sm ts-action-btn ts-action-danger" onclick="confirmDelete(this.form)" title="حذف التحليل">
+                <i data-lucide="trash-2"></i>
+                حذف
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 56px 20px;">
+          <div class="ts-empty-icon"><i data-lucide="flask-conical"></i></div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 6px;">لا توجد تحاليل طبية مسجلة</h4>
+          <p style="color: var(--ink-500); font-size: 0.85rem; margin-bottom: 18px;">
+            {% if search %}
+            لم يتم العثور على أي نتائج تطابق البحث "{{ search }}".
+            {% else %}
+            ابدأ بإضافة فحوصات وتحاليل جديدة إلى دليل التحاليل المخبرية.
+            {% endif %}
+          </p>
+          {% if search %}
+          <a href="{{ url_for('test.test_service') }}" class="btn btn-outline">إلغاء التصفية</a>
+          {% else %}
+          <a href="{{ url_for('test.create_test') }}" class="btn btn-primary">
+            <i data-lucide="plus-circle"></i>
+            + إضافة تحليل جديد
+          </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- ── Pagination ─────────────────────────────────────────── -->
+{% if pagination and pagination.pages > 1 %}
+<div class="pagination-wrapper">
+  <div class="pagination-info">
+    عرض {{ (pagination.page - 1) * pagination.per_page + 1 }} إلى {{ [pagination.page * pagination.per_page, pagination.total]|min }} من إجمالي {{ pagination.total }} تحليل
+  </div>
+
+  <nav class="pagination">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('test.test_service', page=pagination.prev_num, per_page=per_page, search=search, laboratory_id=laboratory_id) }}"
+       class="pagination-btn"
+       title="الصفحة السابقة">
+      <i data-lucide="chevron-right"></i>
+      السابق
+    </a>
+    {% else %}
+    <span class="pagination-btn disabled">
+      <i data-lucide="chevron-right"></i>
+      السابق
+    </span>
+    {% endif %}
+
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        {% if p == pagination.page %}
+        <span class="pagination-page active">{{ p }}</span>
+        {% else %}
+        <a href="{{ url_for('test.test_service', page=p, per_page=per_page, search=search, laboratory_id=laboratory_id) }}"
+           class="pagination-page">
+          {{ p }}
+        </a>
+        {% endif %}
+      {% else %}
+        <span class="pagination-ellipsis">…</span>
+      {% endif %}
+    {% endfor %}
+
+    {% if pagination.has_next %}
+    <a href="{{ url_for('test.test_service', page=pagination.next_num, per_page=per_page, search=search, laboratory_id=laboratory_id) }}"
+       class="pagination-btn"
+       title="الصفحة التالية">
+      التالي
+      <i data-lucide="chevron-left"></i>
+    </a>
+    {% else %}
+    <span class="pagination-btn disabled">
+      التالي
+      <i data-lucide="chevron-left"></i>
+    </span>
+    {% endif %}
+  </nav>
+</div>
+{% endif %}
+
+{% endblock %}

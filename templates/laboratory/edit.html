@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل بيانات المعمل — معمل صدارة{% endblock %}
+
+{% block topbar_title %}
+<div style="display: flex; align-items: center; gap: 12px;">
+  <div class="header-icon-badge">
+    <i data-lucide="building-2"></i>
+  </div>
+  <span style="font-size: 1.35rem; font-weight: 800; color: var(--navy-900);">تعديل بيانات المعمل</span>
+</div>
+{% endblock %}
+{% block topbar_sub %}{{ laboratory.name if laboratory else '' }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('laboratory.list_laboratories') }}" class="btn btn-outline btn-sm" style="height: 38px; padding: 0 14px; font-weight: 600;">
+  <i data-lucide="arrow-right"></i>
+  العودة لإدارة المعامل
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container" style="max-width: 700px;">
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <div class="section-icon">
+          <i data-lucide="building-2"></i>
+        </div>
+        <div>
+          <h3 class="section-title">بيانات المعمل / الفرع</h3>
+          <p class="section-subtitle">حدّث بيانات هذا المعمل أو الفرع ثم احفظ التغييرات.</p>
+        </div>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('laboratory.edit_laboratory', lab_id=laboratory.id) if laboratory else '#' }}">
+
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label class="field-label">
+          <i data-lucide="building-2" class="tf-field-label-icon"></i>
+          اسم المعمل / الفرع <span class="required-star">*</span>
+        </label>
+        <div class="tf-input-icon-wrap">
+          <i data-lucide="flask-conical" class="tf-input-icon"></i>
+          <input type="text" name="name" value="{{ laboratory.name if laboratory else '' }}" class="form-control tf-input-with-icon" required>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label class="field-label">
+          <i data-lucide="map-pin" class="tf-field-label-icon"></i>
+          الموقع / العنوان <span class="required-star">*</span>
+        </label>
+        <div class="tf-input-icon-wrap">
+          <i data-lucide="map-pin" class="tf-input-icon"></i>
+          <input type="text" name="location" value="{{ laboratory.location if laboratory else '' }}" class="form-control tf-input-with-icon" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="field-label">
+          <i data-lucide="file-text" class="tf-field-label-icon"></i>
+          الوصف
+        </label>
+        <textarea name="description" class="form-control" rows="3">{{ laboratory.description if laboratory else '' }}</textarea>
+      </div>
+
+      <div class="form-actions-bar" style="position: static; background: none; border-top: none; padding-top: 20px; margin-bottom: 8px;">
+        <button type="submit" class="btn-save-test" style="min-width: 180px;">
+          <i data-lucide="check"></i>
+          حفظ التعديلات
+        </button>
+        <a href="{{ url_for('laboratory.list_laboratories') }}" class="btn-cancel-test">
+          إلغاء والعودة
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

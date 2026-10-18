@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}تفاصيل الحجز {{ booking.reference_id or ('#' ~ booking.id) }} — معمل صدارة{% endblock %}
+
+{% block topbar_title %}تفاصيل الحجز {{ booking.reference_id or ('#' ~ booking.id) }}{% endblock %}
+{% block topbar_sub %}بيانات كاملة عن طلب الحجز المنزلي والتحاليل المطلوبة{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('bookings.list_bookings') }}" class="btn btn-outline">
+  <i data-lucide="arrow-right"></i>
+  العودة لقائمة الحجوزات
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+
+  <!-- ── Patient info ─────────────────────────────────────── -->
+  <div class="section-title">
+    <h3><i data-lucide="user"></i> بيانات المريض</h3>
+  </div>
+  <div class="card glass-card summary-card">
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-icon si-blue"><i data-lucide="user"></i></div>
+        <div class="info-body">
+          <div class="info-label">اسم المريض</div>
+          <div class="info-value">{{ booking.name }}</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon si-green"><i data-lucide="phone"></i></div>
+        <div class="info-body">
+          <div class="info-label">رقم الهاتف</div>
+          <div class="info-value" style="direction: ltr; display:inline-block;">{{ booking.phone_number }}</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon si-purple"><i data-lucide="map-pin"></i></div>
+        <div class="info-body">
+          <div class="info-label">العنوان بالكامل</div>
+          <div class="info-value" style="font-weight: 600;">{{ booking.address or '—' }}</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon si-amber"><i data-lucide="share-2"></i></div>
+        <div class="info-body">
+          <div class="info-label">المنصة</div>
+          <div class="info-value">{{ booking.comes_from or 'غير محدد' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Appointment ──────────────────────────────────────── -->
+  <div class="section-title">
+    <h3><i data-lucide="calendar-clock"></i> الموعد والتوقيت</h3>
+  </div>
+  <div class="card glass-card summary-card">
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-icon si-blue"><i data-lucide="calendar"></i></div>
+        <div class="info-body">
+          <div class="info-label">تاريخ الزيارة</div>
+          <div class="info-value">{{ booking.date or '—' }}</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon si-green"><i data-lucide="clock"></i></div>
+        <div class="info-body">
+          <div class="info-label">وقت الزيارة</div>
+          <div class="info-value">{{ booking.time or '—' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Requested tests ──────────────────────────────────── -->
+  <div class="section-title">
+    <h3><i data-lucide="clipboard-list"></i> التحاليل المطلوبة</h3>
+  </div>
+  <div class="card glass-card summary-card">
+    {% if booking.details %}
+    <div class="chips-container">
+      {% for test in booking.details.split(',') %}
+      <span class="chip">
+        <i data-lucide="flask-conical" style="width:12px;height:12px;"></i>
+        {{ test.strip() }}
+      </span>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color: var(--ink-500); margin:0;">لا توجد تحاليل مسجلة لهذا الحجز.</p>
+    {% endif %}
+  </div>
+
+  <!-- ── Status ───────────────────────────────────────────── -->
+  <div class="section-title">
+    <h3><i data-lucide="list-checks"></i> حالة الحجز</h3>
+  </div>
+  <div class="card glass-card action-card">
+    <p class="action-desc">تحديث حالة هذا الحجز سينعكس فورًا في قائمة الحجوزات.</p>
+    <form action="{{ url_for('bookings.update_booking_status', booking_id=booking.id) }}" method="POST" class="action-form">
+      <div class="form-group">
+        <label class="form-label">الحالة الحالية</label>
+        <select name="status_val" class="form-control">
+          {% for s in Status %}
+          <option value="{{ s.value }}" {% if booking.status == s %}selected{% endif %}>
+            {% if s.name == 'PENDING' %}قيد الانتظار
+            {% elif s.name == 'REVIEWED' %}تمت المراجعة
+            {% elif s.name == 'ATTENDED' %}تم الحضور
+            {% elif s.name == 'NO_SHOW' %}لم يحضر
+            {% else %}{{ s.value }}{% endif %}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">
+        <i data-lucide="save"></i>
+        حفظ الحالة
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,1215 @@
+[2026-10-02 00:26:18,925] [INFO] [9f0de2] 
+[9f0de2] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[9f0de2] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[9f0de2] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[9f0de2] ║ 🆔 Request Context                                                                           ║
+[9f0de2] ║   • Trace ID:      9f0de2
+[9f0de2] ║   • Sender ID:     010******78
+[9f0de2] ║   • Platform/Page: WhatsApp (Page: page1)
+[9f0de2] ║   • Duration:      1.25s
+[9f0de2] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[9f0de2] ║ 💬 Conversation & Intent Details                                                             ║
+[9f0de2] ║   • User Message:   تست تحليل سكر
+[9f0de2] ║   • Detected Intent: inquiry
+[9f0de2] ║   • Chat Summary:   استفسار عن سعر سكر صائم
+[9f0de2] ║   • Bot Response:   سعر تحليل السكر هو 80 ج.م
+[9f0de2] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[9f0de2] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[9f0de2] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[9f0de2] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[9f0de2] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[9f0de2] ║  │ intent_usage     │          100 │            20 │          120 │ $0.000100              │  ║
+[9f0de2] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[9f0de2] ║  │ TOTAL            │          100 │            20 │          120 │ $0.000100              │  ║
+[9f0de2] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[9f0de2] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:32:38,235] [DEBUG] [98f8fd] 
+[98f8fd] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[98f8fd] 📥 INPUT:
+[98f8fd] {
+[98f8fd]   "sender_id": "user_123",
+[98f8fd]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\49a34c055a6342cc9c44c1b382fc7054.jpg",
+[98f8fd]   "bytes_len": 22
+[98f8fd] }
+[2026-10-02 00:32:38,241] [INFO] [98f8fd] 
+[98f8fd] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[98f8fd] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 🆔 Request Context                                                                           ║
+[98f8fd] ║   • Trace ID:      98f8fd
+[98f8fd] ║   • Sender ID:     user_123
+[98f8fd] ║   • Platform/Page: facebook (Page: page_456)
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 💬 Conversation & Intent Details                                                             ║
+[98f8fd] ║   • User Message:   [Prescription Image Attachment]
+[98f8fd] ║   • Detected Intent: prescription_ocr_intake
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 👁️ OCR Prescription Results                                                                  ║
+[98f8fd] ║   • OCR Status:     NON_PRESCRIPTION
+[98f8fd] ║   • Confidence:     0.0%
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[98f8fd] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[98f8fd] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[98f8fd] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[98f8fd] ║  │ ocr_vision_usage │          100 │            20 │          120 │ $0.000080              │  ║
+[98f8fd] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[98f8fd] ║  │ TOTAL            │          100 │            20 │          120 │ $0.000080              │  ║
+[98f8fd] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[98f8fd] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:32:38,247] [DEBUG] [98f8fd] 
+[98f8fd] --- [Prescription Decision: Non-Prescription] PRESCRIPTION DECISION: NON-PRESCRIPTION ---
+[98f8fd] 📥 INPUT:
+[98f8fd] {
+[98f8fd]   "is_prescription": false,
+[98f8fd]   "agent_text": "[Image classified as spam or not a valid prescription]"
+[98f8fd] }
+[2026-10-02 00:32:38,271] [DEBUG] [98f8fd] 
+[98f8fd] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[98f8fd] 📥 INPUT:
+[98f8fd] {
+[98f8fd]   "sender_id": "user_123",
+[98f8fd]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\7e153f9216774ea2b0050ff4db2552d5.jpg",
+[98f8fd]   "bytes_len": 22
+[98f8fd] }
+[2026-10-02 00:32:38,273] [INFO] [98f8fd] 
+[98f8fd] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[98f8fd] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 🆔 Request Context                                                                           ║
+[98f8fd] ║   • Trace ID:      98f8fd
+[98f8fd] ║   • Sender ID:     user_123
+[98f8fd] ║   • Platform/Page: facebook (Page: page_456)
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 💬 Conversation & Intent Details                                                             ║
+[98f8fd] ║   • User Message:   [Prescription Image Attachment]
+[98f8fd] ║   • Detected Intent: prescription_ocr_intake
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 👁️ OCR Prescription Results                                                                  ║
+[98f8fd] ║   • OCR Status:     SUCCESS
+[98f8fd] ║   • Confidence:     0.0%
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[98f8fd] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[98f8fd] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[98f8fd] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[98f8fd] ║  │ ocr_vision_usage │          300 │            30 │          330 │ $0.000165              │  ║
+[98f8fd] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[98f8fd] ║  │ TOTAL            │          300 │            30 │          330 │ $0.000165              │  ║
+[98f8fd] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[98f8fd] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:32:38,281] [DEBUG] [98f8fd] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[98f8fd]    Result: {
+[98f8fd]   "success": true,
+[98f8fd]   "status": "Pending",
+[98f8fd]   "min_confidence": 0.0
+[98f8fd] }
+[2026-10-02 00:32:38,282] [DEBUG] [98f8fd] 
+[98f8fd] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[98f8fd] 📥 INPUT:
+[98f8fd] {
+[98f8fd]   "status": "PENDING",
+[98f8fd]   "min_confidence": 0.0,
+[98f8fd]   "agent_text": "[Prescription image received. Low OCR confidence (0.00). Case has been queued for manual doctor review.]"
+[98f8fd] }
+[2026-10-02 00:32:38,291] [DEBUG] [98f8fd] 
+[98f8fd] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[98f8fd] 📥 INPUT:
+[98f8fd] {
+[98f8fd]   "sender_id": "user_123",
+[98f8fd]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\7928c47f3a9b4c19a43c0d982fb8da30.jpg",
+[98f8fd]   "bytes_len": 22
+[98f8fd] }
+[2026-10-02 00:32:38,296] [INFO] [98f8fd] 
+[98f8fd] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[98f8fd] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 🆔 Request Context                                                                           ║
+[98f8fd] ║   • Trace ID:      98f8fd
+[98f8fd] ║   • Sender ID:     user_123
+[98f8fd] ║   • Platform/Page: facebook (Page: page_456)
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 💬 Conversation & Intent Details                                                             ║
+[98f8fd] ║   • User Message:   [Prescription Image Attachment]
+[98f8fd] ║   • Detected Intent: prescription_ocr_intake
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 👁️ OCR Prescription Results                                                                  ║
+[98f8fd] ║   • OCR Status:     SUCCESS
+[98f8fd] ║   • Recognized:     CBC (0.95), Lipid Profile (0.75)
+[98f8fd] ║   • Confidence:     85.0%
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[98f8fd] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[98f8fd] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[98f8fd] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[98f8fd] ║  │ ocr_vision_usage │          400 │            40 │          440 │ $0.000220              │  ║
+[98f8fd] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[98f8fd] ║  │ TOTAL            │          400 │            40 │          440 │ $0.000220              │  ║
+[98f8fd] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[98f8fd] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:32:38,305] [DEBUG] [98f8fd] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[98f8fd]    Result: {
+[98f8fd]   "success": true,
+[98f8fd]   "status": "Pending",
+[98f8fd]   "min_confidence": 0.75
+[98f8fd] }
+[2026-10-02 00:32:38,306] [DEBUG] [98f8fd] 
+[98f8fd] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[98f8fd] 📥 INPUT:
+[98f8fd] {
+[98f8fd]   "status": "PENDING",
+[98f8fd]   "min_confidence": 0.75,
+[98f8fd]   "agent_text": "[Prescription image received. Low OCR confidence (0.75). Case has been queued for manual doctor review.]"
+[98f8fd] }
+[2026-10-02 00:32:38,382] [DEBUG] [98f8fd] 
+[98f8fd] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[98f8fd] 📥 INPUT:
+[98f8fd] {
+[98f8fd]   "sender_id": "user_123",
+[98f8fd]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\4dc7f202b529485087b665422efe2a30.jpg",
+[98f8fd]   "bytes_len": 22
+[98f8fd] }
+[2026-10-02 00:32:38,383] [INFO] [98f8fd] 
+[98f8fd] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[98f8fd] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 🆔 Request Context                                                                           ║
+[98f8fd] ║   • Trace ID:      98f8fd
+[98f8fd] ║   • Sender ID:     user_123
+[98f8fd] ║   • Platform/Page: facebook (Page: page_456)
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 💬 Conversation & Intent Details                                                             ║
+[98f8fd] ║   • User Message:   [Prescription Image Attachment]
+[98f8fd] ║   • Detected Intent: prescription_ocr_intake
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 👁️ OCR Prescription Results                                                                  ║
+[98f8fd] ║   • OCR Status:     SUCCESS
+[98f8fd] ║   • Recognized:     CBC (0.95), Ferritin (0.82), TSH (0.55)
+[98f8fd] ║   • Confidence:     77.3%
+[98f8fd] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[98f8fd] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[98f8fd] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[98f8fd] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[98f8fd] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[98f8fd] ║  │ ocr_vision_usage │          500 │            50 │          550 │ $0.000275              │  ║
+[98f8fd] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[98f8fd] ║  │ TOTAL            │          500 │            50 │          550 │ $0.000275              │  ║
+[98f8fd] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[98f8fd] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:32:38,393] [DEBUG] [98f8fd] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[98f8fd]    Result: {
+[98f8fd]   "success": true,
+[98f8fd]   "status": "Pending",
+[98f8fd]   "min_confidence": 0.55
+[98f8fd] }
+[2026-10-02 00:32:38,394] [DEBUG] [98f8fd] 
+[98f8fd] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[98f8fd] 📥 INPUT:
+[98f8fd] {
+[98f8fd]   "status": "PENDING",
+[98f8fd]   "min_confidence": 0.55,
+[98f8fd]   "agent_text": "[Prescription image received. Low OCR confidence (0.55). Case has been queued for manual doctor review.]"
+[98f8fd] }
+[2026-10-02 00:32:38,403] [DEBUG] [98f8fd] 
+[98f8fd] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[98f8fd] 📥 INPUT:
+[98f8fd] {
+[98f8fd]   "sender_id": "user_123",
+[98f8fd]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\1fe6fd9582f64110*****23fccc2352e.jpg",
+[98f8fd]   "bytes_len": 22
+[98f8fd] }
+[2026-10-02 00:34:30,921] [DEBUG] [379779] 
+[379779] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[379779] 📥 INPUT:
+[379779] {
+[379779]   "sender_id": "user_123",
+[379779]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\0c7bd12a3c744d91ba738333b109f724.jpg",
+[379779]   "bytes_len": 22
+[379779] }
+[2026-10-02 00:34:30,923] [INFO] [379779] 
+[379779] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[379779] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 🆔 Request Context                                                                           ║
+[379779] ║   • Trace ID:      379779
+[379779] ║   • Sender ID:     user_123
+[379779] ║   • Platform/Page: facebook (Page: page_456)
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 💬 Conversation & Intent Details                                                             ║
+[379779] ║   • User Message:   [Prescription Image Attachment]
+[379779] ║   • Detected Intent: prescription_ocr_intake
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 👁️ OCR Prescription Results                                                                  ║
+[379779] ║   • OCR Status:     NON_PRESCRIPTION
+[379779] ║   • Confidence:     0.0%
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[379779] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[379779] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[379779] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[379779] ║  │ ocr_vision_usage │          100 │            20 │          120 │ $0.000080              │  ║
+[379779] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[379779] ║  │ TOTAL            │          100 │            20 │          120 │ $0.000080              │  ║
+[379779] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[379779] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:34:30,930] [DEBUG] [379779] 
+[379779] --- [Prescription Decision: Non-Prescription] PRESCRIPTION DECISION: NON-PRESCRIPTION ---
+[379779] 📥 INPUT:
+[379779] {
+[379779]   "is_prescription": false,
+[379779]   "agent_text": "[Image classified as spam or not a valid prescription]"
+[379779] }
+[2026-10-02 00:34:30,940] [DEBUG] [379779] 
+[379779] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[379779] 📥 INPUT:
+[379779] {
+[379779]   "sender_id": "user_123",
+[379779]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\742b7b75569f47d097feddd43d14a55a.jpg",
+[379779]   "bytes_len": 22
+[379779] }
+[2026-10-02 00:34:30,942] [INFO] [379779] 
+[379779] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[379779] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 🆔 Request Context                                                                           ║
+[379779] ║   • Trace ID:      379779
+[379779] ║   • Sender ID:     user_123
+[379779] ║   • Platform/Page: facebook (Page: page_456)
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 💬 Conversation & Intent Details                                                             ║
+[379779] ║   • User Message:   [Prescription Image Attachment]
+[379779] ║   • Detected Intent: prescription_ocr_intake
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 👁️ OCR Prescription Results                                                                  ║
+[379779] ║   • OCR Status:     SUCCESS
+[379779] ║   • Confidence:     0.0%
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[379779] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[379779] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[379779] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[379779] ║  │ ocr_vision_usage │          300 │            30 │          330 │ $0.000165              │  ║
+[379779] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[379779] ║  │ TOTAL            │          300 │            30 │          330 │ $0.000165              │  ║
+[379779] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[379779] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:34:30,954] [DEBUG] [379779] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[379779]    Result: {
+[379779]   "success": true,
+[379779]   "status": "Pending",
+[379779]   "min_confidence": 0.0
+[379779] }
+[2026-10-02 00:34:30,955] [DEBUG] [379779] 
+[379779] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[379779] 📥 INPUT:
+[379779] {
+[379779]   "status": "PENDING",
+[379779]   "min_confidence": 0.0,
+[379779]   "agent_text": "[Prescription image received. Low OCR confidence (0.00). Case has been queued for manual doctor review.]"
+[379779] }
+[2026-10-02 00:34:30,964] [DEBUG] [379779] 
+[379779] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[379779] 📥 INPUT:
+[379779] {
+[379779]   "sender_id": "user_123",
+[379779]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\a0a0c0780b0c4f78b19179b352a0e81a.jpg",
+[379779]   "bytes_len": 22
+[379779] }
+[2026-10-02 00:34:30,965] [INFO] [379779] 
+[379779] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[379779] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 🆔 Request Context                                                                           ║
+[379779] ║   • Trace ID:      379779
+[379779] ║   • Sender ID:     user_123
+[379779] ║   • Platform/Page: facebook (Page: page_456)
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 💬 Conversation & Intent Details                                                             ║
+[379779] ║   • User Message:   [Prescription Image Attachment]
+[379779] ║   • Detected Intent: prescription_ocr_intake
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 👁️ OCR Prescription Results                                                                  ║
+[379779] ║   • OCR Status:     SUCCESS
+[379779] ║   • Recognized:     CBC (0.95), Lipid Profile (0.75)
+[379779] ║   • Confidence:     85.0%
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[379779] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[379779] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[379779] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[379779] ║  │ ocr_vision_usage │          400 │            40 │          440 │ $0.000220              │  ║
+[379779] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[379779] ║  │ TOTAL            │          400 │            40 │          440 │ $0.000220              │  ║
+[379779] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[379779] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:34:31,000] [DEBUG] [379779] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[379779]    Result: {
+[379779]   "success": true,
+[379779]   "status": "Reviewed",
+[379779]   "min_confidence": 0.75
+[379779] }
+[2026-10-02 00:34:31,001] [DEBUG] [379779] 
+[379779] --- [Prescription Decision: Routed to Agent] PRESCRIPTION DECISION: ROUTED TO AGENT ---
+[379779] 📥 INPUT:
+[379779] {
+[379779]   "status": "REVIEWED",
+[379779]   "tests_count": 2,
+[379779]   "tests": [
+[379779]     "CBC",
+[379779]     "Lipid Profile"
+[379779]   ]
+[379779] }
+[2026-10-02 00:34:31,010] [DEBUG] [379779] 
+[379779] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[379779] 📥 INPUT:
+[379779] {
+[379779]   "sender_id": "user_123",
+[379779]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\186e1734a59747a591ed40d35960b804.jpg",
+[379779]   "bytes_len": 22
+[379779] }
+[2026-10-02 00:34:31,012] [INFO] [379779] 
+[379779] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[379779] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 🆔 Request Context                                                                           ║
+[379779] ║   • Trace ID:      379779
+[379779] ║   • Sender ID:     user_123
+[379779] ║   • Platform/Page: facebook (Page: page_456)
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 💬 Conversation & Intent Details                                                             ║
+[379779] ║   • User Message:   [Prescription Image Attachment]
+[379779] ║   • Detected Intent: prescription_ocr_intake
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 👁️ OCR Prescription Results                                                                  ║
+[379779] ║   • OCR Status:     SUCCESS
+[379779] ║   • Recognized:     CBC (0.95), Ferritin (0.82), TSH (0.55)
+[379779] ║   • Confidence:     77.3%
+[379779] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[379779] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[379779] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[379779] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[379779] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[379779] ║  │ ocr_vision_usage │          500 │            50 │          550 │ $0.000275              │  ║
+[379779] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[379779] ║  │ TOTAL            │          500 │            50 │          550 │ $0.000275              │  ║
+[379779] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[379779] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:34:31,020] [DEBUG] [379779] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[379779]    Result: {
+[379779]   "success": true,
+[379779]   "status": "Pending",
+[379779]   "min_confidence": 0.55
+[379779] }
+[2026-10-02 00:34:31,021] [DEBUG] [379779] 
+[379779] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[379779] 📥 INPUT:
+[379779] {
+[379779]   "status": "PENDING",
+[379779]   "min_confidence": 0.55,
+[379779]   "agent_text": "[Prescription image received. Low OCR confidence (0.55). Case has been queued for manual doctor review.]"
+[379779] }
+[2026-10-02 00:34:31,030] [DEBUG] [379779] 
+[379779] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[379779] 📥 INPUT:
+[379779] {
+[379779]   "sender_id": "user_123",
+[379779]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\7c02e79cab8e40bbbd8b968a3283ff09.jpg",
+[379779]   "bytes_len": 22
+[379779] }
+[2026-10-02 00:34:31,040] [ERROR] [379779] extract_prescription_payload error: Gemini API network timeout
+[2026-10-02 00:35:21,157] [DEBUG] [1f35c7] 
+[1f35c7] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[1f35c7] 📥 INPUT:
+[1f35c7] {
+[1f35c7]   "sender_id": "user_123",
+[1f35c7]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\a315b15b485c4128*****27ce35c77e1.jpg",
+[1f35c7]   "bytes_len": 22
+[1f35c7] }
+[2026-10-02 00:35:21,159] [INFO] [1f35c7] 
+[1f35c7] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[1f35c7] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 🆔 Request Context                                                                           ║
+[1f35c7] ║   • Trace ID:      1f35c7
+[1f35c7] ║   • Sender ID:     user_123
+[1f35c7] ║   • Platform/Page: facebook (Page: page_456)
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 💬 Conversation & Intent Details                                                             ║
+[1f35c7] ║   • User Message:   [Prescription Image Attachment]
+[1f35c7] ║   • Detected Intent: prescription_ocr_intake
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 👁️ OCR Prescription Results                                                                  ║
+[1f35c7] ║   • OCR Status:     NON_PRESCRIPTION
+[1f35c7] ║   • Confidence:     0.0%
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[1f35c7] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[1f35c7] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[1f35c7] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[1f35c7] ║  │ ocr_vision_usage │          100 │            20 │          120 │ $0.000080              │  ║
+[1f35c7] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[1f35c7] ║  │ TOTAL            │          100 │            20 │          120 │ $0.000080              │  ║
+[1f35c7] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[1f35c7] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:35:21,162] [DEBUG] [1f35c7] 
+[1f35c7] --- [Prescription Decision: Non-Prescription] PRESCRIPTION DECISION: NON-PRESCRIPTION ---
+[1f35c7] 📥 INPUT:
+[1f35c7] {
+[1f35c7]   "is_prescription": false,
+[1f35c7]   "agent_text": "[Image classified as spam or not a valid prescription]"
+[1f35c7] }
+[2026-10-02 00:35:21,171] [DEBUG] [1f35c7] 
+[1f35c7] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[1f35c7] 📥 INPUT:
+[1f35c7] {
+[1f35c7]   "sender_id": "user_123",
+[1f35c7]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\bf181440653f49779ce1df4ffb17a726.jpg",
+[1f35c7]   "bytes_len": 22
+[1f35c7] }
+[2026-10-02 00:35:21,172] [INFO] [1f35c7] 
+[1f35c7] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[1f35c7] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 🆔 Request Context                                                                           ║
+[1f35c7] ║   • Trace ID:      1f35c7
+[1f35c7] ║   • Sender ID:     user_123
+[1f35c7] ║   • Platform/Page: facebook (Page: page_456)
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 💬 Conversation & Intent Details                                                             ║
+[1f35c7] ║   • User Message:   [Prescription Image Attachment]
+[1f35c7] ║   • Detected Intent: prescription_ocr_intake
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 👁️ OCR Prescription Results                                                                  ║
+[1f35c7] ║   • OCR Status:     SUCCESS
+[1f35c7] ║   • Confidence:     0.0%
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[1f35c7] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[1f35c7] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[1f35c7] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[1f35c7] ║  │ ocr_vision_usage │          300 │            30 │          330 │ $0.000165              │  ║
+[1f35c7] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[1f35c7] ║  │ TOTAL            │          300 │            30 │          330 │ $0.000165              │  ║
+[1f35c7] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[1f35c7] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:35:21,180] [DEBUG] [1f35c7] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[1f35c7]    Result: {
+[1f35c7]   "success": true,
+[1f35c7]   "status": "Pending",
+[1f35c7]   "min_confidence": 0.0
+[1f35c7] }
+[2026-10-02 00:35:21,181] [DEBUG] [1f35c7] 
+[1f35c7] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[1f35c7] 📥 INPUT:
+[1f35c7] {
+[1f35c7]   "status": "PENDING",
+[1f35c7]   "min_confidence": 0.0,
+[1f35c7]   "agent_text": "[Prescription image received. Low OCR confidence (0.00). Case has been queued for manual doctor review.]"
+[1f35c7] }
+[2026-10-02 00:35:21,192] [DEBUG] [1f35c7] 
+[1f35c7] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[1f35c7] 📥 INPUT:
+[1f35c7] {
+[1f35c7]   "sender_id": "user_123",
+[1f35c7]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\c7f4bd6a16c54f8cb3e895e0fe12f616.jpg",
+[1f35c7]   "bytes_len": 22
+[1f35c7] }
+[2026-10-02 00:35:21,193] [INFO] [1f35c7] 
+[1f35c7] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[1f35c7] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 🆔 Request Context                                                                           ║
+[1f35c7] ║   • Trace ID:      1f35c7
+[1f35c7] ║   • Sender ID:     user_123
+[1f35c7] ║   • Platform/Page: facebook (Page: page_456)
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 💬 Conversation & Intent Details                                                             ║
+[1f35c7] ║   • User Message:   [Prescription Image Attachment]
+[1f35c7] ║   • Detected Intent: prescription_ocr_intake
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 👁️ OCR Prescription Results                                                                  ║
+[1f35c7] ║   • OCR Status:     SUCCESS
+[1f35c7] ║   • Recognized:     CBC (0.95), Lipid Profile (0.75)
+[1f35c7] ║   • Confidence:     85.0%
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[1f35c7] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[1f35c7] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[1f35c7] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[1f35c7] ║  │ ocr_vision_usage │          400 │            40 │          440 │ $0.000220              │  ║
+[1f35c7] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[1f35c7] ║  │ TOTAL            │          400 │            40 │          440 │ $0.000220              │  ║
+[1f35c7] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[1f35c7] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:35:21,197] [DEBUG] [1f35c7] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[1f35c7]    Result: {
+[1f35c7]   "success": true,
+[1f35c7]   "status": "Reviewed",
+[1f35c7]   "min_confidence": 0.75
+[1f35c7] }
+[2026-10-02 00:35:21,198] [DEBUG] [1f35c7] 
+[1f35c7] --- [Prescription Decision: Routed to Agent] PRESCRIPTION DECISION: ROUTED TO AGENT ---
+[1f35c7] 📥 INPUT:
+[1f35c7] {
+[1f35c7]   "status": "REVIEWED",
+[1f35c7]   "tests_count": 2,
+[1f35c7]   "tests": [
+[1f35c7]     "CBC",
+[1f35c7]     "Lipid Profile"
+[1f35c7]   ]
+[1f35c7] }
+[2026-10-02 00:35:21,208] [DEBUG] [1f35c7] 
+[1f35c7] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[1f35c7] 📥 INPUT:
+[1f35c7] {
+[1f35c7]   "sender_id": "user_123",
+[1f35c7]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\de25d6e52001401584eedc50009a5f52.jpg",
+[1f35c7]   "bytes_len": 22
+[1f35c7] }
+[2026-10-02 00:35:21,210] [INFO] [1f35c7] 
+[1f35c7] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[1f35c7] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 🆔 Request Context                                                                           ║
+[1f35c7] ║   • Trace ID:      1f35c7
+[1f35c7] ║   • Sender ID:     user_123
+[1f35c7] ║   • Platform/Page: facebook (Page: page_456)
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 💬 Conversation & Intent Details                                                             ║
+[1f35c7] ║   • User Message:   [Prescription Image Attachment]
+[1f35c7] ║   • Detected Intent: prescription_ocr_intake
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 👁️ OCR Prescription Results                                                                  ║
+[1f35c7] ║   • OCR Status:     SUCCESS
+[1f35c7] ║   • Recognized:     CBC (0.95), Ferritin (0.82), TSH (0.55)
+[1f35c7] ║   • Confidence:     77.3%
+[1f35c7] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[1f35c7] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[1f35c7] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[1f35c7] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[1f35c7] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[1f35c7] ║  │ ocr_vision_usage │          500 │            50 │          550 │ $0.000275              │  ║
+[1f35c7] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[1f35c7] ║  │ TOTAL            │          500 │            50 │          550 │ $0.000275              │  ║
+[1f35c7] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[1f35c7] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:35:21,215] [DEBUG] [1f35c7] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[1f35c7]    Result: {
+[1f35c7]   "success": true,
+[1f35c7]   "status": "Pending",
+[1f35c7]   "min_confidence": 0.55
+[1f35c7] }
+[2026-10-02 00:35:21,216] [DEBUG] [1f35c7] 
+[1f35c7] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[1f35c7] 📥 INPUT:
+[1f35c7] {
+[1f35c7]   "status": "PENDING",
+[1f35c7]   "min_confidence": 0.55,
+[1f35c7]   "agent_text": "[Prescription image received. Low OCR confidence (0.55). Case has been queued for manual doctor review.]"
+[1f35c7] }
+[2026-10-02 00:35:21,224] [DEBUG] [1f35c7] 
+[1f35c7] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[1f35c7] 📥 INPUT:
+[1f35c7] {
+[1f35c7]   "sender_id": "user_123",
+[1f35c7]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\5698c756da43443a925d09e96446b924.jpg",
+[1f35c7]   "bytes_len": 22
+[1f35c7] }
+[2026-10-02 00:35:21,233] [ERROR] [1f35c7] extract_prescription_payload error: Gemini API network timeout
+[2026-10-02 00:36:25,478] [DEBUG] [a2dc5a] 
+[a2dc5a] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[a2dc5a] 📥 INPUT:
+[a2dc5a] {
+[a2dc5a]   "sender_id": "user_123",
+[a2dc5a]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\af4f60bf01f24aaf90cd257d72900e01.jpg",
+[a2dc5a]   "bytes_len": 22
+[a2dc5a] }
+[2026-10-02 00:36:25,480] [INFO] [a2dc5a] 
+[a2dc5a] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[a2dc5a] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 🆔 Request Context                                                                           ║
+[a2dc5a] ║   • Trace ID:      a2dc5a
+[a2dc5a] ║   • Sender ID:     user_123
+[a2dc5a] ║   • Platform/Page: facebook (Page: page_456)
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 💬 Conversation & Intent Details                                                             ║
+[a2dc5a] ║   • User Message:   [Prescription Image Attachment]
+[a2dc5a] ║   • Detected Intent: prescription_ocr_intake
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 👁️ OCR Prescription Results                                                                  ║
+[a2dc5a] ║   • OCR Status:     NON_PRESCRIPTION
+[a2dc5a] ║   • Confidence:     0.0%
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[a2dc5a] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[a2dc5a] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[a2dc5a] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[a2dc5a] ║  │ ocr_vision_usage │          100 │            20 │          120 │ $0.000080              │  ║
+[a2dc5a] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[a2dc5a] ║  │ TOTAL            │          100 │            20 │          120 │ $0.000080              │  ║
+[a2dc5a] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[a2dc5a] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:36:25,484] [DEBUG] [a2dc5a] 
+[a2dc5a] --- [Prescription Decision: Non-Prescription] PRESCRIPTION DECISION: NON-PRESCRIPTION ---
+[a2dc5a] 📥 INPUT:
+[a2dc5a] {
+[a2dc5a]   "is_prescription": false,
+[a2dc5a]   "agent_text": "[Image classified as spam or not a valid prescription]"
+[a2dc5a] }
+[2026-10-02 00:36:25,492] [DEBUG] [a2dc5a] 
+[a2dc5a] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[a2dc5a] 📥 INPUT:
+[a2dc5a] {
+[a2dc5a]   "sender_id": "user_123",
+[a2dc5a]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\d17ea4eea0b74bf994cf013a22b7db10.jpg",
+[a2dc5a]   "bytes_len": 22
+[a2dc5a] }
+[2026-10-02 00:36:25,494] [INFO] [a2dc5a] 
+[a2dc5a] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[a2dc5a] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 🆔 Request Context                                                                           ║
+[a2dc5a] ║   • Trace ID:      a2dc5a
+[a2dc5a] ║   • Sender ID:     user_123
+[a2dc5a] ║   • Platform/Page: facebook (Page: page_456)
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 💬 Conversation & Intent Details                                                             ║
+[a2dc5a] ║   • User Message:   [Prescription Image Attachment]
+[a2dc5a] ║   • Detected Intent: prescription_ocr_intake
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 👁️ OCR Prescription Results                                                                  ║
+[a2dc5a] ║   • OCR Status:     SUCCESS
+[a2dc5a] ║   • Confidence:     0.0%
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[a2dc5a] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[a2dc5a] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[a2dc5a] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[a2dc5a] ║  │ ocr_vision_usage │          300 │            30 │          330 │ $0.000165              │  ║
+[a2dc5a] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[a2dc5a] ║  │ TOTAL            │          300 │            30 │          330 │ $0.000165              │  ║
+[a2dc5a] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[a2dc5a] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:36:25,503] [DEBUG] [a2dc5a] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[a2dc5a]    Result: {
+[a2dc5a]   "success": true,
+[a2dc5a]   "status": "Pending",
+[a2dc5a]   "min_confidence": 0.0
+[a2dc5a] }
+[2026-10-02 00:36:25,503] [DEBUG] [a2dc5a] 
+[a2dc5a] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[a2dc5a] 📥 INPUT:
+[a2dc5a] {
+[a2dc5a]   "status": "PENDING",
+[a2dc5a]   "min_confidence": 0.0,
+[a2dc5a]   "agent_text": "[Prescription image received. Low OCR confidence (0.00). Case has been queued for manual doctor review.]"
+[a2dc5a] }
+[2026-10-02 00:36:25,511] [DEBUG] [a2dc5a] 
+[a2dc5a] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[a2dc5a] 📥 INPUT:
+[a2dc5a] {
+[a2dc5a]   "sender_id": "user_123",
+[a2dc5a]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\d016f4f875304065b1df75d43d40ba7e.jpg",
+[a2dc5a]   "bytes_len": 22
+[a2dc5a] }
+[2026-10-02 00:36:25,513] [INFO] [a2dc5a] 
+[a2dc5a] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[a2dc5a] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 🆔 Request Context                                                                           ║
+[a2dc5a] ║   • Trace ID:      a2dc5a
+[a2dc5a] ║   • Sender ID:     user_123
+[a2dc5a] ║   • Platform/Page: facebook (Page: page_456)
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 💬 Conversation & Intent Details                                                             ║
+[a2dc5a] ║   • User Message:   [Prescription Image Attachment]
+[a2dc5a] ║   • Detected Intent: prescription_ocr_intake
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 👁️ OCR Prescription Results                                                                  ║
+[a2dc5a] ║   • OCR Status:     SUCCESS
+[a2dc5a] ║   • Recognized:     CBC (0.95), Lipid Profile (0.75)
+[a2dc5a] ║   • Confidence:     85.0%
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[a2dc5a] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[a2dc5a] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[a2dc5a] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[a2dc5a] ║  │ ocr_vision_usage │          400 │            40 │          440 │ $0.000220              │  ║
+[a2dc5a] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[a2dc5a] ║  │ TOTAL            │          400 │            40 │          440 │ $0.000220              │  ║
+[a2dc5a] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[a2dc5a] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:36:25,522] [DEBUG] [a2dc5a] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[a2dc5a]    Result: {
+[a2dc5a]   "success": true,
+[a2dc5a]   "status": "Reviewed",
+[a2dc5a]   "min_confidence": 0.75
+[a2dc5a] }
+[2026-10-02 00:36:25,522] [DEBUG] [a2dc5a] 
+[a2dc5a] --- [Prescription Decision: Routed to Agent] PRESCRIPTION DECISION: ROUTED TO AGENT ---
+[a2dc5a] 📥 INPUT:
+[a2dc5a] {
+[a2dc5a]   "status": "REVIEWED",
+[a2dc5a]   "tests_count": 2,
+[a2dc5a]   "tests": [
+[a2dc5a]     "CBC",
+[a2dc5a]     "Lipid Profile"
+[a2dc5a]   ]
+[a2dc5a] }
+[2026-10-02 00:36:25,537] [DEBUG] [a2dc5a] 
+[a2dc5a] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[a2dc5a] 📥 INPUT:
+[a2dc5a] {
+[a2dc5a]   "sender_id": "user_123",
+[a2dc5a]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\3e2b496d17c448a0853771f7b1a8f07e.jpg",
+[a2dc5a]   "bytes_len": 22
+[a2dc5a] }
+[2026-10-02 00:36:25,538] [INFO] [a2dc5a] 
+[a2dc5a] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[a2dc5a] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 🆔 Request Context                                                                           ║
+[a2dc5a] ║   • Trace ID:      a2dc5a
+[a2dc5a] ║   • Sender ID:     user_123
+[a2dc5a] ║   • Platform/Page: facebook (Page: page_456)
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 💬 Conversation & Intent Details                                                             ║
+[a2dc5a] ║   • User Message:   [Prescription Image Attachment]
+[a2dc5a] ║   • Detected Intent: prescription_ocr_intake
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 👁️ OCR Prescription Results                                                                  ║
+[a2dc5a] ║   • OCR Status:     SUCCESS
+[a2dc5a] ║   • Recognized:     CBC (0.95), Ferritin (0.82), TSH (0.55)
+[a2dc5a] ║   • Confidence:     77.3%
+[a2dc5a] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[a2dc5a] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[a2dc5a] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[a2dc5a] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[a2dc5a] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[a2dc5a] ║  │ ocr_vision_usage │          500 │            50 │          550 │ $0.000275              │  ║
+[a2dc5a] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[a2dc5a] ║  │ TOTAL            │          500 │            50 │          550 │ $0.000275              │  ║
+[a2dc5a] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[a2dc5a] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:36:25,548] [DEBUG] [a2dc5a] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[a2dc5a]    Result: {
+[a2dc5a]   "success": true,
+[a2dc5a]   "status": "Pending",
+[a2dc5a]   "min_confidence": 0.55
+[a2dc5a] }
+[2026-10-02 00:36:25,549] [DEBUG] [a2dc5a] 
+[a2dc5a] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[a2dc5a] 📥 INPUT:
+[a2dc5a] {
+[a2dc5a]   "status": "PENDING",
+[a2dc5a]   "min_confidence": 0.55,
+[a2dc5a]   "agent_text": "[Prescription image received. Low OCR confidence (0.55). Case has been queued for manual doctor review.]"
+[a2dc5a] }
+[2026-10-02 00:36:25,557] [DEBUG] [a2dc5a] 
+[a2dc5a] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[a2dc5a] 📥 INPUT:
+[a2dc5a] {
+[a2dc5a]   "sender_id": "user_123",
+[a2dc5a]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\7d42968d17404c77bd0ff8bf701bbc88.jpg",
+[a2dc5a]   "bytes_len": 22
+[a2dc5a] }
+[2026-10-02 00:36:25,566] [ERROR] [a2dc5a] extract_prescription_payload error: Gemini API network timeout
+[2026-10-02 00:37:18,407] [DEBUG] [5ded06] 
+[5ded06] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[5ded06] 📥 INPUT:
+[5ded06] {
+[5ded06]   "sender_id": "user_123",
+[5ded06]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\56af3da449144887b24f7d4b68f2a906.jpg",
+[5ded06]   "bytes_len": 22
+[5ded06] }
+[2026-10-02 00:37:18,409] [INFO] [5ded06] 
+[5ded06] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[5ded06] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 🆔 Request Context                                                                           ║
+[5ded06] ║   • Trace ID:      5ded06
+[5ded06] ║   • Sender ID:     user_123
+[5ded06] ║   • Platform/Page: facebook (Page: page_456)
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 💬 Conversation & Intent Details                                                             ║
+[5ded06] ║   • User Message:   [Prescription Image Attachment]
+[5ded06] ║   • Detected Intent: prescription_ocr_intake
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 👁️ OCR Prescription Results                                                                  ║
+[5ded06] ║   • OCR Status:     NON_PRESCRIPTION
+[5ded06] ║   • Confidence:     0.0%
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[5ded06] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[5ded06] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[5ded06] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[5ded06] ║  │ ocr_vision_usage │          100 │            20 │          120 │ $0.000080              │  ║
+[5ded06] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[5ded06] ║  │ TOTAL            │          100 │            20 │          120 │ $0.000080              │  ║
+[5ded06] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[5ded06] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:37:18,413] [DEBUG] [5ded06] 
+[5ded06] --- [Prescription Decision: Non-Prescription] PRESCRIPTION DECISION: NON-PRESCRIPTION ---
+[5ded06] 📥 INPUT:
+[5ded06] {
+[5ded06]   "is_prescription": false,
+[5ded06]   "agent_text": "[Image classified as spam or not a valid prescription]"
+[5ded06] }
+[2026-10-02 00:37:18,422] [DEBUG] [5ded06] 
+[5ded06] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[5ded06] 📥 INPUT:
+[5ded06] {
+[5ded06]   "sender_id": "user_123",
+[5ded06]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\59fd0c09cec04376b30d2b0a0ca2b009.jpg",
+[5ded06]   "bytes_len": 22
+[5ded06] }
+[2026-10-02 00:37:18,423] [INFO] [5ded06] 
+[5ded06] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[5ded06] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 🆔 Request Context                                                                           ║
+[5ded06] ║   • Trace ID:      5ded06
+[5ded06] ║   • Sender ID:     user_123
+[5ded06] ║   • Platform/Page: facebook (Page: page_456)
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 💬 Conversation & Intent Details                                                             ║
+[5ded06] ║   • User Message:   [Prescription Image Attachment]
+[5ded06] ║   • Detected Intent: prescription_ocr_intake
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 👁️ OCR Prescription Results                                                                  ║
+[5ded06] ║   • OCR Status:     SUCCESS
+[5ded06] ║   • Confidence:     0.0%
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[5ded06] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[5ded06] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[5ded06] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[5ded06] ║  │ ocr_vision_usage │          300 │            30 │          330 │ $0.000165              │  ║
+[5ded06] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[5ded06] ║  │ TOTAL            │          300 │            30 │          330 │ $0.000165              │  ║
+[5ded06] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[5ded06] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:37:18,433] [DEBUG] [5ded06] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[5ded06]    Result: {
+[5ded06]   "success": true,
+[5ded06]   "status": "Pending",
+[5ded06]   "min_confidence": 0.0
+[5ded06] }
+[2026-10-02 00:37:18,433] [DEBUG] [5ded06] 
+[5ded06] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[5ded06] 📥 INPUT:
+[5ded06] {
+[5ded06]   "status": "PENDING",
+[5ded06]   "min_confidence": 0.0,
+[5ded06]   "agent_text": "[Prescription image received. Low OCR confidence (0.00). Case has been queued for manual doctor review.]"
+[5ded06] }
+[2026-10-02 00:37:18,442] [DEBUG] [5ded06] 
+[5ded06] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[5ded06] 📥 INPUT:
+[5ded06] {
+[5ded06]   "sender_id": "user_123",
+[5ded06]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\64f54e25d7db40058eb725ac348d084c.jpg",
+[5ded06]   "bytes_len": 22
+[5ded06] }
+[2026-10-02 00:37:18,444] [INFO] [5ded06] 
+[5ded06] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[5ded06] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 🆔 Request Context                                                                           ║
+[5ded06] ║   • Trace ID:      5ded06
+[5ded06] ║   • Sender ID:     user_123
+[5ded06] ║   • Platform/Page: facebook (Page: page_456)
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 💬 Conversation & Intent Details                                                             ║
+[5ded06] ║   • User Message:   [Prescription Image Attachment]
+[5ded06] ║   • Detected Intent: prescription_ocr_intake
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 👁️ OCR Prescription Results                                                                  ║
+[5ded06] ║   • OCR Status:     SUCCESS
+[5ded06] ║   • Recognized:     CBC (0.95), Lipid Profile (0.75)
+[5ded06] ║   • Confidence:     85.0%
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[5ded06] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[5ded06] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[5ded06] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[5ded06] ║  │ ocr_vision_usage │          400 │            40 │          440 │ $0.000220              │  ║
+[5ded06] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[5ded06] ║  │ TOTAL            │          400 │            40 │          440 │ $0.000220              │  ║
+[5ded06] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[5ded06] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:37:18,454] [DEBUG] [5ded06] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[5ded06]    Result: {
+[5ded06]   "success": true,
+[5ded06]   "status": "Reviewed",
+[5ded06]   "min_confidence": 0.75
+[5ded06] }
+[2026-10-02 00:37:18,454] [DEBUG] [5ded06] 
+[5ded06] --- [Prescription Decision: Routed to Agent] PRESCRIPTION DECISION: ROUTED TO AGENT ---
+[5ded06] 📥 INPUT:
+[5ded06] {
+[5ded06]   "status": "REVIEWED",
+[5ded06]   "tests_count": 2,
+[5ded06]   "tests": [
+[5ded06]     "CBC",
+[5ded06]     "Lipid Profile"
+[5ded06]   ]
+[5ded06] }
+[2026-10-02 00:37:18,465] [DEBUG] [5ded06] 
+[5ded06] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[5ded06] 📥 INPUT:
+[5ded06] {
+[5ded06]   "sender_id": "user_123",
+[5ded06]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\da93c85877954a6e81eebf544053796c.jpg",
+[5ded06]   "bytes_len": 22
+[5ded06] }
+[2026-10-02 00:37:18,467] [INFO] [5ded06] 
+[5ded06] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[5ded06] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 🆔 Request Context                                                                           ║
+[5ded06] ║   • Trace ID:      5ded06
+[5ded06] ║   • Sender ID:     user_123
+[5ded06] ║   • Platform/Page: facebook (Page: page_456)
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 💬 Conversation & Intent Details                                                             ║
+[5ded06] ║   • User Message:   [Prescription Image Attachment]
+[5ded06] ║   • Detected Intent: prescription_ocr_intake
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 👁️ OCR Prescription Results                                                                  ║
+[5ded06] ║   • OCR Status:     SUCCESS
+[5ded06] ║   • Recognized:     CBC (0.95), Ferritin (0.82), TSH (0.55)
+[5ded06] ║   • Confidence:     77.3%
+[5ded06] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[5ded06] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[5ded06] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[5ded06] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[5ded06] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[5ded06] ║  │ ocr_vision_usage │          500 │            50 │          550 │ $0.000275              │  ║
+[5ded06] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[5ded06] ║  │ TOTAL            │          500 │            50 │          550 │ $0.000275              │  ║
+[5ded06] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[5ded06] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:37:18,473] [DEBUG] [5ded06] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[5ded06]    Result: {
+[5ded06]   "success": true,
+[5ded06]   "status": "Pending",
+[5ded06]   "min_confidence": 0.55
+[5ded06] }
+[2026-10-02 00:37:18,473] [DEBUG] [5ded06] 
+[5ded06] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[5ded06] 📥 INPUT:
+[5ded06] {
+[5ded06]   "status": "PENDING",
+[5ded06]   "min_confidence": 0.55,
+[5ded06]   "agent_text": "[Prescription image received. Low OCR confidence (0.55). Case has been queued for manual doctor review.]"
+[5ded06] }
+[2026-10-02 00:37:18,483] [DEBUG] [5ded06] 
+[5ded06] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[5ded06] 📥 INPUT:
+[5ded06] {
+[5ded06]   "sender_id": "user_123",
+[5ded06]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\aeb8a5547c8d4b579ffc82906c667d8a.jpg",
+[5ded06]   "bytes_len": 22
+[5ded06] }
+[2026-10-02 00:37:18,492] [ERROR] [5ded06] extract_prescription_payload error: Gemini API network timeout
+[2026-10-02 00:57:22,994] [DEBUG] [341d6e] 
+[341d6e] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[341d6e] 📥 INPUT:
+[341d6e] {
+[341d6e]   "sender_id": "user_123",
+[341d6e]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\85d414d116c64ad980922bcb49aae656.jpg",
+[341d6e]   "bytes_len": 22
+[341d6e] }
+[2026-10-02 00:57:22,998] [INFO] [341d6e] 
+[341d6e] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[341d6e] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 🆔 Request Context                                                                           ║
+[341d6e] ║   • Trace ID:      341d6e
+[341d6e] ║   • Sender ID:     user_123
+[341d6e] ║   • Platform/Page: facebook (Page: page_456)
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 💬 Conversation & Intent Details                                                             ║
+[341d6e] ║   • User Message:   [Prescription Image Attachment]
+[341d6e] ║   • Detected Intent: prescription_ocr_intake
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 👁️ OCR Prescription Results                                                                  ║
+[341d6e] ║   • OCR Status:     NON_PRESCRIPTION
+[341d6e] ║   • Confidence:     0.0%
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[341d6e] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[341d6e] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[341d6e] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[341d6e] ║  │ ocr_vision_usage │          100 │            20 │          120 │ $0.000080              │  ║
+[341d6e] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[341d6e] ║  │ TOTAL            │          100 │            20 │          120 │ $0.000080              │  ║
+[341d6e] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[341d6e] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:57:23,000] [DEBUG] [341d6e] 
+[341d6e] --- [Prescription Decision: Non-Prescription] PRESCRIPTION DECISION: NON-PRESCRIPTION ---
+[341d6e] 📥 INPUT:
+[341d6e] {
+[341d6e]   "is_prescription": false,
+[341d6e]   "agent_text": "[Image classified as spam or not a valid prescription]"
+[341d6e] }
+[2026-10-02 00:57:23,010] [DEBUG] [341d6e] 
+[341d6e] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[341d6e] 📥 INPUT:
+[341d6e] {
+[341d6e]   "sender_id": "user_123",
+[341d6e]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\6897710273104b71a4750a773bc4c27f.jpg",
+[341d6e]   "bytes_len": 22
+[341d6e] }
+[2026-10-02 00:57:23,012] [INFO] [341d6e] 
+[341d6e] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[341d6e] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 🆔 Request Context                                                                           ║
+[341d6e] ║   • Trace ID:      341d6e
+[341d6e] ║   • Sender ID:     user_123
+[341d6e] ║   • Platform/Page: facebook (Page: page_456)
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 💬 Conversation & Intent Details                                                             ║
+[341d6e] ║   • User Message:   [Prescription Image Attachment]
+[341d6e] ║   • Detected Intent: prescription_ocr_intake
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 👁️ OCR Prescription Results                                                                  ║
+[341d6e] ║   • OCR Status:     SUCCESS
+[341d6e] ║   • Confidence:     0.0%
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[341d6e] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[341d6e] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[341d6e] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[341d6e] ║  │ ocr_vision_usage │          300 │            30 │          330 │ $0.000165              │  ║
+[341d6e] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[341d6e] ║  │ TOTAL            │          300 │            30 │          330 │ $0.000165              │  ║
+[341d6e] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[341d6e] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:57:23,022] [DEBUG] [341d6e] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[341d6e]    Result: {
+[341d6e]   "success": true,
+[341d6e]   "status": "Pending",
+[341d6e]   "min_confidence": 0.0
+[341d6e] }
+[2026-10-02 00:57:23,023] [DEBUG] [341d6e] 
+[341d6e] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[341d6e] 📥 INPUT:
+[341d6e] {
+[341d6e]   "status": "PENDING",
+[341d6e]   "min_confidence": 0.0,
+[341d6e]   "agent_text": "[Prescription image received. Low OCR confidence (0.00). Case has been queued for manual doctor review.]"
+[341d6e] }
+[2026-10-02 00:57:23,031] [DEBUG] [341d6e] 
+[341d6e] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[341d6e] 📥 INPUT:
+[341d6e] {
+[341d6e]   "sender_id": "user_123",
+[341d6e]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\a8759fb108c340cdb3807cc640aa4a51.jpg",
+[341d6e]   "bytes_len": 22
+[341d6e] }
+[2026-10-02 00:57:23,033] [INFO] [341d6e] 
+[341d6e] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[341d6e] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 🆔 Request Context                                                                           ║
+[341d6e] ║   • Trace ID:      341d6e
+[341d6e] ║   • Sender ID:     user_123
+[341d6e] ║   • Platform/Page: facebook (Page: page_456)
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 💬 Conversation & Intent Details                                                             ║
+[341d6e] ║   • User Message:   [Prescription Image Attachment]
+[341d6e] ║   • Detected Intent: prescription_ocr_intake
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 👁️ OCR Prescription Results                                                                  ║
+[341d6e] ║   • OCR Status:     SUCCESS
+[341d6e] ║   • Recognized:     CBC (0.95), Lipid Profile (0.75)
+[341d6e] ║   • Confidence:     85.0%
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[341d6e] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[341d6e] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[341d6e] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[341d6e] ║  │ ocr_vision_usage │          400 │            40 │          440 │ $0.000220              │  ║
+[341d6e] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[341d6e] ║  │ TOTAL            │          400 │            40 │          440 │ $0.000220              │  ║
+[341d6e] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[341d6e] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:57:23,043] [DEBUG] [341d6e] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[341d6e]    Result: {
+[341d6e]   "success": true,
+[341d6e]   "status": "Reviewed",
+[341d6e]   "min_confidence": 0.75
+[341d6e] }
+[2026-10-02 00:57:23,043] [DEBUG] [341d6e] 
+[341d6e] --- [Prescription Decision: Routed to Agent] PRESCRIPTION DECISION: ROUTED TO AGENT ---
+[341d6e] 📥 INPUT:
+[341d6e] {
+[341d6e]   "status": "REVIEWED",
+[341d6e]   "tests_count": 2,
+[341d6e]   "tests": [
+[341d6e]     "CBC",
+[341d6e]     "Lipid Profile"
+[341d6e]   ]
+[341d6e] }
+[2026-10-02 00:57:23,053] [DEBUG] [341d6e] 
+[341d6e] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[341d6e] 📥 INPUT:
+[341d6e] {
+[341d6e]   "sender_id": "user_123",
+[341d6e]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\e217dc6dd722435ba5bbe5621669b83d.jpg",
+[341d6e]   "bytes_len": 22
+[341d6e] }
+[2026-10-02 00:57:23,055] [INFO] [341d6e] 
+[341d6e] ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+[341d6e] ║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 🆔 Request Context                                                                           ║
+[341d6e] ║   • Trace ID:      341d6e
+[341d6e] ║   • Sender ID:     user_123
+[341d6e] ║   • Platform/Page: facebook (Page: page_456)
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 💬 Conversation & Intent Details                                                             ║
+[341d6e] ║   • User Message:   [Prescription Image Attachment]
+[341d6e] ║   • Detected Intent: prescription_ocr_intake
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 👁️ OCR Prescription Results                                                                  ║
+[341d6e] ║   • OCR Status:     SUCCESS
+[341d6e] ║   • Recognized:     CBC (0.95), Ferritin (0.82), TSH (0.55)
+[341d6e] ║   • Confidence:     77.3%
+[341d6e] ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+[341d6e] ║ 🧮 Token Usage & Cost Breakdown Table                                                       ║
+[341d6e] ║  ┌──────────────────┬──────────────┬───────────────┬──────────────┬────────────────────────┐  ║
+[341d6e] ║  │ Pipeline Node    │ Input Tokens │ Output Tokens │ Total Tokens │ Est. Cost (USD)        │  ║
+[341d6e] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[341d6e] ║  │ ocr_vision_usage │          500 │            50 │          550 │ $0.000275              │  ║
+[341d6e] ║  ├──────────────────┼──────────────┼───────────────┼──────────────┼────────────────────────┤  ║
+[341d6e] ║  │ TOTAL            │          500 │            50 │          550 │ $0.000275              │  ║
+[341d6e] ║  └──────────────────┴──────────────┴───────────────┴──────────────┴────────────────────────┘  ║
+[341d6e] ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+[2026-10-02 00:57:23,064] [DEBUG] [341d6e] 💾 [DATABASE] SAVE_INQUIRY -> inquiries
+[341d6e]    Result: {
+[341d6e]   "success": true,
+[341d6e]   "status": "Pending",
+[341d6e]   "min_confidence": 0.55
+[341d6e] }
+[2026-10-02 00:57:23,065] [DEBUG] [341d6e] 
+[341d6e] --- [Prescription Decision: Pending Review] PRESCRIPTION DECISION: PENDING REVIEW ---
+[341d6e] 📥 INPUT:
+[341d6e] {
+[341d6e]   "status": "PENDING",
+[341d6e]   "min_confidence": 0.55,
+[341d6e]   "agent_text": "[Prescription image received. Low OCR confidence (0.55). Case has been queued for manual doctor review.]"
+[341d6e] }
+[2026-10-02 00:57:23,074] [DEBUG] [341d6e] 
+[341d6e] --- [Prescription Image Ingested] PRESCRIPTION IMAGE INGESTED ---
+[341d6e] 📥 INPUT:
+[341d6e] {
+[341d6e]   "sender_id": "user_123",
+[341d6e]   "image_path": "C:\\Users\\menna\\Desktop\\el sadara_agent\\static\\uploads\\2381308dd30d49fba9723e8c0d2de63b.jpg",
+[341d6e]   "bytes_len": 22
+[341d6e] }
+[2026-10-02 00:57:23,132] [ERROR] [341d6e] extract_prescription_payload error: Gemini API network timeout

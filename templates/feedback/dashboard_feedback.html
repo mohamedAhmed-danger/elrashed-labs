@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}تقييمات العملاء — معمل صدارة{% endblock %}
+
+{% block topbar_title %}تقييمات وآراء العملاء{% endblock %}
+{% block topbar_sub %}متابعة مستوى رضا المرضى وجودة الخدمات المخبرية{% endblock %}
+
+{% block content %}
+
+{% set total_fb = feedbacks|length %}
+{% set avg_rating = (feedbacks|map(attribute='overall_rating')|sum / total_fb) if total_fb > 0 else 0 %}
+
+<div class="ts-stats-strip">
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-amber"><i data-lucide="star"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ '%.1f'|format(avg_rating) }} / 5</div>
+      <div class="ts-stat-pill-label">متوسط التقييم العام</div>
+    </div>
+  </div>
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-blue"><i data-lucide="message-square"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ total_fb }}</div>
+      <div class="ts-stat-pill-label">إجمالي التقييمات المستلمة</div>
+    </div>
+  </div>
+</div>
+
+<div class="table-wrap ts-table-wrap">
+  <table class="data-table ts-data-table">
+    <thead>
+      <tr>
+        <th style="width: 90px;">الرقم المرجعي</th>
+        <th>اسم العميل</th>
+        <th>رقم الهاتف</th>
+        <th style="text-align: center;">التقييم العام</th>
+        <th style="text-align: center;">سهولة الخدمة</th>
+        <th>الملاحظات والتعليق</th>
+        <th>التاريخ</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for fb in feedbacks %}
+      <tr>
+        <td><span class="ts-id-chip">{{ fb.reference_id or '—' }}</span></td>
+        <td>
+          <div class="ts-test-name-cell">
+            <div class="fb-avatar">{{ (fb.name[0] if fb.name else '؟')|upper }}</div>
+            <div class="ts-test-name-text">{{ fb.name }}</div>
+          </div>
+        </td>
+        <td dir="ltr" style="text-align: right;">
+          <span class="ts-lab-tag"><i data-lucide="phone"></i>{{ fb.phone_number }}</span>
+        </td>
+        <td style="text-align: center;">
+          <span class="fb-stars">
+            {% for _ in range(fb.overall_rating) %}<i data-lucide="star" class="fb-star-filled"></i>{% endfor %}{% for _ in range(5 - fb.overall_rating) %}<i data-lucide="star" class="fb-star-empty"></i>{% endfor %}
+          </span>
+        </td>
+        <td style="text-align: center;">
+          <span class="status-chip {% if fb.ease_of_use >= 4 %}done{% elif fb.ease_of_use == 3 %}pending{% else %}new{% endif %}">
+            {{ fb.ease_of_use }} / 5
+          </span>
+        </td>
+        <td>
+          <span class="fb-note">
+            {{ fb.feedback_text or '—' }}
+          </span>
+        </td>
+        <td>
+          <span style="font-size: 0.78rem; color: var(--ink-500);">
+            {{ fb.created_at.strftime('%Y-%m-%d %H:%M') if fb.created_at else '—' }}
+          </span>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 56px 20px;">
+          <div class="ts-empty-icon"><i data-lucide="star"></i></div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 6px;">لا توجد تقييمات مسجلة بعد</h4>
+          <p style="color: var(--ink-500); font-size: 0.85rem;">
+            ستظهر هنا آراء العملاء بمجرد إرسالها بعد الزيارات.
+          </p>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

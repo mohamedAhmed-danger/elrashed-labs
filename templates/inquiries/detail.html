@@ -1,0 +1,622 @@
+{% extends "base.html" %}
+
+{% block title %}مراجعة وتأكيد الروشتة #{{ inquiry.id }} — معمل صدارة{% endblock %}
+
+{% block topbar_title %}مراجعة الروشتة الطبية #{{ inquiry.id }}{% endblock %}
+{% block topbar_sub %}التحقق من الفحوصات المستخرجة وتحديد باقة التحاليل لإرسال التسعيرة للمريض{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('inquiries.list_inquiries') }}" class="btn btn-outline btn-sm">
+  <i data-lucide="arrow-right"></i>
+  العودة لقائمة الروشتات
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="panel-row" style="grid-template-columns: 1fr 1.3fr; gap: 24px; align-items: start;">
+
+  <!-- Left Side: Prescription Image & OCR Data -->
+  <div class="card glass-card" style="padding: 24px;">
+    <div class="panel-header" style="margin-bottom: 16px;">
+      <h4><i data-lucide="image" style="width: 16px; height: 16px; color: var(--blue-600); vertical-align: -3px; margin-left: 6px;"></i>صورة الروشتة المرسلة</h4>
+    </div>
+
+    {% if inquiry.deleted_at %}
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;
+                height: 420px; background: #fff7ed; border-radius: 12px; border: 1px solid #fde8cc;
+                color: #92400e; margin-bottom: 20px; text-align: center; padding: 20px;">
+      <i data-lucide="trash-2" style="width: 42px; height: 42px; margin-bottom: 10px;"></i>
+      <p style="margin: 0; font-size: 0.9rem;">تم حذف صورة الروشتة تلقائيًا ({{ inquiry.deletion_reason or 'مرت 8 أيام على استلامها' }}).</p>
+    </div>
+
+    {% elif inquiry.image_exists %}
+    <div style="margin-bottom: 20px;">
+      <a href="{{ inquiry.image_url }}" target="_blank" title="انقر للتكبير"
+         style="display: flex; align-items: center; justify-content: center;
+                background: #f1f5f9; border-radius: 12px; border: 1px solid var(--border);
+                height: 420px; overflow: hidden; position: relative;">
+        <img src="{{ inquiry.image_url }}" alt="الروشتة #{{ inquiry.id }}"
+             style="max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 2px 10px rgba(0,0,0,0.12); border-radius: 4px;">
+        <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.55); color: #fff;
+                    font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px;">
+          <i data-lucide="maximize-2" style="width: 11px; height: 11px;"></i>
+          تكبير
+        </div>
+      </a>
+      <div style="margin-top: 12px; text-align: center;">
+        <a href="{{ inquiry.image_url }}" download class="btn btn-outline btn-sm">
+          <i data-lucide="download"></i>
+          تحميل الصورة
+        </a>
+      </div>
+    </div>
+
+    {% elif inquiry.prescription_img %}
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;
+                height: 420px; background: #fef2f2; border-radius: 12px; border: 1px solid #fecaca;
+                color: #991b1b; margin-bottom: 20px; text-align: center; padding: 20px;">
+      <i data-lucide="alert-triangle" style="width: 42px; height: 42px; margin-bottom: 10px;"></i>
+      <p style="margin: 0; font-size: 0.9rem;">الصورة مسجلة في النظام لكن الملف غير موجود أو تالف على السيرفر.</p>
+    </div>
+
+    {% else %}
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;
+                height: 420px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border);
+                color: var(--ink-500); margin-bottom: 20px; text-align: center; padding: 20px;">
+      <i data-lucide="image-off" style="width: 42px; height: 42px; margin-bottom: 10px;"></i>
+      <p style="margin: 0; font-size: 0.9rem;">لا توجد صورة روشتة مرفقة بهذا الطلب.</p>
+    </div>
+    {% endif %}
+
+    <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+      <div class="info-item" style="padding: 10px;">
+        <div class="info-icon si-blue"><i data-lucide="phone"></i></div>
+        <div class="info-body">
+          <div class="info-label">رقم الهاتف</div>
+          <div class="info-value" style="direction: ltr; text-align: right; font-size: 0.88rem;">{{ inquiry.phone_number or '—' }}</div>
+        </div>
+      </div>
+      <div class="info-item" style="padding: 10px;">
+        <div class="info-icon si-purple"><i data-lucide="share-2"></i></div>
+        <div class="info-body">
+          <div class="info-label">المصدر / المنصة</div>
+          <div class="info-value" style="font-size: 0.88rem;">{{ inquiry.comes_from or 'غير محدد' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OCR text snippet -->
+    <div style="margin-bottom: 16px;">
+      <label style="font-size: 0.8rem; font-weight: 700; color: var(--ink-700); display: block; margin-bottom: 6px;">النص المستخرج آلياً بواسطة الذكاء الاصطناعي (OCR):</label>
+      <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 0.85rem; color: var(--ink-900); max-height: 140px; overflow-y: auto; line-height: 1.6;">
+        {{ inquiry.ocr_extracted_text or 'لم يتم استخراج نص من الصورة' }}
+      </div>
+      {% if inquiry.confidence_score is not none %}
+      <div style="font-size: 0.78rem; color: var(--ink-500); margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+        نسبة الدقة المقدرة:
+        <span class="status-chip {% if inquiry.confidence_score >= 0.8 %}active{% elif inquiry.confidence_score >= 0.5 %}grace{% else %}suspended{% endif %}" style="font-weight: 700;">
+          {{ '%.0f'|format(inquiry.confidence_score * 100) }}%
+        </span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Status updater form -->
+    <form action="{{ url_for('inquiries.update_inquiry_status', inquiry_id=inquiry.id) }}" method="POST" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;">
+      <label style="font-size: 0.8rem; font-weight: 700; color: var(--ink-700); display: block; margin-bottom: 6px;">تحديث حالة الطلب يدوياً:</label>
+      <div style="display: flex; gap: 8px;">
+        <select name="status" class="form-control" style="font-size: 0.85rem;">
+          <option value="Pending" {% if inquiry.status.name == 'PENDING' %}selected{% endif %}>قيد الانتظار (Pending)</option>
+          <option value="Reviewed" {% if inquiry.status.name == 'REVIEWED' %}selected{% endif %}>تمت المراجعة (Reviewed)</option>
+          <option value="Attended" {% if inquiry.status.name == 'ATTENDED' %}selected{% endif %}>تم الحضور (Attended)</option>
+          <option value="No Show" {% if inquiry.status.name == 'NO_SHOW' %}selected{% endif %}>لم يحضر (No Show)</option>
+        </select>
+        <button type="submit" class="btn btn-secondary btn-sm" style="flex-shrink: 0;">تحديث</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Right Side: Services Selection & Confirmation Form -->
+  <div class="card glass-card" style="padding: 24px;">
+    <div class="panel-header" style="margin-bottom: 16px;">
+      <h4><i data-lucide="check-circle-2" style="width: 16px; height: 16px; color: var(--blue-600); vertical-align: -3px; margin-left: 6px;"></i>تأكيد التحاليل المطلوبة وإرسال الرد للمريض</h4>
+    </div>
+
+    <p style="font-size: 0.85rem; color: var(--ink-500); margin-bottom: 18px;">
+      حدد الفحوصات الطبية المطلوبة من دليل تحاليل المعمل. سيتم حساب السعر الإجمالي آلياً وتجهيز الرد للمريض مع التعليمات الطبية.
+    </p>
+
+    <form action="{{ url_for('inquiries.confirm_inquiry', inquiry_id=inquiry.id) }}" method="POST" id="confirmInquiryForm">
+
+      <!-- Autocomplete Search Bar -->
+      <div class="autocomplete-wrapper" style="position: relative; margin-bottom: 16px;">
+        <label for="serviceSearchInput" style="font-size: 0.82rem; font-weight: 700; color: var(--ink-700); display: block; margin-bottom: 6px;">
+          البحث في التحاليل الطبية لإضافتها للروشتة:
+        </label>
+        <div style="position: relative;">
+          <input type="text"
+                 id="serviceSearchInput"
+                 placeholder="اكتب اسم التحليل أو اختصاره (مثال: CBC, Ferritin, سكر صائم)..."
+                 class="form-control"
+                 style="font-size: 0.88rem; padding-inline-start: 38px;"
+                 autocomplete="off">
+          <i data-lucide="search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--ink-400); pointer-events: none;"></i>
+        </div>
+
+        <!-- Dropdown Container -->
+        <div id="autocompleteDropdown" class="autocomplete-dropdown" style="display: none;"></div>
+      </div>
+
+      <!-- Selected Services Container -->
+      <div style="margin-bottom: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <label style="font-size: 0.82rem; font-weight: 700; color: var(--ink-700);">
+            الفحوصات الطبية المحددة (<span id="selectedCount">0</span>):
+          </label>
+          <button type="button" id="clearAllBtn" onclick="clearAllSelected()" style="display: none; background: none; border: none; font-size: 0.76rem; color: var(--red-500); cursor: pointer; text-decoration: underline;">
+            إلغاء تحديد الكل
+          </button>
+        </div>
+
+        <div id="selectedServicesList" style="min-height: 140px; max-height: 340px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 10px; background: #fafbfc;">
+          <!-- Empty State Notice -->
+          <div id="noSelectedNotice" style="text-align: center; padding: 32px 16px; color: var(--ink-400); font-size: 0.85rem;">
+            <i data-lucide="clipboard-list" style="width: 32px; height: 32px; margin-bottom: 8px; stroke-width: 1.5; opacity: 0.5;"></i>
+            <div>لم يتم اختيار أي تحاليل بعد.</div>
+            <div style="font-size: 0.78rem; margin-top: 4px; color: var(--ink-400);">ابحث في شريط البحث أعلاه وانقر على التحليل لإضافته إلى قائمة الروشتة.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discount Options (optional) -->
+      <div style="margin-bottom: 18px;">
+        <label style="font-size: 0.82rem; font-weight: 700; color: var(--ink-700); display: block; margin-bottom: 8px;">
+          خصم على التسعيرة (اختياري):
+        </label>
+        <div style="display: flex; gap: 10px;">
+          {% for key, d in discounts.items() %}
+          <button type="button" class="discount-btn" data-key="{{ key }}" data-percent="{{ d.percent }}">
+            <i data-lucide="{{ 'shield-check' if key == 'insurance' else 'percent' }}"></i>
+            <span>{{ d.label }}</span>
+          </button>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="discount_type" id="discountType" value="">
+      </div>
+
+      <!-- Live Total Summary -->
+      <div style="background: linear-gradient(135deg, #f0f7ff 0%, #e6f0fa 100%); border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;">
+        <div style="font-weight: 700; color: var(--navy-900); font-size: 0.95rem;">
+          <i data-lucide="calculator" style="width: 16px; height: 16px; vertical-align: -3px; color: var(--blue-600);"></i>
+          إجمالي تكلفة التحاليل المحددة:
+        </div>
+        <div id="totalCostDisplay" style="font-size: 1.25rem; font-weight: 800; color: var(--blue-600); direction: ltr;">
+          0 ج.م
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg btn-block" style="font-weight: 700; padding: 14px;">
+        <i data-lucide="send"></i>
+        تأكيد الروشتة وإرسال التسعيرة للمريض
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+<style>
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  background: #ffffff;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+  max-height: 280px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.autocomplete-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s ease;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover {
+  background: #f0f7ff;
+}
+
+.autocomplete-item.already-selected {
+  background: #f8fafc;
+  opacity: 0.75;
+}
+
+.selected-service-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.selected-service-row:hover {
+  border-color: #cbd5e1;
+}
+
+.remove-service-btn {
+  background: none;
+  border: none;
+  color: var(--ink-400);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.remove-service-btn:hover {
+  color: var(--red-500);
+  background: #fee2e2;
+}
+
+.discount-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 14px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: #ffffff;
+  color: var(--ink-700);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.discount-btn:hover {
+  border-color: #93c5fd;
+}
+
+.discount-btn.active {
+  background: #eff6ff;
+  border-color: var(--blue-600);
+  color: var(--blue-600);
+}
+
+.discount-btn svg {
+  width: 16px;
+  height: 16px;
+}
+</style>
+
+<script>
+(function() {
+  const searchInput = document.getElementById('serviceSearchInput');
+  const dropdown = document.getElementById('autocompleteDropdown');
+  const selectedList = document.getElementById('selectedServicesList');
+  const selectedCountEl = document.getElementById('selectedCount');
+  const clearAllBtn = document.getElementById('clearAllBtn');
+  const totalCostEl = document.getElementById('totalCostDisplay');
+  const confirmForm = document.getElementById('confirmInquiryForm');
+  const discountBtns = document.querySelectorAll('.discount-btn');
+  const discountInput = document.getElementById('discountType');
+
+  const searchEndpoint = "{{ url_for('test.search_tests') }}";
+  const inquiryLabId = "{{ inquiry.laboratory_id or '' }}";
+
+  // Map to store selected services by test ID: id -> {id, name, price, patient_instructions}
+  const selectedServices = new Map();
+
+  let discountPercent = 0;
+  let debounceTimer = null;
+  let currentAbortController = null;
+
+  // Escape HTML helper
+  function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // Recalculate total cost (with optional discount preview)
+  function updateTotal() {
+    let total = 0;
+    selectedServices.forEach(item => {
+      total += parseFloat(item.price || 0);
+    });
+
+    if (discountPercent) {
+      const finalPrice = total - (total * discountPercent / 100);
+      totalCostEl.innerHTML =
+        '<s style="font-size: 0.85rem; color: var(--ink-400); font-weight: 600;">' + total.toLocaleString() + '</s> ' +
+        finalPrice.toLocaleString() + ' ج.م';
+    } else {
+      totalCostEl.textContent = total.toLocaleString() + ' ج.م';
+    }
+  }
+
+  // Render selected services container
+  function renderSelectedServices() {
+    selectedCountEl.textContent = selectedServices.size;
+    clearAllBtn.style.display = selectedServices.size > 1 ? 'inline-block' : 'none';
+
+    if (selectedServices.size === 0) {
+      selectedList.innerHTML = `
+        <div id="noSelectedNotice" style="text-align: center; padding: 32px 16px; color: var(--ink-400); font-size: 0.85rem;">
+          <i data-lucide="clipboard-list" style="width: 32px; height: 32px; margin-bottom: 8px; stroke-width: 1.5; opacity: 0.5;"></i>
+          <div>لم يتم اختيار أي تحاليل بعد.</div>
+          <div style="font-size: 0.78rem; margin-top: 4px; color: var(--ink-400);">ابحث في شريط البحث أعلاه وانقر على التحليل لإضافته إلى قائمة الروشتة.</div>
+        </div>
+      `;
+      if (window.lucide) lucide.createIcons();
+      updateTotal();
+      return;
+    }
+
+    selectedList.innerHTML = '';
+    selectedServices.forEach(test => {
+      const row = document.createElement('div');
+      row.className = 'selected-service-row';
+      row.dataset.id = test.id;
+
+      row.innerHTML = `
+        <input type="checkbox" name="selected_services" value="${test.id}" data-price="${test.price}" checked style="display: none;">
+        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+          <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--blue-600); flex-shrink: 0;"></div>
+          <div style="min-width: 0;">
+            <div style="font-weight: 700; font-size: 0.88rem; color: var(--navy-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${escapeHtml(test.name)}
+            </div>
+            ${test.patient_instructions ? `
+            <div style="font-size: 0.74rem; color: var(--ink-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              <i data-lucide="info" style="width:11px;height:11px;vertical-align:-1px;"></i> ${escapeHtml(test.patient_instructions)}
+            </div>` : ''}
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0; margin-inline-start: 12px;">
+          <div style="font-weight: 800; font-size: 0.92rem; color: var(--blue-600); direction: ltr;">
+            ${test.price} ج.م
+          </div>
+          <button type="button" class="remove-service-btn" data-remove-id="${test.id}" title="إزالة التحليل">
+            <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+          </button>
+        </div>
+      `;
+
+      // Attach remove handler
+      row.querySelector('.remove-service-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        selectedServices.delete(test.id);
+        renderSelectedServices();
+      });
+
+      selectedList.appendChild(row);
+    });
+
+    if (window.lucide) lucide.createIcons();
+    updateTotal();
+  }
+
+  // Clear all selected services
+  window.clearAllSelected = function() {
+    selectedServices.clear();
+    renderSelectedServices();
+  };
+
+  // Add a test to selection
+  function addService(test) {
+    if (selectedServices.has(test.id)) {
+      // Flash existing row if already added
+      const existing = selectedList.querySelector(`.selected-service-row[data-id="${test.id}"]`);
+      if (existing) {
+        existing.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        existing.style.boxShadow = '0 0 0 2px var(--blue-500)';
+        setTimeout(() => { existing.style.boxShadow = 'none'; }, 800);
+      }
+      return;
+    }
+
+    selectedServices.set(test.id, {
+      id: test.id,
+      name: test.name,
+      price: parseFloat(test.price || 0),
+      patient_instructions: test.patient_instructions || ''
+    });
+
+    renderSelectedServices();
+  }
+
+  // Render dropdown results
+  function renderDropdown(results, query) {
+    dropdown.innerHTML = '';
+
+    if (!results || results.length === 0) {
+      dropdown.innerHTML = `
+        <div style="padding: 14px; text-align: center; color: var(--ink-500); font-size: 0.85rem;">
+          لا توجد تحاليل مطابقة لـ "<strong>${escapeHtml(query)}</strong>"
+        </div>
+      `;
+      dropdown.style.display = 'block';
+      return;
+    }
+
+    results.forEach(item => {
+      const isAlready = selectedServices.has(item.id);
+      const opt = document.createElement('div');
+      opt.className = 'autocomplete-item' + (isAlready ? ' already-selected' : '');
+
+      opt.innerHTML = `
+        <div style="min-width: 0; flex: 1;">
+          <div style="font-weight: 700; font-size: 0.88rem; color: var(--navy-900);">${escapeHtml(item.name)}</div>
+          ${item.patient_instructions ? `
+          <div style="font-size: 0.74rem; color: var(--ink-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            ${escapeHtml(item.patient_instructions)}
+          </div>` : ''}
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-inline-start: 12px;">
+          <span style="font-weight: 800; font-size: 0.88rem; color: var(--blue-600); direction: ltr;">
+            ${item.price} ج.م
+          </span>
+          ${isAlready ? '<span style="font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; color: var(--ink-700);">محدد مسبقاً</span>' : ''}
+        </div>
+      `;
+
+      opt.addEventListener('click', () => {
+        addService(item);
+        dropdown.style.display = 'none';
+        searchInput.value = '';
+        searchInput.focus();
+      });
+
+      dropdown.appendChild(opt);
+    });
+
+    dropdown.style.display = 'block';
+  }
+
+  // Fetch search results from server
+  async function searchTests(query) {
+    // Abort previous in-flight request to handle race conditions
+    if (currentAbortController) {
+      currentAbortController.abort();
+    }
+    currentAbortController = new AbortController();
+    const signal = currentAbortController.signal;
+
+    dropdown.innerHTML = `
+      <div style="padding: 14px; text-align: center; color: var(--ink-500); font-size: 0.85rem;">
+        <span style="display: inline-block; width: 14px; height: 14px; border: 2px solid var(--blue-600); border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: -2px; margin-inline-end: 6px;"></span>
+        جاري البحث...
+      </div>
+    `;
+    dropdown.style.display = 'block';
+
+    try {
+      const url = new URL(searchEndpoint, window.location.origin);
+      url.searchParams.set('q', query);
+      if (inquiryLabId) {
+        url.searchParams.set('laboratory_id', inquiryLabId);
+      }
+      url.searchParams.set('limit', '15');
+
+      const res = await fetch(url.toString(), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        signal: signal
+      });
+
+      if (!res.ok) {
+        throw new Error('Server returned ' + res.status);
+      }
+
+      const data = await res.json();
+      renderDropdown(data, query);
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        // Cancelled because newer keystroke arrived - do nothing
+        return;
+      }
+      dropdown.innerHTML = `
+        <div style="padding: 14px; text-align: center; color: var(--red-500); font-size: 0.85rem;">
+          تعذر الاتصال بالخادم للبحث عن التحاليل.
+        </div>
+      `;
+      dropdown.style.display = 'block';
+    }
+  }
+
+  // Native input event with debounce (280ms)
+  searchInput.addEventListener('input', function() {
+    const q = this.value.trim();
+
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
+    if (!q) {
+      if (currentAbortController) {
+        currentAbortController.abort();
+        currentAbortController = null;
+      }
+      dropdown.style.display = 'none';
+      dropdown.innerHTML = '';
+      return;
+    }
+
+    debounceTimer = setTimeout(() => {
+      searchTests(q);
+    }, 280);
+  });
+
+  // Close dropdown on Escape key
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      dropdown.style.display = 'none';
+    }
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!dropdown.contains(e.target) && e.target !== searchInput) {
+      dropdown.style.display = 'none';
+    }
+  });
+
+  // Discount buttons: click to activate, click again to cancel
+  discountBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const wasActive = btn.classList.contains('active');
+      discountBtns.forEach(b => b.classList.remove('active'));
+
+      if (wasActive) {
+        discountInput.value = '';
+        discountPercent = 0;
+      } else {
+        btn.classList.add('active');
+        discountInput.value = btn.dataset.key;
+        discountPercent = parseFloat(btn.dataset.percent);
+      }
+      updateTotal();
+    });
+  });
+
+  // Prevent form submission if no services are selected
+  confirmForm.addEventListener('submit', function(e) {
+    if (selectedServices.size === 0) {
+      e.preventDefault();
+      alert('يرجى اختيار وتحديد خدمة تحليل واحدة على الأقل قبل تأكيد الروشتة.');
+      searchInput.focus();
+    }
+  });
+
+  if (window.lucide) lucide.createIcons();
+
+})();
+</script>
+
+{% endblock %}

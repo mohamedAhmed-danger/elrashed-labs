@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة صفحات التواصل — معمل صدارة{% endblock %}
+
+{% block topbar_title %}إدارة صفحات التواصل الاجتماعي{% endblock %}
+{% block topbar_sub %}ربط وإدارة حسابات وصفحات الفيسبوك والواتساب بالمعامل{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('pages.create_page') }}" class="btn btn-primary">
+  <i data-lucide="plus-circle"></i>
+  إضافة صفحة تواصل جديدة
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="ts-stats-strip">
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-blue"><i data-lucide="share-2"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ pages|length }}</div>
+      <div class="ts-stat-pill-label">إجمالي الصفحات المربوطة</div>
+    </div>
+  </div>
+</div>
+
+<div class="table-wrap ts-table-wrap">
+  <table class="data-table ts-data-table">
+    <thead>
+      <tr>
+        <th>معرّف الصفحة (Page ID)</th>
+        <th>المنصة</th>
+        <th>المعمل التابع له</th>
+        <th>رمز الوصول (Token)</th>
+        <th>العملاء النشطون</th>
+        <th style="width: 170px; text-align: center;">الإجراءات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in pages %}
+      <tr>
+        <td>
+          <span class="ts-id-chip" style="font-weight: 700; color: var(--navy-900);">
+            {{ p.page_id }}
+          </span>
+        </td>
+        <td>
+          <span class="status-chip" style="background: rgba(37,99,235,0.08); color: var(--blue-600); font-weight: 700;">
+            <i data-lucide="share-2" style="width: 12px; height: 12px;"></i>
+            {{ p.platform.name if p.platform else ('منصة #' ~ p.platform_id) }}
+          </span>
+        </td>
+        <td>
+          <span class="ts-lab-tag">
+            <i data-lucide="building-2"></i>
+            {{ p.laboratory.name if p.laboratory else ('معمل #' ~ p.laboratory_id) }}
+          </span>
+        </td>
+        <td>
+          <span style="font-family: monospace; font-size: 0.8rem; color: var(--ink-500); background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">
+            {{ p.token[:15] }}...{{ p.token[-6:] if p.token|length > 21 else '' }}
+          </span>
+        </td>
+        <td>
+          <span class="status-chip new">
+            <i data-lucide="users" style="width: 12px; height: 12px;"></i>
+            {{ p.clients|length if p.clients else 0 }} عميل
+          </span>
+        </td>
+        <td style="text-align: center;">
+          <div style="display: inline-flex; gap: 6px;">
+            <a href="{{ url_for('pages.edit_page', platform_id=p.platform_id, page_id=p.page_id) }}"
+               class="btn btn-outline btn-sm">
+              <i data-lucide="edit-2"></i>
+              تعديل
+            </a>
+            <form action="{{ url_for('pages.delete_page', platform_id=p.platform_id, page_id=p.page_id) }}" method="POST" style="margin: 0;">
+              <button type="button" class="btn btn-ghost btn-sm text-danger" onclick="confirmDelete(this.form)" title="حذف الصفحة">
+                <i data-lucide="trash-2"></i>
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 56px 20px;">
+          <div class="ts-empty-icon"><i data-lucide="share-2"></i></div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 6px;">لا توجد صفحات تواصل مضافة</h4>
+          <p style="color: var(--ink-500); font-size: 0.85rem; margin-bottom: 18px;">
+            ابدأ بربط صفحة فيسبوك أو حساب واتساب للرد التلقائي واستقبال الروشتات والحجوزات.
+          </p>
+          <a href="{{ url_for('pages.create_page') }}" class="btn btn-primary">
+            <i data-lucide="plus-circle"></i>
+            إضافة صفحة جديدة
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

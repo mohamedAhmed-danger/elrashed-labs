@@ -1,0 +1,5 @@
+[2026-10-02 00:34:31,040] [ERROR] [379779] extract_prescription_payload error: Gemini API network timeout
+[2026-10-02 00:35:21,233] [ERROR] [1f35c7] extract_prescription_payload error: Gemini API network timeout
+[2026-10-02 00:36:25,566] [ERROR] [a2dc5a] extract_prescription_payload error: Gemini API network timeout
+[2026-10-02 00:37:18,492] [ERROR] [5ded06] extract_prescription_payload error: Gemini API network timeout
+[2026-10-02 00:57:23,132] [ERROR] [341d6e] extract_prescription_payload error: Gemini API network timeout

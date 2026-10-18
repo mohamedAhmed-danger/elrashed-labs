@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}تفاصيل الشكوى #{{ complaint.id }} — معمل صدارة{% endblock %}
+
+{% block topbar_title %}تفاصيل الشكوى #{{ complaint.id }}{% endblock %}
+{% block topbar_sub %}النص الكامل للشكوى أو الملاحظة الواردة من العميل{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('complaints.list_complaints') }}" class="btn btn-outline">
+  <i data-lucide="arrow-right"></i>
+  العودة لقائمة الشكاوى
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+
+  <!-- ── Meta info ────────────────────────────────────────── -->
+  <div class="section-title">
+    <h3><i data-lucide="info"></i> بيانات الشكوى</h3>
+  </div>
+  <div class="card glass-card summary-card">
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-icon si-green"><i data-lucide="phone"></i></div>
+        <div class="info-body">
+          <div class="info-label">رقم الهاتف</div>
+          <div class="info-value" style="direction: ltr; display:inline-block;">{{ complaint.phone_number }}</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon si-amber"><i data-lucide="share-2"></i></div>
+        <div class="info-body">
+          <div class="info-label">المنصة</div>
+          <div class="info-value">{{ complaint.comes_from or 'غير محدد' }}</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon si-blue"><i data-lucide="clock"></i></div>
+        <div class="info-body">
+          <div class="info-label">تاريخ الإنشاء</div>
+          <div class="info-value">{{ complaint.created_at.strftime('%Y-%m-%d %H:%M') if complaint.created_at else '—' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Full text ────────────────────────────────────────── -->
+  <div class="section-title">
+    <h3><i data-lucide="message-square-text"></i> نص الشكوى الكامل</h3>
+  </div>
+  <div class="card glass-card summary-card">
+    <p style="font-size: 0.95rem; line-height: 1.9; color: var(--ink-900); margin: 0;">
+      {{ complaint.complaint_text }}
+    </p>
+  </div>
+
+  <!-- ── Status ───────────────────────────────────────────── -->
+  <div class="section-title">
+    <h3><i data-lucide="list-checks"></i> حالة الشكوى</h3>
+  </div>
+  <div class="card glass-card action-card">
+    <p class="action-desc">تحديث حالة هذه الشكوى سينعكس فورًا في قائمة الشكاوى.</p>
+    <form action="{{ url_for('complaints.update_complaint_status', complaint_id=complaint.id) }}" method="POST" class="action-form">
+      <div class="form-group">
+        <label class="form-label">الحالة الحالية</label>
+        <select name="status_val" class="form-control">
+          {% for s in Status %}
+          <option value="{{ s.value }}" {% if complaint.status == s %}selected{% endif %}>
+            {% if s.name == 'PENDING' %}قيد الانتظار
+            {% elif s.name == 'REVIEWED' %}تمت المعالجة
+            {% elif s.name == 'ATTENDED' %}تم المتابعة
+            {% elif s.name == 'NO_SHOW' %}مغلقة
+            {% else %}{{ s.value }}{% endif %}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">
+        <i data-lucide="save"></i>
+        حفظ الحالة
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

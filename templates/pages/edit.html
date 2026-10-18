@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل صفحة التواصل — معمل صدارة{% endblock %}
+
+{% block topbar_title %}تعديل صفحة التواصل{% endblock %}
+{% block topbar_sub %}تحديث رمز الوصول (Access Token) للصفحة المربوطة{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('pages.list_pages') }}" class="btn btn-outline btn-sm">
+  <i data-lucide="arrow-right"></i>
+  العودة للقائمة
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container" style="max-width: 680px; margin: 0 auto;">
+  <div class="card glass-card" style="padding: 32px;">
+    <form method="POST" action="{{ url_for('pages.edit_page', platform_id=page.platform_id, page_id=page.page_id) }}">
+      
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label" style="font-weight: 700;">المنصة</label>
+        <input type="text" class="form-control" value="{{ page.platform.name if page.platform else page.platform_id }}" readonly style="background: #f8fafc; color: var(--ink-500);">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label" style="font-weight: 700;">معرّف الصفحة (Page ID)</label>
+        <input type="text" class="form-control" value="{{ page.page_id }}" readonly style="background: #f8fafc; color: var(--ink-500); font-family: monospace;">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 28px;">
+        <label class="form-label" style="font-weight: 700;">رمز الوصول المحدث (Access Token) <span style="color:red;">*</span></label>
+        <textarea name="token" rows="4" class="form-control" required style="font-family: monospace; font-size: 0.85rem;">{{ page.token }}</textarea>
+        <div style="font-size: 0.78rem; color: var(--ink-500); margin-top: 4px;">قم بتحديث الرمز عند انتهاء صلاحيته على فيسبوك أو واتساب.</div>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <a href="{{ url_for('pages.list_pages') }}" class="btn btn-ghost">إلغاء</a>
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="save"></i>
+          حفظ التغييرات
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}

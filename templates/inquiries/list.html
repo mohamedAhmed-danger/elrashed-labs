@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة الروشتات الطبية — معمل صدارة{% endblock %}
+
+{% block topbar_title %}الروشتات والاستفسارات الطبية{% endblock %}
+{% block topbar_sub %}مراجعة صور الروشتات المستخرجة بواسطة الذكاء الاصطناعي وتأكيد التحاليل المطلوبة{% endblock %}
+
+{% block content %}
+
+<!-- ── Stats Strip ─────────────────────────────────────────── -->
+<div class="ts-stats-strip">
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-blue"><i data-lucide="file-text"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ stats.total or 0 }}</div>
+      <div class="ts-stat-pill-label">إجمالي الروشتات الواردة</div>
+    </div>
+  </div>
+
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-amber"><i data-lucide="clock"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ stats.pending or 0 }}</div>
+      <div class="ts-stat-pill-label">بانتظار مراجعة الطبيب</div>
+    </div>
+  </div>
+
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-green"><i data-lucide="check-circle"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ stats.done or stats.confirmed or 0 }}</div>
+      <div class="ts-stat-pill-label">تمت مراجعتها وتأكيدها</div>
+    </div>
+  </div>
+
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-purple"><i data-lucide="sparkles"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ stats.avg_conf or 0 }}%</div>
+      <div class="ts-stat-pill-label">متوسط دقة التعرف (OCR)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Filter & Search Bar ─────────────────────────────────── -->
+<div class="card ts-filter-card">
+  <form method="GET" action="{{ url_for('inquiries.list_inquiries') }}" class="ts-filter-form">
+    <div class="ts-filter-field ts-filter-search">
+      <label class="ts-filter-label">بحث بالهاتف أو التحاليل</label>
+      <div class="ts-input-icon-wrap">
+        <i data-lucide="search" class="ts-input-icon"></i>
+        <input
+          type="text"
+          name="search"
+          value="{{ search or '' }}"
+          placeholder="ابحث برقم هاتف المريض أو اسم التحليل..."
+          class="form-control ts-input-with-icon">
+      </div>
+    </div>
+
+    <div class="ts-filter-field">
+      <label class="ts-filter-label">الحالة</label>
+      <select name="status" class="form-control">
+        <option value="">جميع الحالات</option>
+        {% for s in statuses %}
+        <option value="{{ s.value }}" {% if status == s.value %}selected{% endif %}>
+          {% if s.name == 'PENDING' %}قيد المراجعة (Pending)
+          {% elif s.name == 'REVIEWED' %}تم التأكيد والمراجعة (Reviewed)
+          {% elif s.name == 'ATTENDED' %}حضر للمعمل (Attended)
+          {% elif s.name == 'NO_SHOW' %}لم يحضر (No Show)
+          {% else %}{{ s.value }}{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="ts-filter-actions">
+      <button type="submit" class="btn btn-primary ts-filter-btn">
+        <i data-lucide="filter"></i>
+        تصفية
+      </button>
+      {% if search or status %}
+      <a href="{{ url_for('inquiries.list_inquiries') }}" class="btn btn-ghost ts-filter-btn ts-filter-reset" title="إعادة تعيين">
+        <i data-lucide="rotate-ccw"></i>
+      </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- ── Inquiries Table ─────────────────────────────────────── -->
+<div class="table-wrap ts-table-wrap">
+  <table class="data-table ts-data-table">
+    <thead>
+      <tr>
+        <th style="width: 70px;">#</th>
+        <th style="width: 100px;">صورة الروشتة</th>
+        <th>رقم هاتف المريض</th>
+        <th>التحاليل المكتشفة بالذكاء الاصطناعي</th>
+        <th style="width: 100px;">دقة OCR</th>
+        <th style="width: 140px;">تاريخ الاستلام</th>
+        <th style="width: 120px;">المنصة</th>
+        <th style="width: 130px; text-align: center;">الحالة</th>
+        <th style="width: 130px; text-align: center;">الإجراء</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inq in inquiries %}
+      <tr>
+        <td><span class="ts-id-chip">#{{ inq.id }}</span></td>
+        <td>
+          {% if inq.image_exists %}
+          <a href="{{ inq.image_url }}" target="_blank" title="عرض الصورة بالحجم الكامل"
+             style="display: flex; align-items: center; justify-content: center; width: 56px; height: 56px;
+                    background: #f1f5f9; border-radius: 8px; border: 1.5px solid var(--border);
+                    overflow: hidden; transition: border-color 0.15s;">
+            <img src="{{ inq.image_url }}" alt="روشتة #{{ inq.id }}"
+                 style="max-width: 100%; max-height: 100%; object-fit: contain;">
+          </a>
+          {% elif inq.deleted_at %}
+          <div style="width: 56px; height: 56px; background: #fff7ed; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #92400e;" title="تم حذفها تلقائيًا">
+            <i data-lucide="trash-2" style="width: 20px; height: 20px;"></i>
+          </div>
+          {% else %}
+          <div style="width: 56px; height: 56px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--ink-500);" title="لا توجد صورة">
+            <i data-lucide="image-off" style="width: 20px; height: 20px;"></i>
+          </div>
+          {% endif %}
+        </td>
+        <td>
+          <div style="font-weight: 700; direction: ltr; text-align: right; color: var(--navy-900);">
+            {{ inq.phone_number or '—' }}
+          </div>
+        </td>
+        <td>
+          <div style="font-size: 0.85rem; color: var(--ink-900); max-width: 260px; line-height: 1.5; white-space: normal;">
+            {{ inq.services_mentioned or inq.ocr_extracted_text or 'جاري الفحص...' }}
+          </div>
+        </td>
+        <td>
+          {% if inq.confidence_score is not none %}
+          <span class="status-chip {% if inq.confidence_score >= 0.8 %}active{% elif inq.confidence_score >= 0.5 %}grace{% else %}suspended{% endif %}" style="font-weight: 700;">
+            {{ '%.0f'|format(inq.confidence_score * 100) }}%
+          </span>
+          {% else %}
+          <span style="color: var(--ink-500);">—</span>
+          {% endif %}
+        </td>
+        <td>
+          <span style="font-size: 0.82rem; color: var(--ink-500);">
+            {{ inq.created_at.strftime('%Y-%m-%d %H:%M') if inq.created_at else '—' }}
+          </span>
+        </td>
+        <td>
+          <span class="status-chip" style="background: rgba(37,99,235,0.08); color: var(--blue-600); font-weight: 600;">
+            <i data-lucide="share-2" style="width: 11px; height: 11px;"></i>
+            {{ inq.comes_from or 'غير محدد' }}
+          </span>
+        </td>
+        <td style="text-align: center;">
+          {% if inq.status.name == 'PENDING' %}
+          <span class="sub-status-badge sub-status-grace" style="font-size: 0.76rem; padding: 4px 10px;">
+            <span class="sub-status-dot"></span>
+            قيد المراجعة
+          </span>
+          {% elif inq.status.name == 'REVIEWED' %}
+          <span class="sub-status-badge sub-status-active" style="font-size: 0.76rem; padding: 4px 10px;">
+            <span class="sub-status-dot"></span>
+            تمت المراجعة
+          </span>
+          {% elif inq.status.name == 'ATTENDED' %}
+          <span class="sub-status-badge sub-status-active" style="font-size: 0.76rem; padding: 4px 10px; background: #f0fdf4; color: #166534;">
+            <i data-lucide="check" style="width:12px;height:12px;"></i>
+            تم الحضور
+          </span>
+          {% else %}
+          <span class="sub-status-badge sub-status-suspended" style="font-size: 0.76rem; padding: 4px 10px;">
+            {{ inq.status.value }}
+          </span>
+          {% endif %}
+        </td>
+        <td style="text-align: center;">
+          <a href="{{ url_for('inquiries.inquiry_detail', inquiry_id=inq.id) }}"
+             class="btn btn-primary btn-sm">
+            <i data-lucide="check-square"></i>
+            مراجعة وتأكيد
+          </a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="9" style="text-align: center; padding: 56px 20px;">
+          <div class="ts-empty-icon"><i data-lucide="file-check"></i></div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 6px;">لا توجد روشتات مسجلة حالياً</h4>
+          <p style="color: var(--ink-500); font-size: 0.85rem;">كل الروشتات الواردة من المرضى عبر الواتساب أو الفيسبوك ستظهر هنا للمراجعة الطبية.</p>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- ── Pagination ──────────────────────────────────────────── -->
+{% if pagination and pagination.pages > 1 %}
+<div class="pagination-wrapper">
+  <div class="pagination-info">
+    عرض {{ (pagination.page - 1) * pagination.per_page + 1 }} إلى {{ [pagination.page * pagination.per_page, pagination.total]|min }} من إجمالي {{ pagination.total }} استفسار
+  </div>
+
+  <nav class="pagination">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('inquiries.list_inquiries', page=pagination.prev_num, search=search, status=status) }}"
+       class="pagination-btn" title="الصفحة السابقة">
+      <i data-lucide="chevron-right"></i> السابق
+    </a>
+    {% else %}
+    <span class="pagination-btn disabled"><i data-lucide="chevron-right"></i> السابق</span>
+    {% endif %}
+
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        {% if p == pagination.page %}
+        <span class="pagination-page active">{{ p }}</span>
+        {% else %}
+        <a href="{{ url_for('inquiries.list_inquiries', page=p, search=search, status=status) }}" class="pagination-page">{{ p }}</a>
+        {% endif %}
+      {% else %}
+        <span class="pagination-ellipsis">…</span>
+      {% endif %}
+    {% endfor %}
+
+    {% if pagination.has_next %}
+    <a href="{{ url_for('inquiries.list_inquiries', page=pagination.next_num, search=search, status=status) }}"
+       class="pagination-btn" title="الصفحة التالية">
+      التالي <i data-lucide="chevron-left"></i>
+    </a>
+    {% else %}
+    <span class="pagination-btn disabled">التالي <i data-lucide="chevron-left"></i></span>
+    {% endif %}
+  </nav>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,11 @@
+/myenv
+/pycache__/
+.env
+/.env
+__pycache__
+.env
+credentials.json
+token.json
+
+.env
+static/uploads

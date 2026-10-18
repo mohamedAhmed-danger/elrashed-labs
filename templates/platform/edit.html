@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}تعديل المنصة — معمل صدارة{% endblock %}
+{% block topbar_title %}تعديل المنصة{% endblock %}
+{% block topbar_sub %}{{ platform.name if platform else '' }}{% endblock %}
+
+{% block content %}
+
+<div class="card" style="max-width: 650px; padding: 28px;">
+  <form action="{{ url_for('platforms.edit_platform', platform_id=platform.id) }}" method="POST">
+    <div class="form-grid" style="grid-template-columns: 1fr;">
+
+      <div class="form-group">
+        <label>اسم المنصة <span style="color: var(--red-500);">*</span></label>
+        <input type="text" name="name" class="form-control" value="{{ platform.name if platform else '' }}" required>
+      </div>
+
+    </div>
+    <div style="margin-top: 24px; display: flex; gap: 12px;">
+      <button type="submit" class="btn btn-primary">
+        <i data-lucide="check"></i>
+        حفظ التعديلات
+      </button>
+      <a href="{{ url_for('platforms.list_platforms') }}" class="btn btn-outline">رجوع</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

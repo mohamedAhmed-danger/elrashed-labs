@@ -1,0 +1,453 @@
+{% extends "base.html" %}
+
+{% block title %}صحة النظام والموارد — معمل صدارة{% endblock %}
+
+{% block topbar_title %}صحة النظام والموارد التشغيلية{% endblock %}
+{% block topbar_sub %}متابعة حالة قاعدة البيانات، استهلاك السيرفر، واستهلاك المشروع في الوقت الفعلي{% endblock %}
+
+{% block topbar_actions %}
+<button id="refreshHealthBtn" onclick="fetchHealthData()" class="btn btn-outline glass-btn">
+  <i data-lucide="refresh-cw" id="refreshIcon"></i>
+  تحديث البيانات
+</button>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Overall Status Banner ───────────────────────────────── -->
+<div class="glass-card health-hero-card mb-4" id="healthHeroCard">
+  <div class="health-hero-body">
+    <div class="health-status-icon-wrap" id="statusIconWrap">
+      <i data-lucide="activity" class="health-status-main-icon"></i>
+    </div>
+    <div class="health-hero-info">
+      <div class="health-hero-title">
+        <span id="overallStatusText">جاري فحص حالة النظام...</span>
+        <span class="glass-chip health-status-chip" id="overallStatusChip">قيد التحميل</span>
+      </div>
+      <p class="health-hero-desc" id="overallStatusDesc">
+        يتم الآن إجراء التشخيص الشامل لجميع المكونات وقواعد البيانات والسيرفر...
+      </p>
+    </div>
+    <div class="health-hero-meta">
+      <div class="health-meta-item">
+        <span class="meta-label">آخر تحديث:</span>
+        <span class="meta-value" id="lastUpdatedTime">—</span>
+      </div>
+      <div class="health-meta-item">
+        <span class="meta-label">زمن تشغيل التطبيق:</span>
+        <span class="meta-value" id="appUptime">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SERVER (whole machine) ──────────────────────────────── -->
+<h3 class="glass-card-heading mb-3">
+  <i data-lucide="server" class="heading-icon"></i>
+  السيرفر (الجهاز بالكامل)
+</h3>
+<div class="health-grid mb-4">
+
+  <!-- Server CPU -->
+  <div class="glass-card health-metric-card">
+    <div class="health-card-header">
+      <div class="health-card-icon ram-icon">
+        <i data-lucide="gauge"></i>
+      </div>
+      <div>
+        <h3 class="health-card-title">المعالج (CPU)</h3>
+        <p class="health-card-sub">استهلاك المعالج للسيرفر كله</p>
+      </div>
+      <div class="status-indicator-dot" id="cpuStatusDot"></div>
+    </div>
+    <div class="health-card-body">
+      <div class="metric-big-num" id="cpuPercent">0%</div>
+      <div class="metric-label">نسبة استهلاك المعالج</div>
+      <div class="progress-bar-container mt-3">
+        <div class="progress-bar-fill ram-progress" id="cpuProgressBar" style="width: 0%;"></div>
+      </div>
+      <div class="metric-footer-text" id="cpuFooterText">استهلاك طبيعي للمعالج</div>
+    </div>
+  </div>
+
+  <!-- Server RAM -->
+  <div class="glass-card health-metric-card">
+    <div class="health-card-header">
+      <div class="health-card-icon ram-icon">
+        <i data-lucide="cpu"></i>
+      </div>
+      <div>
+        <h3 class="health-card-title">الذاكرة (RAM)</h3>
+        <p class="health-card-sub" id="ramDetail">0 MB / 0 MB</p>
+      </div>
+      <div class="status-indicator-dot" id="ramStatusDot"></div>
+    </div>
+    <div class="health-card-body">
+      <div class="metric-big-num" id="ramPercent">0%</div>
+      <div class="metric-label">ذاكرة السيرفر كله (كل الخدمات)</div>
+      <div class="progress-bar-container mt-3">
+        <div class="progress-bar-fill ram-progress" id="ramProgressBar" style="width: 0%;"></div>
+      </div>
+      <div class="metric-footer-text" id="ramFooterText">استهلاك طبيعي للذاكرة</div>
+    </div>
+  </div>
+
+  <!-- Server Disk -->
+  <div class="glass-card health-metric-card">
+    <div class="health-card-header">
+      <div class="health-card-icon disk-icon">
+        <i data-lucide="hard-drive"></i>
+      </div>
+      <div>
+        <h3 class="health-card-title">مساحة التخزين (Disk)</h3>
+        <p class="health-card-sub" id="diskDetail">المساحة المتاحة: 0 GB</p>
+      </div>
+      <div class="status-indicator-dot" id="diskStatusDot"></div>
+    </div>
+    <div class="health-card-body">
+      <div class="metric-big-num" id="diskPercent">0%</div>
+      <div class="metric-label">نسبة شغل قرص السيرفر</div>
+      <div class="progress-bar-container mt-3">
+        <div class="progress-bar-fill disk-progress" id="diskProgressBar" style="width: 0%;"></div>
+      </div>
+      <div class="metric-footer-text" id="diskFooterText">تخزين آمن ووفير</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── PROJECT (this container only) ───────────────────────── -->
+<h3 class="glass-card-heading mb-3">
+  <i data-lucide="box" class="heading-icon"></i>
+  المشروع (هذا التطبيق فقط)
+</h3>
+<div class="health-grid mb-4">
+
+  <!-- Database -->
+  <div class="glass-card health-metric-card">
+    <div class="health-card-header">
+      <div class="health-card-icon db-icon">
+        <i data-lucide="database"></i>
+      </div>
+      <div>
+        <h3 class="health-card-title">قاعدة البيانات</h3>
+        <p class="health-card-sub" id="dbEngine">SQL Database</p>
+      </div>
+      <div class="status-indicator-dot" id="dbStatusDot"></div>
+    </div>
+    <div class="health-card-body">
+      <div class="metric-big-num" id="dbLatency">0 <small>ms</small></div>
+      <div class="metric-label">زمن استجابة الاستعلام (Latency)</div>
+      <div class="progress-bar-container mt-3">
+        <div class="progress-bar-fill db-progress" id="dbProgressBar" style="width: 100%;"></div>
+      </div>
+      <div class="metric-footer-text" id="dbStatusDetails">اتصال سلس ومستقر</div>
+    </div>
+  </div>
+
+  <!-- App memory (container) -->
+  <div class="glass-card health-metric-card">
+    <div class="health-card-header">
+      <div class="health-card-icon ram-icon">
+        <i data-lucide="memory-stick"></i>
+      </div>
+      <div>
+        <h3 class="health-card-title">ذاكرة التطبيق</h3>
+        <p class="health-card-sub" id="appRamDetail">—</p>
+      </div>
+      <div class="status-indicator-dot" id="appRamStatusDot"></div>
+    </div>
+    <div class="health-card-body">
+      <div class="metric-big-num" id="appRamValue">—</div>
+      <div class="metric-label" id="appRamLabel">الذاكرة المستخدمة من الـ container</div>
+      <div class="progress-bar-container mt-3">
+        <div class="progress-bar-fill ram-progress" id="appRamProgressBar" style="width: 0%;"></div>
+      </div>
+      <div class="metric-footer-text" id="appRamFooterText">—</div>
+    </div>
+  </div>
+
+  <!-- Uploads storage -->
+  <div class="glass-card health-metric-card">
+    <div class="health-card-header">
+      <div class="health-card-icon disk-icon">
+        <i data-lucide="folder-open"></i>
+      </div>
+      <div>
+        <h3 class="health-card-title">مرفقات التطبيق (Uploads)</h3>
+        <p class="health-card-sub" id="uploadsDetail">0 ملف</p>
+      </div>
+      <div class="status-indicator-dot" id="uploadsStatusDot"></div>
+    </div>
+    <div class="health-card-body">
+      <div class="metric-big-num" id="uploadsSize">0 <small>MB</small></div>
+      <div class="metric-label">حجم الصور والمرفقات المحفوظة</div>
+      <div class="metric-footer-text mt-3" id="uploadsFooterText">—</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Data Entities Summary & Storage Status ───────────────── -->
+<div class="health-grid-two mb-4">
+
+  <!-- Records Breakdown Card -->
+  <div class="glass-card p-4">
+    <h3 class="glass-card-heading mb-3">
+      <i data-lucide="layers" class="heading-icon"></i>
+      إحصائيات سجلات النظام الحالية
+    </h3>
+    <div class="counts-list">
+      <div class="count-item">
+        <div class="count-icon icon-blue"><i data-lucide="calendar-check"></i></div>
+        <div class="count-label">الحجوزات المنزلية</div>
+        <div class="count-val" id="cntBookings">0</div>
+      </div>
+      <div class="count-item">
+        <div class="count-icon icon-purple"><i data-lucide="file-text"></i></div>
+        <div class="count-label">الروشتات المستلمة</div>
+        <div class="count-val" id="cntInquiries">0</div>
+      </div>
+      <div class="count-item">
+        <div class="count-icon icon-amber"><i data-lucide="message-square-warning"></i></div>
+        <div class="count-label">الشكاوى والبلاغات</div>
+        <div class="count-val" id="cntComplaints">0</div>
+      </div>
+      <div class="count-item">
+        <div class="count-icon icon-teal"><i data-lucide="flask-conical"></i></div>
+        <div class="count-label">التحاليل والخدمات الطبية</div>
+        <div class="count-val" id="cntServices">0</div>
+      </div>
+      <div class="count-item">
+        <div class="count-icon icon-green"><i data-lucide="building-2"></i></div>
+        <div class="count-label">المعامل والفروع</div>
+        <div class="count-val" id="cntLabs">0</div>
+      </div>
+      <div class="count-item">
+        <div class="count-icon icon-red"><i data-lucide="users"></i></div>
+        <div class="count-label">المستخدمين والمدراء</div>
+        <div class="count-val" id="cntUsers">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Components & Storage Health Card -->
+  <div class="glass-card p-4">
+    <h3 class="glass-card-heading mb-3">
+      <i data-lucide="shield-check" class="heading-icon"></i>
+      فحص مكونات التشغيل والبيئة
+    </h3>
+
+    <div class="component-status-list">
+      <div class="comp-status-row">
+        <div class="comp-info">
+          <i data-lucide="folder-check" class="comp-icon text-success"></i>
+          <div>
+            <div class="comp-name">مجلد المرفقات والصور (Uploads)</div>
+            <div class="comp-desc">التأكد من وجود صلاحية الكتابة وحفظ الملفات</div>
+          </div>
+        </div>
+        <span class="glass-chip chip-success" id="storageStatusChip">جاهز ومفعل</span>
+      </div>
+
+      <div class="comp-status-row">
+        <div class="comp-info">
+          <i data-lucide="code" class="comp-icon text-primary"></i>
+          <div>
+            <div class="comp-name">بيئة تشغيل Python</div>
+            <div class="comp-desc" id="pythonVer">Python 3.x</div>
+          </div>
+        </div>
+        <span class="glass-chip chip-primary">نشط</span>
+      </div>
+
+      <div class="comp-status-row">
+        <div class="comp-info">
+          <i data-lucide="server" class="comp-icon text-info"></i>
+          <div>
+            <div class="comp-name">نظام التشغيل والخادم</div>
+            <div class="comp-desc" id="osInfo">Server OS</div>
+          </div>
+        </div>
+        <span class="glass-chip chip-info">متوافق</span>
+      </div>
+
+      <div class="comp-status-row">
+        <div class="comp-info">
+          <i data-lucide="radio" class="comp-icon text-teal"></i>
+          <div>
+            <div class="comp-name">خدمة الاتصال بالسيرفر</div>
+            <div class="comp-desc">WebSocket / HTTP API Ping</div>
+          </div>
+        </div>
+        <span class="glass-chip chip-teal">متصل</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const WARN_THRESHOLD = 85;
+const GOOD_BAR = 'linear-gradient(90deg, #3b82f6, #10b981)';
+const WARN_BAR = 'var(--red-500)';
+
+function setBar(barId, dotId, percent, warnAt) {
+  const bar = document.getElementById(barId);
+  const dot = document.getElementById(dotId);
+  const value = Math.max(0, Math.min(percent || 0, 100));
+  bar.style.width = value + '%';
+  const warn = value > (warnAt || WARN_THRESHOLD);
+  bar.style.background = warn ? WARN_BAR : GOOD_BAR;
+  dot.className = 'status-indicator-dot ' + (warn ? 'dot-warning' : 'dot-online');
+  return warn;
+}
+
+function showCount(id, value) {
+  // null means the count query failed, so show a dash instead of a misleading 0
+  document.getElementById(id).innerText = (value === null || value === undefined) ? '—' : value;
+}
+
+async function fetchHealthData() {
+  const refreshIcon = document.getElementById('refreshIcon');
+  if (refreshIcon) refreshIcon.classList.add('spin-anim');
+
+  try {
+    const res = await fetch("{{ url_for('health.health_api_status') }}");
+    const data = await res.json();
+    const sys = data.system;
+    const app = data.app || {};
+
+    // 1. Overall status
+    const isHealthy = data.overall_status === 'healthy';
+    const statusText = document.getElementById('overallStatusText');
+    const statusChip = document.getElementById('overallStatusChip');
+    const statusDesc = document.getElementById('overallStatusDesc');
+    const heroCard = document.getElementById('healthHeroCard');
+    const statusIconWrap = document.getElementById('statusIconWrap');
+
+    if (isHealthy) {
+      statusText.innerText = "النظام يعمل بكفاءة وسرعة استجابة ممتازة";
+      statusChip.innerText = "سليم 100%";
+      statusChip.className = "glass-chip health-status-chip chip-success";
+      statusDesc.innerText = "جميع المكونات وقواعد البيانات والموارد التشغيلية تعمل بدون أي مشاكل أو اختناقات.";
+      heroCard.className = "glass-card health-hero-card hero-healthy mb-4";
+      statusIconWrap.className = "health-status-icon-wrap wrap-healthy";
+    } else {
+      statusText.innerText = "تنبيه: هناك انخفاض في كفاءة النظام أو استهلاك مرتفع";
+      statusChip.innerText = "تحذير";
+      statusChip.className = "glass-chip health-status-chip chip-warning";
+      statusDesc.innerText = "يرجى التحقق من الموارد المتاحة أو سرعة الاتصال بقاعدة البيانات.";
+      heroCard.className = "glass-card health-hero-card hero-warning mb-4";
+      statusIconWrap.className = "health-status-icon-wrap wrap-warning";
+    }
+
+    // Time & Uptime
+    document.getElementById('lastUpdatedTime').innerText = new Date().toLocaleTimeString('ar-EG');
+    document.getElementById('appUptime').innerText = sys.uptime_str || 'نشط';
+
+    // 2. SERVER: CPU
+    document.getElementById('cpuPercent').innerText = sys.cpu_usage + '%';
+    const cpuWarn = setBar('cpuProgressBar', 'cpuStatusDot', sys.cpu_usage);
+    document.getElementById('cpuFooterText').innerText = cpuWarn ? 'استهلاك مرتفع للمعالج!' : 'استهلاك طبيعي للمعالج';
+
+    // 3. SERVER: RAM
+    document.getElementById('ramPercent').innerText = sys.memory_percent + '%';
+    document.getElementById('ramDetail').innerText = `${sys.memory_used_mb} MB / ${sys.memory_total_mb} MB`;
+    const ramWarn = setBar('ramProgressBar', 'ramStatusDot', sys.memory_percent);
+    document.getElementById('ramFooterText').innerText = ramWarn ? 'استهلاك مرتفع للذاكرة!' : 'استهلاك طبيعي ومستقر للذاكرة';
+
+    // 4. SERVER: Disk
+    document.getElementById('diskPercent').innerText = sys.disk_percent + '%';
+    document.getElementById('diskDetail').innerText = `المساحة المتاحة: ${sys.disk_free_gb} GB من أصل ${sys.disk_total_gb} GB`;
+    const diskWarn = setBar('diskProgressBar', 'diskStatusDot', sys.disk_percent, 90);
+    document.getElementById('diskFooterText').innerText = diskWarn ? 'مساحة القرص قاربت على الامتلاء!' : 'تخزين آمن ووفير';
+
+    // 5. PROJECT: Database
+    document.getElementById('dbLatency').innerHTML = `${data.database.latency_ms} <small>ms</small>`;
+    document.getElementById('dbEngine').innerText = data.database.engine.toUpperCase() + " Engine";
+    const dbDot = document.getElementById('dbStatusDot');
+    if (data.database.status === 'online') {
+      dbDot.className = 'status-indicator-dot dot-online';
+      document.getElementById('dbStatusDetails').innerText = 'الاتصال بقاعدة البيانات سريع ومستقر';
+    } else {
+      dbDot.className = 'status-indicator-dot dot-offline';
+      document.getElementById('dbStatusDetails').innerText = 'تعذر الاتصال بقاعدة البيانات!';
+    }
+
+    // 6. PROJECT: App memory (container)
+    const appRamValue = document.getElementById('appRamValue');
+    const appRamDetail = document.getElementById('appRamDetail');
+    const appRamLabel = document.getElementById('appRamLabel');
+    const appRamFooter = document.getElementById('appRamFooterText');
+    const rss = app.process_rss_mb !== null && app.process_rss_mb !== undefined ? app.process_rss_mb : 0;
+
+    if (app.memory_used_mb === null || app.memory_used_mb === undefined) {
+      appRamValue.innerHTML = `${rss} <small>MB</small>`;
+      appRamDetail.innerText = 'تعذر قراءة ذاكرة الـ container';
+      appRamLabel.innerText = 'ذاكرة العملية الحالية فقط';
+      setBar('appRamProgressBar', 'appRamStatusDot', 0);
+      appRamFooter.innerText = 'بيانات الـ cgroup غير متاحة في هذه البيئة';
+    } else if (app.memory_percent === null || app.memory_percent === undefined) {
+      appRamValue.innerHTML = `${app.memory_used_mb} <small>MB</small>`;
+      appRamDetail.innerText = `العملية الحالية: ${rss} MB`;
+      appRamLabel.innerText = 'الذاكرة المستخدمة من الـ container';
+      setBar('appRamProgressBar', 'appRamStatusDot', 0);
+      appRamFooter.innerText = 'الـ container بدون حد أقصى للذاكرة (mem_limit)';
+    } else {
+      appRamValue.innerText = app.memory_percent + '%';
+      appRamDetail.innerText = `${app.memory_used_mb} MB / ${app.memory_limit_mb} MB`;
+      appRamLabel.innerText = 'نسبة من الحد الأقصى للـ container';
+      const appWarn = setBar('appRamProgressBar', 'appRamStatusDot', app.memory_percent);
+      appRamFooter.innerText = appWarn ? 'التطبيق قارب على حد الذاكرة!' : 'استهلاك طبيعي للتطبيق';
+    }
+
+    // 7. PROJECT: Uploads
+    document.getElementById('uploadsSize').innerHTML = `${app.uploads_size_mb || 0} <small>MB</small>`;
+    document.getElementById('uploadsDetail').innerText = `${app.uploads_files || 0} ملف`;
+    const uploadsOk = data.storage.uploads_dir_exists && data.storage.uploads_writable;
+    document.getElementById('uploadsStatusDot').className = 'status-indicator-dot ' + (uploadsOk ? 'dot-online' : 'dot-warning');
+    document.getElementById('uploadsFooterText').innerText = uploadsOk ? 'المجلد جاهز للكتابة' : 'المجلد غير موجود أو بدون صلاحية كتابة';
+
+    // 8. Entity Counts
+    showCount('cntBookings', data.counts.bookings);
+    showCount('cntInquiries', data.counts.inquiries);
+    showCount('cntComplaints', data.counts.complaints);
+    showCount('cntServices', data.counts.services);
+    showCount('cntLabs', data.counts.laboratories);
+    showCount('cntUsers', data.counts.users);
+
+    // 9. System & Storage info
+    document.getElementById('pythonVer').innerText = 'Python ' + sys.python_version;
+    document.getElementById('osInfo').innerText = sys.os_info;
+
+    const storageChip = document.getElementById('storageStatusChip');
+    if (data.storage.uploads_writable) {
+      storageChip.innerText = "جاهز ومفعل";
+      storageChip.className = "glass-chip chip-success";
+    } else {
+      storageChip.innerText = "خطأ في الصلاحيات";
+      storageChip.className = "glass-chip chip-warning";
+    }
+
+    if (window.lucide) lucide.createIcons();
+
+  } catch (err) {
+    console.error("Error fetching system health:", err);
+  } finally {
+    if (refreshIcon) refreshIcon.classList.remove('spin-anim');
+  }
+}
+
+// Initial fetch on page load
+document.addEventListener("DOMContentLoaded", () => {
+  fetchHealthData();
+  // Auto refresh every 15 seconds
+  setInterval(fetchHealthData, 15000);
+});
+</script>
+{% endblock %}

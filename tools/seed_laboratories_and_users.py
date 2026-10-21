@@ -30,7 +30,7 @@ LABORATORIES_DATA = [
         "support_phone": "01000000001",
         "notification_email": "info@elkhobra.com",
         "username": "elkhobra_user",
-        "password": "Password123!",
+        "password": "password123",
     },
     {
         "name": "معامل الراشد – مختبر الأمل",
@@ -40,7 +40,7 @@ LABORATORIES_DATA = [
         "support_phone": "01000000002",
         "notification_email": "info@elrashed-alamal.com",
         "username": "elrashed_user",
-        "password": "Password123!",
+        "password": "password123",
     },
     {
         "name": "معمل نجمة الخبر (Al-Khabar Star)",
@@ -50,7 +50,7 @@ LABORATORIES_DATA = [
         "support_phone": "01000000003",
         "notification_email": "info@alkhabarstar.com",
         "username": "alkhabar_user",
-        "password": "Password123!",
+        "password": "password123",
     },
 ]
 
@@ -64,7 +64,7 @@ def seed_laboratories_and_users():
         if not admin:
             admin = User(
                 name="admin",
-                password="AdminPassword123!",
+                password="admin123",
                 role="admin",
                 laboratory_id=None
             )

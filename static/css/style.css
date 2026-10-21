@@ -1,5 +1,5 @@
 /* ============================================================
-   معمل صدارة — Design Tokens
+   معامل الراشد — Design Tokens
    ============================================================ */
 :root {
   --navy-900: #0a1c3d;
@@ -1212,7 +1212,7 @@ textarea.form-control {
   color: var(--navy-900);
 }
 /* ============================================================
-   معمل صدارة — PREMIUM UI ENHANCEMENTS
+   معامل الراشد — PREMIUM UI ENHANCEMENTS
    (Append this file to the bottom of static/css/style.css)
    Covers: test_service.html (list) + test_form.html (create/edit)
    ============================================================ */
@@ -1516,7 +1516,7 @@ textarea.form-control {
 }
 
 /* ============================================================
-   معمل صدارة — BASE & DASHBOARD ENHANCEMENTS
+   معامل الراشد — BASE & DASHBOARD ENHANCEMENTS
    (Append this file to the bottom of static/css/style.css,
    after style-additions.css)
    ============================================================ */
@@ -1626,7 +1626,7 @@ textarea.form-control {
 
 
 /* ============================================================
-   معمل صدارة — SUBSCRIPTION PAGE ENHANCEMENTS
+   معامل الراشد — SUBSCRIPTION PAGE ENHANCEMENTS
    (Append this file to the bottom of static/css/style.css,
    after style-additions.css and style-additions-2.css)
 
@@ -1690,7 +1690,7 @@ textarea.form-control {
 
 
 /* ============================================================
-   معمل صدارة — LABORATORY & FEEDBACK PAGE ENHANCEMENTS
+   معامل الراشد — LABORATORY & FEEDBACK PAGE ENHANCEMENTS
    (Append this file to the bottom of static/css/style.css,
    after style-additions.css, -2.css and -3.css)
    ============================================================ */

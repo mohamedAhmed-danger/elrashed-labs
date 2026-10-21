@@ -39,7 +39,7 @@ def setup_app_logging(app):
 
     if not any(isinstance(h, RotatingFileHandler) for h in app.logger.handlers):
         file_handler = RotatingFileHandler(
-            os.path.join(log_dir, "elsadara.log"),
+            os.path.join(log_dir, "elrashed.log"),
             maxBytes=10 * 1024 * 1024,
             backupCount=5,
             encoding="utf-8"
@@ -56,7 +56,7 @@ def create_app(config_class=Config):
 
     # تأكيد وجود secret_key للـ Sessions (لو مش محدد في Config)
     if not app.config.get("SECRET_KEY"):
-        app.config["SECRET_KEY"] = "elsadara_super_secret_key_2026"
+        app.config["SECRET_KEY"] = "elrashed_super_secret_key_2026"
 
     # Initialize extensions
     db.init_app(app)

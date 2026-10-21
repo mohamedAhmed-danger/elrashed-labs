@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}إعدادات البريد والإشعارات — معمل صدارة{% endblock %}
+{% block title %}إعدادات البريد والإشعارات — {{ current_lab.name if current_lab else 'معامل الراشد' }}{% endblock %}
 
 {% block topbar_title %}
 <div style="display: flex; align-items: center; gap: 12px;">

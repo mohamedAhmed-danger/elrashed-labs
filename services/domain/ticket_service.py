@@ -23,11 +23,11 @@ from reportlab.platypus import (
 
 logger = logging.getLogger(__name__)
 
-# ── colours (taken from the Sadara logo) ──────────────────────────────────────
-BLUE = colors.HexColor("#2E7CC4")       # top of the flask square
-INDIGO = colors.HexColor("#3F3F94")     # "صدارة" wordmark
-PURPLE = colors.HexColor("#5B3F8F")     # tagline / bottom of the square
-GREEN = colors.HexColor("#7DB63F")      # liquid inside the flask
+# ── colours (brand palette) ──────────────────────────────────────
+BLUE = colors.HexColor("#2E7CC4")       # primary brand blue
+INDIGO = colors.HexColor("#3F3F94")     # primary deep indigo
+PURPLE = colors.HexColor("#5B3F8F")     # accent purple
+GREEN = colors.HexColor("#7DB63F")      # accent green
 LIGHT_ROW = colors.HexColor("#EEF2FA")  # very light blue-lavender tint
 LIGHT_GREEN = colors.HexColor("#F1F8E9")
 LINE = colors.HexColor("#D5DCEE")

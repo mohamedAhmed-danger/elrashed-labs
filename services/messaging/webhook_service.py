@@ -36,7 +36,7 @@ def get_platform_id_for_whatsapp() -> int:
 
 def build_post_booking_feedback_message(reference_id: Optional[str]) -> str:
     """Post-booking feedback message with a link to reference_id, or a generic version without one."""
-    base_url = (Config.FEEDBACK_BASE_URL or "https://elsadara-agent.revyai.tech").rstrip("/")
+    base_url = (Config.FEEDBACK_BASE_URL or "https://elrashed-agent.revyai.tech").rstrip("/")
     if reference_id:
         url = f"{base_url}/feedback/{reference_id}"
         return f"يسعدنا تقييم تجربتك معنا من خلال الرابط التالي:\n{url}"

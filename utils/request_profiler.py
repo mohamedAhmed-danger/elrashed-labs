@@ -5,7 +5,7 @@ import contextvars
 from contextlib import contextmanager
 from typing import Optional, Dict, Any
 
-logger = logging.getLogger("elsadara.profiler")
+logger = logging.getLogger("elrashed.profiler")
 
 _active_profiler: contextvars.ContextVar[Optional["RequestProfiler"]] = contextvars.ContextVar(
     "active_profiler", default=None

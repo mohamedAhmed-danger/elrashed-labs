@@ -1,7 +1,7 @@
 """
 utils/trace_logger.py
 
-Centralized Developer Tracing & Observability Utility for Elsadara-Agent.
+Centralized Developer Tracing & Observability Utility for Elrashed-Agent.
 
 Provides a unified, human-readable terminal/Docker logging system across all layers:
 - Communication / Webhooks (Facebook, WAHA)
@@ -53,7 +53,7 @@ LOG_LEVEL = getattr(logging, LOG_LEVEL_NAME, logging.DEBUG)
 
 # ── Logger Setup & Persistent File Handlers ─────────────────────────────────────
 
-LOGGER_NAME = "elsadara.trace"
+LOGGER_NAME = "elrashed.trace"
 _logger = logging.getLogger(LOGGER_NAME)
 _logger.setLevel(LOG_LEVEL)
 
@@ -69,11 +69,11 @@ if not _logger.handlers and not logging.getLogger().handlers:
     _logger.addHandler(_handler)
     _logger.propagate = False
 
-# File handlers for persistence (elsadara.log & error.log)
+# File handlers for persistence (elrashed.log & error.log)
 _has_file_handler = any(isinstance(h, RotatingFileHandler) for h in _logger.handlers)
 if not _has_file_handler:
     file_handler = RotatingFileHandler(
-        os.path.join(LOG_DIR, "elsadara.log"),
+        os.path.join(LOG_DIR, "elrashed.log"),
         maxBytes=10 * 1024 * 1024,
         backupCount=5,
         encoding="utf-8"
@@ -865,7 +865,7 @@ def log_production_summary(
     
     lines = []
     lines.append("╔══════════════════════════════════════════════════════════════════════════════════════════════╗")
-    lines.append("║                     📊 ELSADARA AGENT - PRODUCTION SUMMARY                           ║")
+    lines.append("║                     📊 ELRASHED AGENT - PRODUCTION SUMMARY                           ║")
     lines.append("╠══════════════════════════════════════════════════════════════════════════════════════════════╣")
     lines.append("║ 🆔 Request Context                                                                           ║")
     lines.append(f"║   • Trace ID:      {tid}")

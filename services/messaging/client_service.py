@@ -198,7 +198,18 @@ class ClientService:
     def get_total_clients_count() -> int:
         """Fetch total count of registered clients (0 on error)."""
         try:
-            return Client.query.count()
+            from services.domain.tenancy import is_scoped, current_lab_id
+            from models.models import Page
+            query = Client.query
+            if is_scoped():
+                lab_id = current_lab_id()
+                if lab_id is None:
+                    return 0
+                query = query.join(
+                    Page,
+                    db.and_(Client.page_id == Page.page_id, Client.platform_id == Page.platform_id),
+                ).filter(Page.laboratory_id == lab_id)
+            return query.count()
         except Exception:
             logger.exception("[ClientService.get_total_clients_count] failed")
             return 0

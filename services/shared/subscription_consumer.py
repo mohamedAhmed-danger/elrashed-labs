@@ -43,6 +43,7 @@ def consume_subscription(message, usage: dict = None, count: int = None) -> None
             subscription,
             count=messages_to_deduct,
             cost=cost,
+            laboratory_id=page.laboratory_id,
         )
 
         msg_type = getattr(message, "type", None) or getattr(message, "msg_type", "text")

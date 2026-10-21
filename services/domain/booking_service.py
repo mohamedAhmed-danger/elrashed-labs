@@ -10,6 +10,7 @@ from models.models import Booking, Status, db
 from services.domain.ticket_service import generate_booking_img
 from utils.text_utils import make_reference_id
 from utils.excel_utils import format_excel_sheet
+from services.domain.tenancy import scope_query, get_scoped
 
 logger = logging.getLogger(__name__)
 
@@ -37,11 +38,11 @@ class BookingService:
         """Lazily load the booking by ID or reference ID."""
         if self._booking is None:
             if self.booking_id is not None:
-                self._booking = db.session.get(Booking, self.booking_id)
+                self._booking = get_scoped(Booking, self.booking_id)
             elif self.reference_id is not None:
-                self._booking = Booking.query.filter_by(
-                    reference_id=self.reference_id
-                ).first()
+                self._booking = scope_query(
+                    Booking.query, Booking
+                ).filter_by(reference_id=self.reference_id).first()
 
         return self._booking
 
@@ -60,7 +61,7 @@ class BookingService:
         Without search or date filters, only the last 30 days are returned.
         Date filters apply to the appointment date, not booking creation time.
         """
-        query = Booking.query
+        query = scope_query(Booking.query, Booking)
 
         # Apply the default 30-day window only when no explicit filters are provided.
         if not date_from and not date_to and not search:
@@ -113,7 +114,7 @@ class BookingService:
         ):
             booking = self._booking
         elif actual_booking_id:
-            booking = db.session.get(Booking, actual_booking_id)
+            booking = get_scoped(Booking, actual_booking_id)
 
         if not booking:
             return None, "الحجز غير موجود"
@@ -141,6 +142,7 @@ class BookingService:
         comes_from: str,
         time: str,
         address: str,
+        laboratory_id: int,
     ) -> BookingSaveResult:
         """
         Save a booking, generate its reference ID, and create its confirmation image.
@@ -164,6 +166,7 @@ class BookingService:
             booking_time=datetime.now(timezone.utc),
             time=time,
             address=address,
+            laboratory_id=laboratory_id,
         )
 
         db.session.add(booking)
@@ -199,6 +202,7 @@ class BookingService:
             reference_id=reference_id,
             time=time,
             address=address,
+            laboratory_id=laboratory_id,
         )
 
         return BookingSaveResult(
@@ -271,7 +275,7 @@ class BookingService:
     def get_total_bookings_count() -> int:
         """Return the total number of bookings."""
         try:
-            return Booking.query.count()
+            return scope_query(Booking.query, Booking).count()
         except Exception:
             logger.exception("[BookingService.get_total_bookings_count] Error")
             return 0
@@ -283,7 +287,7 @@ class BookingService:
             return None
 
         try:
-            return Booking.query.filter_by(
+            return scope_query(Booking.query, Booking).filter_by(
                 reference_id=reference_id
             ).first()
         except Exception:

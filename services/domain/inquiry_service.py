@@ -11,6 +11,7 @@ from services.messaging.client_service import ClientService
 from services.domain.page_service import PageService
 from services.shared.platform_service import PlatformService
 from services.domain.tests_service import TestsService
+from services.domain.tenancy import scope_query, get_scoped
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,7 @@ class InquiryService:
     def inquiry(self):
         """Lazily load and cache the Inquiry tied to self.inquiry_id."""
         if self._inquiry is None and self.inquiry_id is not None:
-            self._inquiry = db.session.get(Inquiry, self.inquiry_id)
+            self._inquiry = get_scoped(Inquiry, self.inquiry_id)
         return self._inquiry
 
     # ── read ──────────────────────────────────────────────────────────────────
@@ -51,7 +52,7 @@ class InquiryService:
     def get_all_inquiries(self, page=1, per_page=10, search=None, status=None):
         """Fetch paginated inquiries filtered by search and status. Returns (Pagination or None, message)."""
         try:
-            query = Inquiry.query
+            query = scope_query(Inquiry.query, Inquiry)
 
             if search:
                 query = query.filter(
@@ -92,7 +93,7 @@ class InquiryService:
         if self._inquiry and self._inquiry.id == target_id:
             return InquiryResult(True, self._inquiry, "تم العثور على الاستفسار")
 
-        inquiry = db.session.get(Inquiry, target_id)
+        inquiry = get_scoped(Inquiry, target_id)
         if not inquiry:
             return InquiryResult(False, None, "الاستفسار غير موجود")
         if target_id == self.inquiry_id or self.inquiry_id is None:
@@ -107,7 +108,7 @@ class InquiryService:
     def get_pending_count(self):
         """Count inquiries currently in PENDING status."""
         try:
-            return Inquiry.query.filter_by(status=Status.PENDING).count()
+            return scope_query(Inquiry.query, Inquiry).filter_by(status=Status.PENDING).count()
         except Exception:
             logger.exception("[InquiryService.get_pending_count] Error")
             return 0
@@ -117,14 +118,14 @@ class InquiryService:
     def get_stats(self):
         """Return counts (total/pending/reviewed) plus average OCR confidence as a 0-100 percentage."""
         try:
-            total = Inquiry.query.count()
-            pending = Inquiry.query.filter_by(status=Status.PENDING).count()
-            reviewed = Inquiry.query.filter_by(status=Status.REVIEWED).count()
+            total = scope_query(Inquiry.query, Inquiry).count()
+            pending = scope_query(Inquiry.query, Inquiry).filter_by(status=Status.PENDING).count()
+            reviewed = scope_query(Inquiry.query, Inquiry).filter_by(status=Status.REVIEWED).count()
 
             from sqlalchemy import func
-            avg_conf = db.session.query(
+            avg_conf = scope_query(db.session.query(
                 func.avg(Inquiry.confidence_score)
-            ).filter(Inquiry.confidence_score.isnot(None)).scalar()
+            ), Inquiry).filter(Inquiry.confidence_score.isnot(None)).scalar()
 
             return {
                 "total": total,
@@ -180,7 +181,7 @@ class InquiryService:
         if self._inquiry and (not target_id or self._inquiry.id == target_id):
             inquiry = self._inquiry
         elif target_id:
-            inquiry = db.session.get(Inquiry, target_id)
+            inquiry = get_scoped(Inquiry, target_id)
 
         if not inquiry:
             return InquiryResult(False, None, "الاستفسار غير موجود")
@@ -343,7 +344,7 @@ class InquiryService:
     def get_pending_inquiries_count() -> int:
         """Fetch total count of pending prescription inquiries."""
         try:
-            return Inquiry.query.filter(Inquiry.status == Status.PENDING).count()
+            return scope_query(Inquiry.query, Inquiry).filter(Inquiry.status == Status.PENDING).count()
         except Exception:
             logger.exception("[InquiryService.get_pending_inquiries_count] Error")
             return 0

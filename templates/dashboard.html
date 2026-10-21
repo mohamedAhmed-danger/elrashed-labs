@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}لوحة التحكم — معمل صدارة{% endblock %}
+{% block title %}لوحة التحكم{% endblock %}
 
 {% block topbar_title %}لوحة التحكم{% endblock %}
-{% block topbar_sub %}متابعة التحاليل، الحجوزات، والروشتات لحظياً — معمل صدارة للتحاليل الطبية الكيميائية{% endblock %}
+{% block topbar_sub %}متابعة التحاليل، الحجوزات، والروشتات لحظياً{% endblock %}
 
 {% block topbar_actions %}
   <button class="icon-btn" title="الإشعارات">
@@ -27,15 +27,17 @@
   <div class="hero-welcome">
     <div class="welcome-badge brand-welcome-badge">
       <span class="pulse-dot"></span>
-      النظام نشط — معمل صدارة للتحاليل الطبية الكيميائية
+      النظام نشط{% if lab_brand.name %} — {{ lab_brand.name }}{% endif %}
     </div>
     <div class="dashboard-brand-header">
+      {% if lab_brand.logo %}
       <div class="dashboard-logo-container">
-        <img src="{{ url_for('static', filename='images/sadara_logo.jpg') }}" alt="معمل صدارة" class="dashboard-logo-img">
+        <img src="{{ url_for('static', filename=lab_brand.logo) }}" alt="{{ lab_brand.name or '' }}" class="dashboard-logo-img">
       </div>
+      {% endif %}
       <div>
         <h2>أهلاً بك، {{ current_user.name if current_user.is_authenticated and current_user.name else (current_user.username if current_user.is_authenticated else 'المسؤول') }} 👋</h2>
-        <p>مرحباً بك في المنصة الذكية لإدارة <strong>معمل صدارة</strong>. يمكنك متابعة طلبات الروشتات، الحجوزات المنزلية، وإدارة الخدمات الطبية بكل سلاسة.</p>
+        <p>مرحباً بك في المنصة الذكية لإدارة <strong>{{ lab_brand.name or 'المعامل' }}</strong>. يمكنك متابعة طلبات الروشتات، الحجوزات المنزلية، وإدارة الخدمات الطبية بكل سلاسة.</p>
       </div>
     </div>
   </div>
@@ -142,9 +144,15 @@
       </div>
       {% endif %}
 
+      {% if aggregate_notice %}
+      <div class="sub-period-label" style="color:#b45309; margin-bottom:8px;">
+        <i data-lucide="alert-triangle"></i>
+        تنبيه: {{ aggregate_notice }}
+      </div>
+      {% endif %}
       <div class="sub-plan-name">
         <i data-lucide="crown"></i>
-        خطة {{ subscription.plan_name if subscription.plan_name else 'Professional' }}
+        {{ subscription.plan_name if subscription_is_aggregate else 'خطة ' ~ (subscription.plan_name or 'Professional') }}
       </div>
 
       <div class="sub-period">
@@ -254,6 +262,7 @@
 <!-- ══════════════════════════════════════════════════════════
      Danger Zone Section — إيقاف/تفعيل الذكاء الاصطناعي
      ══════════════════════════════════════════════════════════ -->
+{% if not subscription_is_aggregate and current_user.is_admin %}
 <div class="section-title">
   <h3><i data-lucide="octagon-alert"></i> منطقة التحكم الحرجة</h3>
 </div>
@@ -289,6 +298,7 @@
     {% endif %}
   </div>
 </div>
+{% endif %}{# not subscription_is_aggregate #}
 {% endif %}
 
 <!-- Quick Shortcuts -->

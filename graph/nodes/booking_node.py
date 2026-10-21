@@ -51,7 +51,8 @@ def booking_node(state: AgentState) -> dict:
     )
 
     # 2. Fetch dynamic Lab Info & Bundles Context from DB
-    lab_name, lab_location, lab_desc = LaboratoryService.get_current_lab_info()
+    lab_name, lab_location, lab_desc = LaboratoryService.get_current_lab_info(state.get("laboratory_id"))
+    support_phone = LaboratoryService.get_support_phone(state.get("laboratory_id")) or "—"
 
     if is_bundle_query:
         bundles_context = BundleService.get_bundles_formatted_context()
@@ -140,14 +141,14 @@ Last bot message:
             user_message,
             arabic=(
                 f"عذرًا، حدث خطأ مؤقت أثناء معالجة طلبك ⚠️\n\n"
-                f"يرجى المحاولة مرة أخرى بعد قليل، أو يمكنك التواصل مباشرة مع خدمة عملاء معامل الصدارة لمساعدتك فوراً عبر الرقم:\n"
-                f"📞 **01006446508**\n\n"
+                f"يرجى المحاولة مرة أخرى بعد قليل، أو يمكنك التواصل مباشرة مع خدمة عملاء {lab_name} لمساعدتك فوراً عبر الرقم:\n"
+                f"📞 **{support_phone}**\n\n"
                 f"نحن في خدمتك دائمًا ✨"
             ),
             default=(
                 f"Apologies, a temporary error occurred while processing your request ⚠️\n\n"
-                f"Please try again in a moment, or contact El Sadara Labs customer service directly for assistance at:\n"
-                f"📞 **01006446508**\n\n"
+                f"Please try again in a moment, or contact {lab_name} customer service directly for assistance at:\n"
+                f"📞 **{support_phone}**\n\n"
                 f"We are always happy to help! ✨"
             ),
         )
@@ -204,6 +205,7 @@ Last bot message:
     # Save booking
     if tool_name == "save_visit_tool":
         tool_args["comes_from"] = get_platform_name(platform_id)
+        tool_args["laboratory_id"] = state.get("laboratory_id")  # from the page, never from the LLM
 
         tool_result = save_visit_tool.invoke(tool_args)
 
@@ -220,6 +222,7 @@ Last bot message:
                 "date": tool_args.get("date"),
                 "time": tool_args.get("time"),
                 "comes_from": tool_args["comes_from"],
+                "laboratory_id": state.get("laboratory_id"),
             }
 
             reply = detect_language_fallback(
@@ -227,13 +230,13 @@ Last bot message:
                 arabic=(
                     f"تم استلام طلب حجزك بنجاح ✅\n\n"
                     f"📌 **رقم الطلب:** *{booking_reference}*\n\n"
-                    f"سيقوم فريق خدمة العملاء بمعامل الصدارة بالتواصل معك قريباً لتأكيد الموعد النهائي.\n\n"
+                    f"سيقوم فريق خدمة العملاء في {lab_name} بالتواصل معك قريباً لتأكيد الموعد النهائي.\n\n"
                     f"مرفق أدناه تذكرة الحجز الخاصة بك 🎫"
                 ),
                 default=(
                     f"Your booking request has been successfully received ✅\n\n"
                     f"📌 **Reference ID:** *{booking_reference}*\n\n"
-                    f"Our customer service team at El Sadara Labs will contact you shortly to confirm the final appointment.\n\n"
+                    f"Our customer service team at {lab_name} will contact you shortly to confirm the final appointment.\n\n"
                     f"Here is your booking ticket below 🎫"
                 ),
             )

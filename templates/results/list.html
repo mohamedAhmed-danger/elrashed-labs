@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}طلبات النتائج — معامل ضمان{% endblock %}
+
+{% block topbar_title %}طلبات النتائج{% endblock %}
+{% block topbar_sub %}متابعة طلبات العملاء للاستعلام عن نتائج التحاليل الواردة من مختلف المنصات{% endblock %}
+
+{% block content %}
+
+<!-- ── Stats Strip ─────────────────────────────────────────── -->
+<div class="ts-stats-strip">
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-amber"><i data-lucide="file-check"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ pagination.total if pagination else (results|length) }}</div>
+      <div class="ts-stat-pill-label">إجمالي طلبات النتائج</div>
+    </div>
+  </div>
+
+  {% if search or status %}
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-blue"><i data-lucide="filter"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ results|length }}</div>
+      <div class="ts-stat-pill-label">نتائج التصفية</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── Filter & Search Bar ─────────────────────────────────── -->
+<div class="card ts-filter-card">
+  <form method="GET" action="{{ url_for('results.list_results') }}" class="ts-filter-form">
+    <div class="ts-filter-field ts-filter-search">
+      <label class="ts-filter-label">بحث برقم الهاتف أو اسم العميل</label>
+      <div class="ts-input-icon-wrap">
+        <i data-lucide="search" class="ts-input-icon"></i>
+        <input
+          type="text"
+          name="search"
+          value="{{ search or '' }}"
+          placeholder="ابحث برقم الهاتف أو الاسم..."
+          class="form-control ts-input-with-icon">
+      </div>
+    </div>
+
+    <div class="ts-filter-field">
+      <label class="ts-filter-label">حالة الطلب</label>
+      <select name="status" class="form-control">
+        <option value="">جميع الحالات</option>
+        {% for s in Status %}
+        <option value="{{ s.value }}" {% if status == s.value %}selected{% endif %}>
+          {% if s.name == 'PENDING' %}قيد الانتظار (Pending)
+          {% elif s.name == 'REVIEWED' %}تمت المعالجة (Reviewed)
+          {% elif s.name == 'ATTENDED' %}تم المتابعة (Attended)
+          {% elif s.name == 'NO_SHOW' %}مغلق (Closed)
+          {% else %}{{ s.value }}{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="ts-filter-actions">
+      <button type="submit" class="btn btn-primary ts-filter-btn">
+        <i data-lucide="filter"></i>
+        تصفية
+      </button>
+      {% if search or status %}
+      <a href="{{ url_for('results.list_results') }}" class="btn btn-ghost ts-filter-btn ts-filter-reset" title="إعادة تعيين">
+        <i data-lucide="rotate-ccw"></i>
+      </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- ── Results Table ───────────────────────────────────────── -->
+<div class="table-wrap ts-table-wrap">
+  <table class="data-table ts-data-table">
+    <thead>
+      <tr>
+        <th style="width: 70px;">#</th>
+        <th>العميل (رقم الهاتف / الاسم)</th>
+        <th style="width: 160px;">المعمل</th>
+        <th style="width: 160px;">تاريخ الطلب</th>
+        <th style="width: 160px; text-align: center;">الحالة</th>
+        <th style="width: 100px; text-align: center;">حذف</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in results %}
+      <tr>
+        <td><span class="ts-id-chip">#{{ r.id }}</span></td>
+
+        <td>
+          <div style="font-weight: 700; color: var(--navy-900);">
+            <i data-lucide="user" style="width:13px;height:13px;vertical-align:-2px;color:var(--blue-600);"></i>
+            <span dir="auto">{{ r.user_identity }}</span>
+          </div>
+        </td>
+
+        <td>
+          <span class="status-chip" style="background: rgba(37,99,235,0.08); color: var(--blue-600); font-weight: 600;">
+            <i data-lucide="building-2" style="width: 11px; height: 11px;"></i>
+            {{ r.laboratory.name if r.laboratory else 'غير محدد' }}
+          </span>
+        </td>
+
+        <td>
+          <span style="font-size: 0.82rem; color: var(--ink-500);">
+            <i data-lucide="clock" style="width: 12px; height: 12px; vertical-align: -2px;"></i>
+            {{ r.created_at.strftime('%Y-%m-%d %H:%M') if r.created_at else '—' }}
+          </span>
+        </td>
+
+        <td style="text-align: center;">
+          <form action="{{ url_for('results.update_result_status', request_id=r.id) }}" method="POST" style="margin: 0;">
+            <select name="status_val" onchange="this.form.submit()" class="form-control" style="height: 32px; padding: 2px 8px; font-size: 0.8rem; font-weight: 700; border-radius: 6px;
+              {% if r.status.name == 'PENDING' %}background:#fef3c7; color:#b45309; border-color:#fde68a;
+              {% elif r.status.name == 'REVIEWED' %}background:#dbeafe; color:#1d4ed8; border-color:#bfdbfe;
+              {% elif r.status.name == 'ATTENDED' %}background:#dcfce7; color:#15803d; border-color:#bbf7d0;
+              {% elif r.status.name == 'NO_SHOW' %}background:#fee2e2; color:#b91c1c; border-color:#fecaca;
+              {% endif %}">
+              {% for s in Status %}
+              <option value="{{ s.value }}" {% if r.status == s %}selected{% endif %}>
+                {% if s.name == 'PENDING' %}قيد الانتظار
+                {% elif s.name == 'REVIEWED' %}تمت المعالجة
+                {% elif s.name == 'ATTENDED' %}تم المتابعة
+                {% elif s.name == 'NO_SHOW' %}مغلق
+                {% else %}{{ s.value }}{% endif %}
+              </option>
+              {% endfor %}
+            </select>
+          </form>
+        </td>
+
+        <td style="text-align: center;">
+          <form action="{{ url_for('results.delete_result', request_id=r.id) }}" method="POST" style="margin: 0;"
+                onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.');">
+            <button type="submit" class="btn btn-danger ts-action-btn" style="padding: 7px 12px;" title="حذف الطلب">
+              <i data-lucide="trash-2" style="width:15px;height:15px;"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 56px 20px;">
+          <div class="ts-empty-icon"><i data-lucide="check-circle-2"></i></div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 6px;">لا توجد طلبات نتائج</h4>
+          <p style="color: var(--ink-500); font-size: 0.85rem;">لم يطلب أي عميل الاستعلام عن نتيجة حتى الآن.</p>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- ── Pagination ──────────────────────────────────────────── -->
+{% if pagination and pagination.pages > 1 %}
+<div class="pagination-wrapper">
+  <div class="pagination-info">
+    عرض {{ (pagination.page - 1) * pagination.per_page + 1 }} إلى {{ [pagination.page * pagination.per_page, pagination.total]|min }} من إجمالي {{ pagination.total }} طلب
+  </div>
+
+  <nav class="pagination">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('results.list_results', page=pagination.prev_num, search=search, status=status) }}"
+       class="pagination-btn" title="الصفحة السابقة">
+      <i data-lucide="chevron-right"></i> السابق
+    </a>
+    {% else %}
+    <span class="pagination-btn disabled"><i data-lucide="chevron-right"></i> السابق</span>
+    {% endif %}
+
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        {% if p == pagination.page %}
+        <span class="pagination-page active">{{ p }}</span>
+        {% else %}
+        <a href="{{ url_for('results.list_results', page=p, search=search, status=status) }}" class="pagination-page">{{ p }}</a>
+        {% endif %}
+      {% else %}
+        <span class="pagination-ellipsis">…</span>
+      {% endif %}
+    {% endfor %}
+
+    {% if pagination.has_next %}
+    <a href="{{ url_for('results.list_results', page=pagination.next_num, search=search, status=status) }}"
+       class="pagination-btn" title="الصفحة التالية">
+      التالي <i data-lucide="chevron-left"></i>
+    </a>
+    {% else %}
+    <span class="pagination-btn disabled">التالي <i data-lucide="chevron-left"></i></span>
+    {% endif %}
+  </nav>
+</div>
+{% endif %}
+
+{% endblock %}

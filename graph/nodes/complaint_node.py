@@ -8,6 +8,7 @@ from graph.tools.complaint_tool import save_complaint_tool
 from llm.llm import get_gemini
 from schemas.complaint import ComplaintResponse
 from services.messaging.client_service import ClientService
+from services.domain.laboratory_service import LaboratoryService
 from utils.history_utils import get_chat_history
 from utils.llm_utils import extract_token_usage
 from utils.text_utils import detect_language_fallback, get_platform_name
@@ -36,6 +37,9 @@ def complaint_node(state: AgentState) -> dict:
     user_message = state.get("user_message", "")
     current_summary = state.get("summary") or ""
     last_bot_message = state.get("last_bot_message") or ""
+
+    lab_name, _, _ = LaboratoryService.get_current_lab_info(state.get("laboratory_id"))
+    support_phone = LaboratoryService.get_support_phone(state.get("laboratory_id")) or "—"
 
     # 2. Load recent conversation history
     client_service = ClientService(
@@ -95,14 +99,14 @@ RECENT CONVERSATION
             user_message,
             arabic=(
                    f"عذرًا، حدث خطأ مؤقت أثناء معالجة طلبك ⚠️\n\n"
-                   f"يرجى المحاولة مرة أخرى بعد قليل، أو يمكنك التواصل مباشرة مع خدمة عملاء معامل الصدارة لمساعدتك فوراً عبر الرقم:\n"
-                   f"📞 **01006446508**\n\n"
+                   f"يرجى المحاولة مرة أخرى بعد قليل، أو يمكنك التواصل مباشرة مع خدمة عملاء {lab_name} لمساعدتك فوراً عبر الرقم:\n"
+                   f"📞 **{support_phone}**\n\n"
                    f"نحن في خدمتك دائمًا ✨"
                    ),
             default=(
                     f"Apologies, a temporary error occurred while processing your request ⚠️\n\n"
-                    f"Please try again in a moment, or contact El Sadara Labs customer service directly for assistance at:\n"
-                    f"📞 **01006446508**\n\n"
+                    f"Please try again in a moment, or contact {lab_name} customer service directly for assistance at:\n"
+                    f"📞 **{support_phone}**\n\n"
                     f"We are always happy to help! ✨"
                     ),
               )
@@ -150,6 +154,7 @@ RECENT CONVERSATION
     # Save complaint
     if tool_name == "save_complaint_tool":
         tool_args["comes_from"] = get_platform_name(platform_id)
+        tool_args["laboratory_id"] = state.get("laboratory_id")  # from the page, never from the LLM
 
         try:
             result = save_complaint_tool.invoke(tool_args)

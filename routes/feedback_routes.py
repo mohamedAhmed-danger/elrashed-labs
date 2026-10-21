@@ -8,12 +8,18 @@ feedbacks_bp = Blueprint('feedbacks', __name__)
 def submit_feedback_page(reference_id):
     feedback_service = FeedbackService(reference_id=reference_id)
     visit = feedback_service.get_visit_by_reference()
+    lab_name = None
+    if visit and visit.laboratory_id:
+        from models.models import Laboratory, db
+        lab = db.session.get(Laboratory, visit.laboratory_id)
+        lab_name = lab.name if lab else None
     return render_template(
         "feedback/submit_feedback.html",
         reference_id=reference_id,
         visit_name=visit.name if visit else None,
         visit_phone=visit.phone_number if visit else None,
         not_found=not bool(visit),
+        lab_name=lab_name,
     )
 
 @feedbacks_bp.route("/api/feedback", methods=["POST"])

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تقييم تجربتك — معمل صدارة للتحاليل الطبية الكيميائية</title>
+    <title>تقييم تجربتك{% if lab_name %} — {{ lab_name }}{% endif %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -232,8 +232,8 @@
     <div class="card" id="feedbackCard">
         <div class="brand-lockup">
             <div class="logo-badge"><i data-lucide="flask-conical"></i></div>
-            <div class="logo">معمل صدارة</div>
-            <div class="subtitle">للتحاليل الطبية الكيميائية</div>
+            <div class="logo">{{ lab_name or 'المعمل' }}</div>
+            <div class="subtitle">للتحاليل الطبية</div>
         </div>
         <div class="title" id="cardTitle">تقييم تجربتك معنا</div>
 

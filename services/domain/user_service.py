@@ -97,7 +97,7 @@ class UserService:
         return self.get_user(user_id=user_id)
 
     # Updates an existing user's details including name and password
-    def update_user(self, name=None, password=None, user_id=None):
+    def update_user(self, name=None, password=None, user_id=None, role=None, laboratory_id=None):
         """
         Updates the information of an existing user.
 
@@ -139,6 +139,13 @@ class UserService:
             if password:
                 user.password = password
 
+            if role is not None:
+                err = self._validate_role(role, laboratory_id)
+                if err:
+                    return None, err
+                user.role = role
+                user.laboratory_id = laboratory_id if role == 'lab_user' else None
+
             db.session.commit()
             self._user = user
             self.user_id = user.id
@@ -147,8 +154,19 @@ class UserService:
             db.session.rollback()
             return None, f"حدث خطأ أثناء التحديث: {str(e)}"
 
+    @staticmethod
+    def _validate_role(role, laboratory_id):
+        """Admin sees every lab; a lab user must belong to exactly one existing lab."""
+        from models.models import Laboratory
+        if role not in ('admin', 'lab_user'):
+            return "دور المستخدم غير صحيح"
+        if role == 'lab_user':
+            if not laboratory_id or not db.session.get(Laboratory, laboratory_id):
+                return "يجب اختيار معمل لمستخدم المعمل"
+        return None
+
     # Creates a new user record in the database
-    def create_user(self, name, password):
+    def create_user(self, name, password, role='lab_user', laboratory_id=None):
         """
         Creates a new user in the database.
 
@@ -172,7 +190,16 @@ class UserService:
             if existing_user:
                 return None, "اسم المستخدم موجود بالفعل"
 
-            new_user = User(name=name, password=password)
+            err = self._validate_role(role, laboratory_id)
+            if err:
+                return None, err
+
+            new_user = User(
+                name=name,
+                password=password,
+                role=role,
+                laboratory_id=laboratory_id if role == 'lab_user' else None,
+            )
             db.session.add(new_user)
             db.session.commit()
             self._user = new_user

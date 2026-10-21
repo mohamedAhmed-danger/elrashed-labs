@@ -199,6 +199,20 @@ def send_production_alert(
 from google.auth.transport.requests import Request
 from google.auth.exceptions import RefreshError
 
+def _resolve_recipients(settings, laboratory_id=None) -> list:
+    """Recipients for one lab's alerts: the lab's own email, else the tenant default."""
+    raw = None
+    if laboratory_id:
+        try:
+            from models.models import Laboratory, db
+            lab = db.session.get(Laboratory, laboratory_id)
+            raw = lab.notification_email if lab else None
+        except Exception:
+            logger.exception("[NotificationCenter] could not load lab email for lab_id=%s", laboratory_id)
+    raw = raw or (settings.notification_email if settings else None)
+    return [r.strip() for r in (raw or "").split(",") if r.strip()]
+
+
 def send_visit_confirmation_email(
     reference_id: str,
     name: str,
@@ -208,6 +222,7 @@ def send_visit_confirmation_email(
     date: str,
     time: str,
     comes_from: str,
+    laboratory_id: int | None = None,
 ) -> bool:
     """
     Sends a home visit booking confirmation email using Gmail API with automatic token refresh handling.
@@ -215,9 +230,10 @@ def send_visit_confirmation_email(
     try:
         # Fetch default tenant settings
         settings = TenantService.get_tenant_settings("default_tenant")
-        
-        if not settings or not settings.notification_email or not settings.gmail_token_json:
-            logger.error("[NotificationCenter] Missing settings, email, or token for home visit notification.")
+        recipients = _resolve_recipients(settings, laboratory_id)
+
+        if not settings or not recipients or not settings.gmail_token_json:
+            logger.error("[NotificationCenter] Missing settings, email, or token for home visit notification (lab_id=%s).", laboratory_id)
             return False
 
         # Build email body
@@ -233,8 +249,6 @@ def send_visit_confirmation_email(
             f"Source: {comes_from}\n"
         )
         subject = f"New Home Visit Booking - #{reference_id}"
-        # Parse comma-separated recipients
-        recipients = [r.strip() for r in settings.notification_email.split(",") if r.strip()]
 
         # Setup credentials
         SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
@@ -295,6 +309,7 @@ def send_pending_prescription_email(
     confidence_score: float,
     extracted_tests: str,
     ocr_extracted_text: str = "",
+    laboratory_id: int | None = None,
 ) -> bool:
     """
     Sends an email alert when a prescription is saved with PENDING status
@@ -304,9 +319,10 @@ def send_pending_prescription_email(
     try:
         # Fetch default tenant settings
         settings = TenantService.get_tenant_settings("default_tenant")
+        recipients = _resolve_recipients(settings, laboratory_id)
 
-        if not settings or not settings.notification_email or not settings.gmail_token_json:
-            logger.error("[NotificationCenter] Missing settings, email, or token for pending prescription notification.")
+        if not settings or not recipients or not settings.gmail_token_json:
+            logger.error("[NotificationCenter] Missing settings, email, or token for pending prescription notification (lab_id=%s).", laboratory_id)
             return False
 
         # Build email body
@@ -319,8 +335,6 @@ def send_pending_prescription_email(
             f"Please log in to the dashboard to review and confirm the required tests.\n"
         )
         subject = f"⚠️ Pending Prescription Review – Inquiry #{inquiry_id}"
-        # Parse comma-separated recipients
-        recipients = [r.strip() for r in settings.notification_email.split(",") if r.strip()]
 
         # Setup credentials
         SCOPES = ["https://www.googleapis.com/auth/gmail.send"]

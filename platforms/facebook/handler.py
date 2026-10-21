@@ -135,7 +135,11 @@ class FacebookHandler(BaseHandler):
     # ── comments (delegated to platforms/facebook/comments.py) ───────────────
 
     def handle_comment(self, comment_id: str, page_id: str):
-        fb_comments.handle_comment(comment_id, page_id, self.base_url, self.token)
+        lab = getattr(self.page, "laboratory", None)
+        fb_comments.handle_comment(
+            comment_id, page_id, self.base_url, self.token,
+            lab_name=getattr(lab, "name", None),
+        )
 
     def react_to_comment(self, comment_id: str):
         return fb_comments.react_to_comment(comment_id, self.base_url, self.headers)

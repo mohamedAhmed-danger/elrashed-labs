@@ -40,7 +40,11 @@ class SubscriptionService:
         if not laboratory_id:
             return None
         try:
-            return Subscription.query.filter_by(laboratory_id=laboratory_id).first()
+            # Shared quota: a lab with billing_laboratory_id set draws from that lab's subscription.
+            from models.models import Laboratory
+            lab = db.session.get(Laboratory, laboratory_id)
+            billing_id = lab.billing_laboratory_id if lab and lab.billing_laboratory_id else laboratory_id
+            return Subscription.query.filter_by(laboratory_id=billing_id).first()
         except Exception:
             logger.exception("[SubscriptionService.get_subscription_by_laboratory_id] Error")
             return None
@@ -131,25 +135,51 @@ class SubscriptionService:
         return True, "OK"
 
     @staticmethod
-    def consume(subscription, count: int = 1, cost: float = None) -> bool:
+    def consume(subscription, count: int = 1, cost: float = None, laboratory_id: int = None) -> bool:
         """
         Increment message usage and accumulate estimated model API cost.
 
-        Note: reads-then-writes message_used without row locking, so concurrent
-        calls for the same subscription can lose an increment (same lost-update
-        pattern as client_service.py chat_history). Not addressed here.
+        The increment is a single atomic UPDATE (message_used = message_used + n),
+        so concurrent webhooks from different labs sharing one subscription
+        cannot lose a deduction. Each deduction is also written to the per-lab
+        ledger (lab_usage) so you can see which lab consumed how much.
         """
         if not subscription:
             logger.warning("[SubscriptionService.consume] No valid Subscription instance provided.")
             return False
 
         try:
-            subscription.message_used = (subscription.message_used or 0) + count
-            if cost is not None:
-                subscription.estimated_cost = round((subscription.estimated_cost or 0.0) + float(cost), 6)
+            from sqlalchemy.dialects.mysql import insert as mysql_insert
+            from models.models import LabUsage
 
-            subscription.updated_at = datetime.now(timezone.utc)
+            cost_value = round(float(cost), 6) if cost is not None else 0.0
+            Subscription.query.filter_by(id=subscription.id).update(
+                {
+                    Subscription.message_used: Subscription.message_used + count,
+                    Subscription.estimated_cost: Subscription.estimated_cost + cost_value,
+                    Subscription.updated_at: datetime.now(timezone.utc),
+                },
+                synchronize_session=False,
+            )
+
+            usage_lab_id = laboratory_id or getattr(subscription, "laboratory_id", None)
+            if usage_lab_id:
+                stmt = mysql_insert(LabUsage).values(
+                    laboratory_id=usage_lab_id,
+                    usage_date=datetime.now(timezone.utc).date(),
+                    units=count,
+                    cost=cost_value,
+                )
+                db.session.execute(
+                    stmt.on_duplicate_key_update(
+                        units=LabUsage.units + count,
+                        cost=LabUsage.cost + cost_value,
+                    )
+                )
+
             db.session.commit()
+            db.session.refresh(subscription)
+            SubscriptionService._maybe_send_usage_alert(subscription)
             logger.info(
                 "[SubscriptionService.consume] Deducted %d messages, cost: %s USD | lab_id=%s | total_used=%d",
                 count, cost, getattr(subscription, "laboratory_id", None), subscription.message_used
@@ -163,12 +193,75 @@ class SubscriptionService:
                 send_production_alert(
                     subject="Subscription Deduction Database Failure",
                     body_or_error=e,
-                    context={"laboratory_id": self.laboratory_id, "count": count, "cost": cost},
+                    context={"laboratory_id": laboratory_id or getattr(subscription, "laboratory_id", None), "count": count, "cost": cost},
                     level="ERROR"
                 )
             except Exception:
                 pass
             return False
+
+    USAGE_ALERT_THRESHOLD = 0.8
+
+    @staticmethod
+    def _maybe_send_usage_alert(subscription) -> None:
+        """
+        Email the admin once per cycle when usage reaches 80% of message_limit.
+
+        The "once" is enforced by an atomic claim in the database
+        (usage_alert_sent 0 -> 1), so concurrent webhooks cannot both send it.
+        Never raises: an alert failure must not undo or block the deduction.
+        """
+        try:
+            limit = subscription.message_limit or 0
+            if limit <= 0 or subscription.usage_alert_sent:
+                return
+            if subscription.message_used < limit * SubscriptionService.USAGE_ALERT_THRESHOLD:
+                return
+
+            claimed = Subscription.query.filter(
+                Subscription.id == subscription.id,
+                Subscription.usage_alert_sent.is_(False),
+                Subscription.message_used >= limit * SubscriptionService.USAGE_ALERT_THRESHOLD,
+            ).update({Subscription.usage_alert_sent: True}, synchronize_session=False)
+            db.session.commit()
+            if not claimed:
+                return  # another request already sent it
+
+            from models.models import Laboratory
+            from notification_center import send_production_alert
+
+            sharing = Laboratory.query.filter(
+                db.or_(
+                    Laboratory.id == subscription.laboratory_id,
+                    Laboratory.billing_laboratory_id == subscription.laboratory_id,
+                )
+            ).all()
+            used, pct = subscription.message_used, round(subscription.message_used / limit * 100, 1)
+            send_production_alert(
+                subject=f"Subscription usage reached {int(SubscriptionService.USAGE_ALERT_THRESHOLD * 100)}%",
+                body_or_error=(
+                    f"Message usage is {used} of {limit} ({pct}%). "
+                    f"Grace messages: {subscription.grace_limit}. Consider renewing or raising the limit."
+                ),
+                context={
+                    "subscription_id": subscription.id,
+                    "billing_laboratory_id": subscription.laboratory_id,
+                    "labs_using_it": ", ".join(lab.name for lab in sharing if lab.name),
+                    "message_used": used,
+                    "message_limit": limit,
+                },
+                level="WARNING",
+                force=True,
+            )
+        except Exception:
+            db.session.rollback()
+            logger.exception("[SubscriptionService._maybe_send_usage_alert] failed")
+
+    def _clear_usage_alert_if_below(self, subscription) -> None:
+        """Re-arm the 80% alert when usage drops back under the threshold (renew/reset/limit raised)."""
+        limit = subscription.message_limit or 0
+        if limit <= 0 or subscription.message_used < limit * self.USAGE_ALERT_THRESHOLD:
+            subscription.usage_alert_sent = False
 
     # ==========================================================
     # Status
@@ -289,6 +382,7 @@ class SubscriptionService:
             resolved_subscription.renew_count += 1
             resolved_subscription.last_renewed_at = now
             resolved_subscription.updated_at = now
+            self._clear_usage_alert_if_below(resolved_subscription)
             db.session.commit()
             self._subscription = resolved_subscription
         except Exception:
@@ -308,6 +402,7 @@ class SubscriptionService:
         try:
             resolved_subscription.message_used = 0
             resolved_subscription.updated_at = datetime.now(timezone.utc)
+            self._clear_usage_alert_if_below(resolved_subscription)
             db.session.commit()
             self._subscription = resolved_subscription
         except Exception:
@@ -375,6 +470,7 @@ class SubscriptionService:
         try:
             resolved_subscription.message_limit = int(limit)
             resolved_subscription.updated_at = datetime.now(timezone.utc)
+            self._clear_usage_alert_if_below(resolved_subscription)
             db.session.commit()
             self._subscription = resolved_subscription
         except Exception:

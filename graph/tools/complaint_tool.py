@@ -1,8 +1,8 @@
 import logging
 from dataclasses import dataclass
-from typing import Optional
+from typing import Annotated, Optional
 
-from langchain_core.tools import tool
+from langchain_core.tools import InjectedToolArg, tool
 from services.domain.complaint_service import ComplaintService
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,7 @@ def save_complaint_tool(
     phone_number: str,
     complaint_text: str,
     comes_from: str = "unknown",
+    laboratory_id: Annotated[Optional[int], InjectedToolArg] = None,
 ) -> SaveComplaintResult:
     """
     Saves a customer complaint directly to the database once both the contact
@@ -29,12 +30,17 @@ def save_complaint_tool(
         complaint_text: Detailed explanation of the issue or complaint.
         comes_from: Channel or platform originating the complaint.
     """
+    # laboratory_id is injected by the node from the page, never chosen by the LLM.
+    if laboratory_id is None:
+        return SaveComplaintResult(success=False, message="Missing laboratory context.")
+
     try:
         service = ComplaintService()
         save_result = service.save_complaint(
             phone_number=phone_number,
             complaint_text=complaint_text,
             comes_from=comes_from,
+            laboratory_id=laboratory_id,
         )
 
         if save_result.success:

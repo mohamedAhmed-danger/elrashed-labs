@@ -99,8 +99,7 @@ class TestsService:
             if search and search.strip():
                 search_term = f"%{search.strip()}%"
                 query = query.filter(LabService.name.ilike(search_term))
-            if lab_id:
-                query = query.filter(LabService.laboratory_id == lab_id)
+            # Test catalog is centralized across all labs: no laboratory_id filtering
 
             pagination = query.order_by(LabService.id.asc()).paginate(
                 page=page,
@@ -120,7 +119,6 @@ class TestsService:
 
         clean_query = query.strip()
         search_term = f"%{clean_query}%"
-        lab_id = laboratory_id or self.laboratory_id
 
         try:
             from sqlalchemy import or_, cast, String, case
@@ -132,8 +130,7 @@ class TestsService:
             )
 
             stmt = LabService.query.filter(query_filter)
-            if lab_id:
-                stmt = stmt.filter(LabService.laboratory_id == lab_id)
+            # Test catalog is centralized across all labs: no laboratory_id filtering
 
             priority = case(
                 (LabService.name.ilike(clean_query), 0),

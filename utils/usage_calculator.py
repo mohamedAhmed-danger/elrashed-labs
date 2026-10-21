@@ -29,6 +29,7 @@ def calc_total_usage(result: dict, ocr_usage: dict = None) -> dict:
         ("complaint_usage", result.get("complaint_usage")),
         ("direct_usage", result.get("direct_usage")),
         ("inquiry_usage", result.get("inquiry_usage")),
+        ("result_usage", result.get("result_usage")),
     ]
 
     total_input_tokens = total_output_tokens = total_tokens = 0

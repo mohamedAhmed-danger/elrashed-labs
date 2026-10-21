@@ -5,8 +5,17 @@ from platforms.http_client import safe_post
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_PUBLIC_REPLY = "منوّرنا يا فندم 💙 ردينا عليك على الخاص، معمل الصدارة تحت أمرك."
-DEFAULT_PRIVATE_REPLY = "أهلاً وسهلاً بحضرتك 💙 معمل الصدارة تحت أمرك، تحب أساعدك في إيه؟"
+PUBLIC_REPLY_TEMPLATE = "منوّرنا يا فندم 💙 ردينا عليك على الخاص، {lab_name} تحت أمرك."
+PRIVATE_REPLY_TEMPLATE = "أهلاً وسهلاً بحضرتك 💙 {lab_name} تحت أمرك، تحب أساعدك في إيه؟"
+FALLBACK_LAB_NAME = "المعمل"
+
+
+def public_reply(lab_name=None) -> str:
+    return PUBLIC_REPLY_TEMPLATE.format(lab_name=lab_name or FALLBACK_LAB_NAME)
+
+
+def private_reply(lab_name=None) -> str:
+    return PRIVATE_REPLY_TEMPLATE.format(lab_name=lab_name or FALLBACK_LAB_NAME)
 
 def _auth_headers(token: str) -> dict:
     return {"Authorization": f"Bearer {token}"}
@@ -29,10 +38,11 @@ def reply_to_comment(
     base_url: str,
     headers: dict,
     page_id,
-    static_message: str = DEFAULT_PUBLIC_REPLY,
+    static_message: str = None,
 ):
     """رد عام على التعليق برسالة ثابتة."""
     logger.debug("[FB COMMENT REPLY] comment_id=%s", comment_id)
+    static_message = static_message or public_reply()
     return safe_post(
         f"{base_url}/{comment_id}/comments",
         label="Facebook Comment Reply",
@@ -67,13 +77,13 @@ def send_private_reply(page_id, page_access_token: str, comment_id: str, text: s
     return {"status": response.status_code, "ok": response.ok, "data": data}
 
 
-def handle_comment(comment_id: str, page_id: str, base_url: str, token: str):
+def handle_comment(comment_id: str, page_id: str, base_url: str, token: str, lab_name: str = None):
     """يشغّل خطوات التعليق: لايك + رد عام + رسالة خاصة (كل خطوة مستقلة عن التانية)."""
     headers = _auth_headers(token)
     try:
         react_to_comment(comment_id, base_url, headers)
-        reply_to_comment(comment_id, base_url, headers, page_id)
-        send_private_reply(page_id, token, comment_id, DEFAULT_PRIVATE_REPLY, base_url)
+        reply_to_comment(comment_id, base_url, headers, page_id, public_reply(lab_name))
+        send_private_reply(page_id, token, comment_id, private_reply(lab_name), base_url)
     except Exception as e:
         logger.exception("[FB HANDLE COMMENT] Unexpected error | comment_id=%s", comment_id)
         send_production_alert(

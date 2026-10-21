@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}خدمات التحاليل الطبية — معمل صدارة{% endblock %}
+{% block title %}خدمات التحاليل الطبية{% endblock %}
 
 {% block topbar_title %}خدمات التحاليل الطبية{% endblock %}
 {% block topbar_sub %}إدارة وتحديث باقات وفحوصات التحاليل الطبية وتحديد الأسعار والشروط{% endblock %}
@@ -60,18 +60,6 @@
           class="form-control ts-input-with-icon">
       </div>
     </div>
-
-    {% if laboratories %}
-    <div class="ts-filter-field">
-      <label class="ts-filter-label">المعمل</label>
-      <select name="laboratory_id" class="form-control">
-        <option value="">جميع المعامل والفروع</option>
-        {% for lab in laboratories %}
-        <option value="{{ lab.id }}" {% if laboratory_id == lab.id %}selected{% endif %}>{{ lab.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    {% endif %}
 
     <div class="ts-filter-field ts-filter-narrow">
       <label class="ts-filter-label">عرض بالصفحة</label>

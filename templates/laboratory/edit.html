@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}تعديل بيانات المعمل — معمل صدارة{% endblock %}
+{% block title %}تعديل بيانات المعمل{% endblock %}
 
 {% block topbar_title %}
 <div style="display: flex; align-items: center; gap: 12px;">
@@ -65,6 +65,31 @@
           الوصف
         </label>
         <textarea name="description" class="form-control" rows="3">{{ laboratory.description if laboratory else '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="field-label">رقم خدمة العملاء (يظهر للمرضى)</label>
+        <input type="text" name="support_phone" class="form-control" value="{{ laboratory.support_phone or '' }}" placeholder="01XXXXXXXXX">
+      </div>
+
+      <div class="form-group">
+        <label class="field-label">إيميل تنبيهات هذا المعمل (افصل بينهم بفاصلة)</label>
+        <input type="text" name="notification_email" class="form-control" value="{{ laboratory.notification_email or '' }}" placeholder="lab@example.com">
+      </div>
+
+      <div class="form-group">
+        <label class="field-label">مسار اللوجو داخل static (مثال: images/lab2_logo.png)</label>
+        <input type="text" name="logo_path" class="form-control" value="{{ laboratory.logo_path or '' }}" placeholder="images/logo.jpg">
+      </div>
+
+      <div class="form-group">
+        <label class="field-label">الاشتراك المشترك: يسحب من اشتراك المعمل</label>
+        <select name="billing_laboratory_id" class="form-control">
+          <option value="">— اشتراك مستقل —</option>
+          {% for other in all_labs if other.id != laboratory.id %}
+          <option value="{{ other.id }}" {% if laboratory.billing_laboratory_id == other.id %}selected{% endif %}>{{ other.name }}</option>
+          {% endfor %}
+        </select>
       </div>
 
       <div class="form-actions-bar" style="position: static; background: none; border-top: none; padding-top: 20px; margin-bottom: 8px;">

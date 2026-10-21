@@ -91,7 +91,9 @@ class LaboratoryService:
             logger.exception("Failed to retrieve laboratories")
             return None, "An unexpected error occurred while retrieving laboratories"
 
-    def update_laboratory(self, name=None, location=None, description=None, lab_id=None):
+    def update_laboratory(self, name=None, location=None, description=None, lab_id=None,
+                          logo_path=None, support_phone=None, notification_email=None,
+                          billing_laboratory_id=None, set_billing=False):
         """
         Update a laboratory's name, location or description.
 
@@ -122,6 +124,18 @@ class LaboratoryService:
                 lab.location = location
             if description:
                 lab.description = description
+
+            # New identity fields: None = leave unchanged, '' = clear.
+            if logo_path is not None:
+                lab.logo_path = logo_path.strip() or None
+            if support_phone is not None:
+                lab.support_phone = support_phone.strip() or None
+            if notification_email is not None:
+                lab.notification_email = notification_email.strip() or None
+            if set_billing:
+                if billing_laboratory_id == lab.id:
+                    billing_laboratory_id = None  # a lab billing itself == its own subscription
+                lab.billing_laboratory_id = billing_laboratory_id
 
             db.session.commit()
             self._lab = lab
@@ -172,17 +186,51 @@ class LaboratoryService:
 
 
     @staticmethod
-    def get_current_lab_info():
+    def get_support_phone(laboratory_id=None):
+        """Customer-service number of this lab (falls back to the first lab, then None)."""
+        try:
+            lab = db.session.get(Lab, laboratory_id) if laboratory_id else None
+            lab = lab or Lab.query.order_by(Lab.id.asc()).first()
+            return (lab.support_phone or None) if lab else None
+        except Exception:
+            logger.exception("[LaboratoryService.get_support_phone] failed")
+            return None
+
+    @staticmethod
+    def get_public_brand() -> dict:
         """
-        Fetches primary laboratory name, location, and description for system prompts.
+        Name/logo for pages shown without a signed-in user (login, about, privacy).
+
+        One lab: its own name and logo. Several labs: PUBLIC_BRAND_NAME from the
+        environment if set, otherwise a neutral name; no logo.
         """
         try:
-            lab = Lab.query.order_by(Lab.id.asc()).first()
+            labs = Lab.query.order_by(Lab.id.asc()).all()
+        except Exception:
+            logger.exception("[LaboratoryService.get_public_brand] failed")
+            labs = []
+        if len(labs) == 1:
+            lab = labs[0]
+            return {"name": lab.name or "المعمل", "logo": lab.logo_path.lstrip("/") if lab.logo_path else None}
+        import os
+        return {"name": os.getenv("PUBLIC_BRAND_NAME") or "نظام إدارة المعامل", "logo": None}
+
+    @staticmethod
+    def get_current_lab_info(laboratory_id=None):
+        """
+        Fetches laboratory name, location, and description for system prompts.
+
+        Pass the laboratory_id from the agent state so each lab's page talks as
+        that lab. Without it, the first lab is used (legacy single-lab behaviour).
+        """
+        try:
+            lab = db.session.get(Lab, laboratory_id) if laboratory_id else None
+            lab = lab or Lab.query.order_by(Lab.id.asc()).first()
             if not lab:
                 return (
-                    "معمل صدارة للتحاليل الطبية",
-                    "الإسكندرية",
-                    "معمل متخصص في جميع التحاليل الطبية والكيميائية"
+                    "المعمل",
+                    "غير محدد",
+                    "معمل متخصص في التحاليل الطبية"
                 )
             
             return (
@@ -193,10 +241,10 @@ class LaboratoryService:
         except Exception:
             logger.exception("[LaboratoryService.get_current_lab_info] failed")
             return (
-                "معمل صدارة للتحاليل الطبية",
-                "الإسكندرية",
+                "المعمل",
+                "غير محدد",
                 "معمل متخصص في التحاليل الطبية"
-            )    
+            )
 
 
         

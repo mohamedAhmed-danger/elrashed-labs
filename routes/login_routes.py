@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, redirect, url_for, request, flash, render_
 from flask_login import current_user, login_user, logout_user, login_required
 from services.domain.dashboard_service import DashboardService
 from services.domain.user_service import UserService
+from services.domain.laboratory_service import LaboratoryService
 
 main_bp = Blueprint('main', __name__)
 
@@ -30,7 +31,7 @@ def login():
             
         flash('اسم المستخدم أو كلمة المرور غير صحيحة', 'error')
         
-    return render_template('login.html')
+    return render_template('login.html', brand=LaboratoryService.get_public_brand())
 
 @main_bp.route('/logout')
 @login_required
@@ -49,6 +50,8 @@ def dashboard():
         'dashboard.html',
         subscription=dashboard_data.get('subscription'),
         subscription_status=dashboard_data.get('subscription_status'),
+        subscription_is_aggregate=dashboard_data.get('subscription_is_aggregate', False),
+        aggregate_notice=dashboard_data.get('aggregate_notice', ''),
         usage_percentage=dashboard_data.get('usage_percentage'),
         remaining_messages=dashboard_data.get('remaining_messages'),
         clients_count=dashboard_data.get('clients_count', 0),

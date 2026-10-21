@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}إدارة المعامل — معمل صدارة{% endblock %}
+{% block title %}إدارة المعامل{% endblock %}
 
 {% block topbar_title %}إدارة المعامل والفروع{% endblock %}
 {% block topbar_sub %}قائمة الفروع والمعامل التابعة للمنظومة{% endblock %}
@@ -35,6 +35,7 @@
         <th>الموقع والمدينة</th>
         <th>الوصف</th>
         <th>التحاليل المرتبطة</th>
+        <th style="min-width: 210px;">الذكاء الاصطناعي</th>
         <th style="width: 140px; text-align: center;">الإجراءات</th>
       </tr>
     </thead>
@@ -65,6 +66,46 @@
             {{ lab.lab_services|length if lab.lab_services else 0 }} تحليل
           </span>
         </td>
+        <td>
+          {% set ai = ai_info[lab.id] %}
+          {% if not ai.has_subscription %}
+            <span class="status-chip" style="background: var(--border-soft); color: var(--ink-500);">لا يوجد اشتراك</span>
+          {% else %}
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                {% if ai.status.text == "Active" %}
+                  <span class="status-chip done">يعمل</span>
+                {% elif ai.status.text == "Limit Reached" %}
+                  <span class="status-chip pending">الحد خلص</span>
+                {% elif ai.status.text == "Expired" %}
+                  <span class="status-chip stopped">الاشتراك منتهي</span>
+                {% else %}
+                  <span class="status-chip stopped">متوقف</span>
+                {% endif %}
+                <span style="font-size: 0.78rem; color: var(--ink-500);">{{ ai.used }} / {{ ai.limit }} ({{ ai.percent }}%)</span>
+              </div>
+              {% if ai.shared %}
+              <div style="font-size: 0.74rem; color: var(--ink-500);">
+                {% if ai.paid_by %}بيسحب من اشتراك {{ ai.paid_by }}{% else %}اشتراكه مشترك مع: {{ ai.shared_names|join('، ') }}{% endif %}
+              </div>
+              {% endif %}
+              {% if ai.is_active %}
+              <form method="POST" action="{{ url_for('laboratory.suspend_laboratory_ai', lab_id=lab.id) }}"
+                    onsubmit="return confirm('إيقاف الذكاء الاصطناعي لـ {{ lab.name|e }}؟ مش هيتم الرد على العملاء تلقائيًا.{% if ai.shared %}\nالاشتراك مشترك، فالإيقاف هيشمل كمان: {{ ai.shared_names|join('، ')|e }}{% endif %}');">
+                <button type="submit" class="btn btn-outline btn-sm" style="color: var(--red-500);">
+                  <i data-lucide="power-off"></i> إيقاف
+                </button>
+              </form>
+              {% else %}
+              <form method="POST" action="{{ url_for('laboratory.activate_laboratory_ai', lab_id=lab.id) }}">
+                <button type="submit" class="btn btn-outline btn-sm" style="color: #15803d;">
+                  <i data-lucide="power"></i> تفعيل
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          {% endif %}
+        </td>
         <td style="text-align: center;">
           <a href="{{ url_for('laboratory.edit_laboratory', lab_id=lab.id) }}"
              class="btn btn-outline btn-sm ts-action-btn">
@@ -75,7 +116,7 @@
       </tr>
       {% else %}
       <tr>
-        <td colspan="6" style="text-align: center; padding: 56px 20px;">
+        <td colspan="7" style="text-align: center; padding: 56px 20px;">
           <div class="ts-empty-icon"><i data-lucide="building-2"></i></div>
           <h4 style="font-size: 1.05rem; margin-bottom: 6px;">لا توجد معامل مضافة حالياً</h4>
           <p style="color: var(--ink-500); font-size: 0.85rem; margin-bottom: 18px;">

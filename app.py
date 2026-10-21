@@ -20,6 +20,7 @@ from routes.webhook_routes import webhook_bp
 from routes.bundle_routes import bundle_bp
 from routes.health_routes import health_bp
 from routes.public_routes import public_bp
+from routes.results import bp as results_bp
 
 
 import logging
@@ -88,6 +89,23 @@ def create_app(config_class=Config):
     app.register_blueprint(bundle_bp)
     app.register_blueprint(health_bp)
     app.register_blueprint(public_bp)
+    app.register_blueprint(results_bp)
+
+    # Lab users may only reach the pages that show their own lab's data.
+    # Everything else (users, pages, catalog, subscription, settings...) is admin-only.
+    LAB_USER_BLUEPRINTS = {"main", "bookings", "complaints", "feedbacks", "inquiries", "public", "webhook", "results"}
+
+    @app.before_request
+    def restrict_lab_users():
+        from flask import request, abort
+        from flask_login import current_user
+        if not current_user.is_authenticated or current_user.is_admin:
+            return None
+        if request.endpoint is None or request.endpoint == "static":
+            return None
+        if request.blueprint not in LAB_USER_BLUEPRINTS:
+            abort(403)
+        return None
 
     # Context processor for sidebar badges and layout counters
     @app.context_processor
@@ -97,7 +115,26 @@ def create_app(config_class=Config):
             count = InquiryService.get_pending_inquiries_count()
         except Exception:
             count = 0
-        return dict(pending_inquiries_count=count)
+        try:
+            from services.domain.result_service import ResultService
+            res_count = ResultService.count_pending()
+        except Exception:
+            res_count = 0
+        brand = {"name": None, "logo": None}
+        try:
+            from flask_login import current_user
+            lab = getattr(current_user, "laboratory", None) if current_user.is_authenticated else None
+            if lab:
+                brand["name"] = lab.name
+                if lab.logo_path:
+                    brand["logo"] = lab.logo_path.lstrip("/")
+        except Exception:
+            pass
+        return dict(
+            pending_inquiries_count=count,
+            pending_results_count=res_count,
+            lab_brand=brand,
+        )
 
     return app
 

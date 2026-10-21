@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}معمل صدارة للتحاليل الطبية الكيميائية — لوحة التحكم{% endblock %}</title>
+  <title>{% block title %}لوحة التحكم{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -25,11 +25,13 @@
 
   <div class="sidebar-header">
     <div class="brand-badge brand-logo-badge">
+      {% if lab_brand.logo %}
       <div class="brand-logo-ring">
-        <img src="{{ url_for('static', filename='images/sadara_logo.jpg') }}" alt="معمل صدارة" class="brand-logo-img">
+        <img src="{{ url_for('static', filename=lab_brand.logo) }}" alt="{{ lab_brand.name or '' }}" class="brand-logo-img">
       </div>
+      {% endif %}
       <div class="brand-text-container">
-        <div class="lab-name">معمل صدارة</div>
+        <div class="lab-name">{{ lab_brand.name or 'كل المعامل' }}</div>
         <div class="lab-sub">للتحاليل الطبية الكيميائية</div>
       </div>
     </div>
@@ -68,6 +70,15 @@
        class="nav-item {% if request.endpoint in ['complaints.list_complaints'] %}active{% endif %}">
       <i data-lucide="message-square-warning" class="nav-icon"></i>
       الشكاوى
+    </a>
+
+    <a href="{{ url_for('results.list_results') }}"
+       class="nav-item {% if request.endpoint in ['results.list_results'] %}active{% endif %}">
+      <i data-lucide="file-check" class="nav-icon"></i>
+      طلبات النتائج
+      {% if pending_results_count and pending_results_count > 0 %}
+      <span class="nav-badge">{{ pending_results_count }}</span>
+      {% endif %}
     </a>
 
     <p class="nav-section-label">الخدمات والباقات</p>
@@ -198,7 +209,7 @@
 
   <!-- Footer -->
   <footer class="site-footer">
-    <span>مجموعة معمل صدارة &copy; 2026</span>
+    <span>{{ lab_brand.name or 'كل المعامل' }} &copy; 2026</span>
     <span class="footer-divider">•</span>
     <span>تطوير <a href="https://revyai.tech" target="_blank" rel="noopener">RevyAI</a> (<a href="https://wa.me/201554019172" target="_blank" rel="noopener" style="color:#25d366;font-weight:700;">01554019172</a>)</span>
   </footer>

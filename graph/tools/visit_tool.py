@@ -1,8 +1,8 @@
 import logging
 from dataclasses import dataclass
-from typing import Optional, Any
+from typing import Annotated, Optional, Any
 
-from langchain_core.tools import tool
+from langchain_core.tools import InjectedToolArg, tool
 
 from services.domain.booking_service import BookingService
 
@@ -26,8 +26,14 @@ def save_visit_tool(
     date: str,
     time: str,
     comes_from: str = "WhatsApp",
+    laboratory_id: Annotated[Optional[int], InjectedToolArg] = None,
 ) -> SaveVisitResult:
     """Saves a confirmed home visit medical laboratory booking."""
+
+    # laboratory_id is injected by the node from the page the patient wrote to.
+    # InjectedToolArg keeps it out of the schema the LLM sees.
+    if laboratory_id is None:
+        return SaveVisitResult(success=False, message="Missing laboratory context.")
 
     try:
         # 1. Save booking
@@ -41,6 +47,7 @@ def save_visit_tool(
             comes_from=comes_from,
             time=time,
             address=address,
+            laboratory_id=laboratory_id,
         )
 
         # 2. Make sure booking was saved successfully

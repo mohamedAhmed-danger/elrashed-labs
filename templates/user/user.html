@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}المستخدمون — معمل صدارة{% endblock %}
+{% block title %}المستخدمون{% endblock %}
 
 {% block topbar_title %}
 المستخدمون
@@ -25,6 +25,7 @@
             <tr>
                 <th style="width: 80px;">#</th>
                 <th>اسم المستخدم</th>
+                <th>الدور / المعمل</th>
                 <th style="width: 160px; text-align: center;">الإجراءات</th>
             </tr>
         </thead>
@@ -41,6 +42,7 @@
                     <span>{{ user.name or user.username }}</span>
                 </div>
             </td>
+            <td>{% if user.role == 'admin' %}أدمن — كل المعامل{% else %}{{ user.laboratory.name if user.laboratory else 'بدون معمل' }}{% endif %}</td>
             <td style="text-align: center;">
                 <a href="{{ url_for('users.edit_user', user_id=user.id) }}"
                    class="btn btn-outline btn-sm">
@@ -51,7 +53,7 @@
         </tr>
         {% else %}
         <tr>
-            <td colspan="3" style="text-align: center; padding: 32px; color: var(--ink-500);">
+            <td colspan="4" style="text-align: center; padding: 32px; color: var(--ink-500);">
                 <i data-lucide="users" style="width: 36px; height: 36px; margin: 0 auto 8px; display: block; opacity: 0.5;"></i>
                 لا يوجد مستخدمون مسجلون حالياً
             </td>

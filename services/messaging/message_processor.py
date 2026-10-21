@@ -115,6 +115,7 @@ def _build_state(message: IncomingMessage, client, laboratory_id, history_rows) 
         "complaint_usage":   None,
         "direct_usage":      None,
         "inquiry_usage":     None,
+        "result_usage":      None,
         "booking_reference": None,
         "booking_saved":     None,
         "booking_data":      None,
@@ -177,6 +178,7 @@ def _send_booking_email(result: dict) -> None:
             date=booking.get("date", ""),
             time=booking.get("time", ""),
             comes_from=booking.get("comes_from", ""),
+            laboratory_id=booking.get("laboratory_id"),
         )
         logger.info("[run_agent] Booking confirmation email sent | ref=%s", reference_id)
     except Exception:

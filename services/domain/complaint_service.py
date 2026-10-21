@@ -6,6 +6,7 @@ import openpyxl
 
 from models.models import Complaint, Status, db
 from utils.excel_utils import format_excel_sheet
+from services.domain.tenancy import scope_query, get_scoped
 
 logger = logging.getLogger(__name__)
 
@@ -29,12 +30,12 @@ class ComplaintService:
     def complaint(self):
         """Lazily load and cache the Complaint tied to self.complaint_id."""
         if self._complaint is None and self.complaint_id is not None:
-            self._complaint = db.session.get(Complaint, self.complaint_id)
+            self._complaint = get_scoped(Complaint, self.complaint_id)
         return self._complaint
 
     def get_all_complaints(self, page=1, per_page=10, search=None, status=None):
         """Fetch paginated complaints filtered by search text and status. Returns (Pagination, message)."""
-        query = Complaint.query
+        query = scope_query(Complaint.query, Complaint)
 
         if search:
             query = query.filter(
@@ -75,7 +76,7 @@ class ComplaintService:
         if self._complaint and (not actual_complaint_id or self._complaint.id == actual_complaint_id):
             complaint = self._complaint
         elif actual_complaint_id:
-            complaint = db.session.get(Complaint, actual_complaint_id)
+            complaint = get_scoped(Complaint, actual_complaint_id)
 
         if not complaint:
             return None, "الشكوى غير موجودة"
@@ -90,7 +91,7 @@ class ComplaintService:
             logger.exception("[ComplaintService.update_complaint_status] Error")
             return None, "حدث خطأ أثناء تحديث الحالة"
 
-    def save_complaint(self, phone_number: str, complaint_text: str, comes_from: str = "unknown") -> ComplaintSaveResult:
+    def save_complaint(self, phone_number: str, complaint_text: str, laboratory_id: int, comes_from: str = "unknown") -> ComplaintSaveResult:
         """
         Register a new complaint. Returns a ComplaintSaveResult.
 
@@ -103,6 +104,7 @@ class ComplaintService:
                 phone_number=phone_number,
                 complaint_text=complaint_text,
                 comes_from=comes_from,
+                laboratory_id=laboratory_id,
             )
             db.session.add(complaint)
             db.session.commit()

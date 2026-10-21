@@ -5,6 +5,7 @@ from sqlalchemy import case, func
 
 from models.models import db, Feedback
 from services.domain.booking_service import BookingService
+from services.domain.tenancy import scope_feedback_query
 
 logger = logging.getLogger(__name__)
 
@@ -27,9 +28,13 @@ class FeedbackService:
         """يحمّل الـ Feedback بالـ feedback_id أو reference_id (مرة واحدة ويتخزن)."""
         if self._feedback is None:
             if self.feedback_id is not None:
-                self._feedback = db.session.get(Feedback, self.feedback_id)
+                self._feedback = scope_feedback_query(
+                    Feedback.query
+                ).filter(Feedback.id == self.feedback_id).first()
             elif self.reference_id is not None:
-                self._feedback = Feedback.query.filter_by(reference_id=self.reference_id).first()
+                self._feedback = scope_feedback_query(
+                    Feedback.query
+                ).filter_by(reference_id=self.reference_id).first()
         return self._feedback
 
     def _save_feedback(self, ref, name, phone_number, overall_rating, ease_of_use, feedback_text):
@@ -66,7 +71,7 @@ class FeedbackService:
             return None, "حدث خطأ أثناء حفظ التقييم"
 
     def _filtered_query(self, ref, min_rating):
-        query = Feedback.query.order_by(Feedback.created_at.desc())
+        query = scope_feedback_query(Feedback.query).order_by(Feedback.created_at.desc())
         if ref:
             query = query.filter(Feedback.reference_id == ref)
         if min_rating:
@@ -134,11 +139,13 @@ class FeedbackService:
             page=page, per_page=per_page, error_out=False
         )
 
-        total, avg_overall, avg_ease, low_ratings = db.session.query(
-            func.count(Feedback.id),
-            func.avg(Feedback.overall_rating),
-            func.avg(Feedback.ease_of_use),
-            func.sum(case((Feedback.overall_rating <= 2, 1), else_=0)),
+        total, avg_overall, avg_ease, low_ratings = scope_feedback_query(
+            db.session.query(
+                func.count(Feedback.id),
+                func.avg(Feedback.overall_rating),
+                func.avg(Feedback.ease_of_use),
+                func.sum(case((Feedback.overall_rating <= 2, 1), else_=0)),
+            )
         ).one()
 
         # MySQL بيرجّع Decimal، فنحوّل لأنواع بايثون عادية عشان الـ JSON

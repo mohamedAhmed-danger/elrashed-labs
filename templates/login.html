@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تسجيل الدخول — معمل صدارة</title>
+  <title>تسجيل الدخول</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -348,12 +348,14 @@
 <div class="page-container">
 
   <div class="page-background-artwork">
+    {% if brand.logo %}
     <div class="artwork-logo-card">
-      <img src="{{ url_for('static', filename='images/sadara_logo.jpg') }}" alt="معمل صدارة" class="artwork-logo-img">
+      <img src="{{ url_for('static', filename=brand.logo) }}" alt="{{ brand.name }}" class="artwork-logo-img">
     </div>
+    {% endif %}
     <div class="artwork-badge">
       <span class="pulse-dot-blue"></span>
-      معمل صدارة للتحاليل الطبية الكيميائية
+      {{ brand.name }}
     </div>
   </div>
 
@@ -367,7 +369,7 @@
         </svg>
       </div>
 
-      <div class="brand-name">معمل صدارة<br>للتحاليل الطبية الكيميائية</div>
+      <div class="brand-name">{{ brand.name }}</div>
       <div class="brand-divider"></div>
       <div class="brand-tagline">نظام أتمتة وإدارة الخدمات المخبرية والرعاية الطبية الفائقة</div>
 

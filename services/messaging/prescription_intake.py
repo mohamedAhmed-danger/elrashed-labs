@@ -122,11 +122,20 @@ def _save_inquiry_record(message, page, filename: str, ocr_result, pending: bool
     """Persists prescription inquiry in DB and returns min_confidence score."""
     inquiry_service = InquiryService()
     min_confidence = min((t.confidence for t in ocr_result.tests), default=0.0)
+
+    if page is None:
+        # Never guess a lab: a prescription filed under the wrong lab would be shown to the wrong staff.
+        logger.error(
+            "[PRESCRIPTION INTAKE] No page for page_id=%s platform=%s; inquiry NOT saved.",
+            message.page_id, message.platform_name,
+        )
+        return min_confidence
+
     services_mentioned = ", ".join(t.name for t in ocr_result.tests) if ocr_result.tests else None
     comes_from = f"{message.platform_name}:{message.sender_id}:{message.page_id}"
 
     inquiry_result = inquiry_service.save_inquiry(
-        laboratory_id=page.laboratory_id if page else 1,
+        laboratory_id=page.laboratory_id,
         phone_number="",
         comes_from=comes_from,
         prescription_img=filename,
@@ -157,6 +166,7 @@ def _save_inquiry_record(message, page, filename: str, ocr_result, pending: bool
                 confidence_score=min_confidence,
                 extracted_tests=services_mentioned or "",
                 ocr_extracted_text=ocr_result.extracted_text or "",
+                laboratory_id=page.laboratory_id,
             )
         except Exception:
             logger.exception(

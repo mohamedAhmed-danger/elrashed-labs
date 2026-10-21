@@ -47,7 +47,7 @@ def inquiry_node(state: AgentState) -> dict:
     sender_id = state.get("sender_id")
 
     # 2. Fetch dynamic Lab Info & Bundles Context from DB
-    lab_name, lab_location, lab_desc = LaboratoryService.get_current_lab_info()
+    lab_name, lab_location, lab_desc = LaboratoryService.get_current_lab_info(state.get("laboratory_id"))
 
     if is_bundle_query:
         bundles_context = BundleService.get_bundles_formatted_context()

@@ -56,3 +56,4 @@ class AgentState(TypedDict, total=False):
     complaint_usage: Optional[dict[str, Any]]
     inquiry_usage: Optional[dict[str, Any]]
     direct_usage: Optional[dict[str, Any]]
+    result_usage: Optional[dict[str, Any]]

@@ -36,7 +36,7 @@ MUTED = colors.HexColor("#5F6785")
 DARK = colors.HexColor("#1F2340")
 
 # Header text next to the logo
-CLINIC_LINE_1 = "معمل صدارة"
+CLINIC_LINE_1 = "المعمل"
 CLINIC_LINE_2 = "للتحاليل الطبية الكيميائية"
 
 # ── font & assets ─────────────────────────────────────────────────────────────
@@ -75,17 +75,23 @@ def _register_font() -> str:
     return "Cairo"
 
 
-@functools.lru_cache(maxsize=1)
-def _find_logo() -> str | None:
-    candidates = [
-        os.path.join(_BASE_DIR, "static", "images", "sadara_logo.jpg"),
-        os.path.join(_BASE_DIR, "utils", "logo.jpeg"),
-        os.path.join(_BASE_DIR, "utils", "logo.jpg"),
-        os.path.join(_BASE_DIR, "utils", "logo.png"),
-        os.path.join(_HERE, "logo.jpeg"),
-        os.path.join(_HERE, "logo.jpg"),
-    ]
-    return next((p for p in candidates if os.path.exists(p)), None)
+def _resolve_lab_branding(laboratory_id):
+    """Return (lab_name, logo_path) for this lab. No logo file set for the lab = no logo (never another lab's)."""
+    lab_name, logo_path = CLINIC_LINE_1, None
+    if laboratory_id is None:
+        return lab_name, logo_path
+    try:
+        from models.models import Laboratory, db
+        lab = db.session.get(Laboratory, laboratory_id)
+        if lab:
+            lab_name = lab.name or lab_name
+            if lab.logo_path:
+                candidate = os.path.join(_BASE_DIR, "static", lab.logo_path.lstrip("/\\"))
+                if os.path.exists(candidate):
+                    logo_path = candidate
+    except Exception:
+        logger.exception("[ticket_service] could not load lab branding for lab_id=%s", laboratory_id)
+    return lab_name, logo_path
 
 
 # ── Text helpers ──────────────────────────────────────────────────────────────
@@ -183,8 +189,7 @@ def _build_brand_strip(usable_w: float) -> Table:
     return strip
 
 
-def _build_header(usable_w: float, font: str) -> Table:
-    logo_path = _find_logo()
+def _build_header(usable_w: float, font: str, lab_name: str = CLINIC_LINE_1, logo_path: str | None = None) -> Table:
     logo_h = 32 * mm
     logo_w = 40 * mm
     if logo_path:
@@ -195,7 +200,7 @@ def _build_header(usable_w: float, font: str) -> Table:
 
     title_table = Table(
         [
-            [Paragraph(_ar(CLINIC_LINE_1), _ps("clinic1", font, 24, INDIGO, align=2))],
+            [Paragraph(_ar(lab_name), _ps("clinic1", font, 24, INDIGO, align=2))],
             [Paragraph(_ar(CLINIC_LINE_2), _ps("clinic2", font, 12, PURPLE, align=2))],
         ],
         colWidths=[usable_w - logo_w - 5 * mm],
@@ -332,9 +337,11 @@ def generate_booking_pdf(
     reference_id: str,
     time: str,
     address: str,
+    laboratory_id: int | None = None,
 ) -> bytes:
     """Generates a styled A4 PDF confirmation ticket for a patient lab booking."""
     font = _register_font()
+    lab_name, logo_path = _resolve_lab_branding(laboratory_id)
     buffer = io.BytesIO()
 
     margin = 15 * mm
@@ -363,7 +370,7 @@ def generate_booking_pdf(
     story = [
         _build_brand_strip(usable_w),
         Spacer(1, 4 * mm),
-        _build_header(usable_w, font),
+        _build_header(usable_w, font, lab_name, logo_path),
         Spacer(1, 4 * mm),
         title_bar,
         reference_badge,
@@ -386,12 +393,14 @@ def generate_booking_img(
     time: str,
     address: str,
     dpi: int = 200,
+    laboratory_id: int | None = None,
 ) -> bytes:
     """Generates the booking card directly as a PNG image byte string."""
     try:
         pdf_bytes = generate_booking_pdf(
             name=name, phone=phone, date=date, details=details,
             reference_id=reference_id, time=time, address=address,
+            laboratory_id=laboratory_id,
         )
 
         with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:

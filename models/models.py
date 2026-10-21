@@ -19,6 +19,12 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True) # Incremental ID for the user
     name = db.Column(db.String(100), nullable=False) # Name of the user
     password = db.Column(db.String(100), nullable=False) # Password of the user
+    laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable=True, index=True) # NULL = admin who sees every lab
+    role = db.Column(db.String(20), nullable=False, default='lab_user') # 'admin' or 'lab_user'
+
+    @property
+    def is_admin(self):
+        return self.role == 'admin'
 
     @property
     def username(self):
@@ -35,12 +41,18 @@ class Laboratory(db.Model):
     name = db.Column(db.String(100), nullable=False) # Name of the laboratory (used for agent prompt)
     location = db.Column(db.TEXT, nullable=False) # Location of the laboratory (used for agent prompt)
     description = db.Column(db.TEXT, nullable=True) # Description, work hours, or details (used for agent prompt)
+    logo_path = db.Column(db.String(255), nullable=True) # Logo file path relative to /static (dashboard, ticket PDF)
+    support_phone = db.Column(db.String(30), nullable=True) # Customer-service number shown to patients
+    notification_email = db.Column(db.String(255), nullable=True) # Where this lab's booking/prescription alerts go (comma separated)
+    billing_laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable=True) # NULL = own subscription, else shares that lab's subscription
 
     # Relationships
+    users = db.relationship('User', backref='laboratory', lazy=True)
     subscription = db.relationship('Subscription', backref='laboratory', uselist=False, lazy=True)
     lab_services = db.relationship('LabService', backref='laboratory', lazy=True)
     pages = db.relationship('Page', backref='laboratory', lazy=True)
     lab_inquiries = db.relationship('Inquiry', backref='laboratory', lazy=True)
+    result_requests = db.relationship('ResultRequest', backref='laboratory', lazy=True)
 
 
 # Compatibility alias
@@ -116,6 +128,7 @@ class Booking(db.Model):
     time = db.Column(db.String(20), nullable=True) # Specific time requested by the user for the booking
     comes_from = db.Column(db.String(100)) # Source platform (e.g., WhatsApp, Facebook)
     address = db.Column(db.String(255), nullable=False) # Address of the user or patient
+    laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable=False, index=True) # Lab that received the booking (from the page, never from the LLM)
 
 
 class Inquiry(db.Model):
@@ -142,6 +155,7 @@ class Complaint(db.Model):
     status = db.Column(db.Enum(Status), default=Status.PENDING) # Status of the complaint (e.g., PENDING, REVIEWED)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc)) # Timestamp when the complaint was submitted
     comes_from = db.Column(db.String(100)) # Source platform where the complaint originated (e.g., WhatsApp, Facebook)
+    laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable=False, index=True) # Lab that received the complaint (from the page, never from the LLM)
 
 
 class Subscription(db.Model):
@@ -160,6 +174,19 @@ class Subscription(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc)) # Timestamp when the subscription was initially created
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)) # Timestamp of the last update
     is_active = db.Column(db.Boolean, default=True, nullable=False) # Boolean indicating if the subscription is currently active
+    usage_alert_sent = db.Column(db.Boolean, default=False, nullable=False) # True once the 80% usage alert was emailed for this cycle (cleared on renew/reset)
+
+
+class LabUsage(db.Model):
+    __tablename__ = "lab_usage"
+    __table_args__ = (
+        db.UniqueConstraint('laboratory_id', 'usage_date', name='uq_lab_usage_lab_date'),
+    )
+    id = db.Column(db.Integer, primary_key=True)
+    laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable=False, index=True) # Lab that consumed the units
+    usage_date = db.Column(db.Date, nullable=False) # Day of consumption
+    units = db.Column(db.Integer, default=0, nullable=False) # Units consumed that day (text=1, image=2)
+    cost = db.Column(db.Float, default=0.0, nullable=False) # Estimated cost that day
 
 
 class Feedback(db.Model):
@@ -195,3 +222,12 @@ class Bundle(db.Model):
     price = db.Column(db.Float, nullable=False)
     description=db.Column(db.Text())  
     instructions = db.Column(db.Text())
+
+
+class ResultRequest(db.Model):
+    __tablename__ = 'result_requests'
+    id = db.Column(db.Integer, primary_key=True)
+    user_identity = db.Column(db.String(150), nullable=False, index=True)  # WhatsApp phone OR Facebook name
+    laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable=True)
+    status = db.Column(db.Enum(Status), default=Status.PENDING)  # PENDING / REVIEWED
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))

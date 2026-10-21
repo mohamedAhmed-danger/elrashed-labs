@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required
 from services.domain.user_service import UserService
+from services.domain.laboratory_service import LaboratoryService
 
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -20,14 +21,18 @@ def create_user():
         name = request.form.get('name', '').strip()
         password = request.form.get('password', '').strip()
 
+        role = request.form.get('role', 'lab_user')
+        laboratory_id = request.form.get('laboratory_id', type=int)
+
         user_service = UserService()
-        user, message = user_service.create_user(name, password)
+        user, message = user_service.create_user(name, password, role=role, laboratory_id=laboratory_id)
         flash(message, 'success' if user else 'error')
         
         if user:
             return redirect(url_for('users.list_users'))
 
-    return render_template('user/edit_user.html', user=None)
+    return render_template('user/edit_user.html', user=None,
+                           laboratories=LaboratoryService.get_laboratories_ordered_by_name())
 
 
 @users_bp.route('/<int:user_id>/edit', methods=['GET', 'POST'])
@@ -44,10 +49,16 @@ def edit_user(user_id):
         name = request.form.get('name', '').strip()
         password = request.form.get('password', '').strip()
         
-        updated_user, message = user_service.update_user(name=name, password=password)
+        role = request.form.get('role', user.role)
+        laboratory_id = request.form.get('laboratory_id', type=int)
+
+        updated_user, message = user_service.update_user(
+            name=name, password=password, role=role, laboratory_id=laboratory_id
+        )
         flash(message, 'success' if updated_user else 'error')
 
         if updated_user:
             return redirect(url_for('users.list_users'))
 
-    return render_template('user/edit_user.html', user=user)
+    return render_template('user/edit_user.html', user=user,
+                           laboratories=LaboratoryService.get_laboratories_ordered_by_name())

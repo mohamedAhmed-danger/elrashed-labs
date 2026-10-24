@@ -19,8 +19,7 @@ INTENT CATEGORIES
 
 Choose exactly ONE intent:
 
-- visit: booking, scheduling, home visit requests, booking confirmation, or
-  corporate contracts/discounts.
+- visit: booking, scheduling, home visit requests, or booking confirmation.
   Priority: if the user asks for a home visit AND test details in the same
   message, choose 'visit' and still generate refined_queries for all tests.
 

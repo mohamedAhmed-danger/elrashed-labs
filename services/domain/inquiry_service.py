@@ -28,10 +28,6 @@ class InquiryResult:
 # ── service ───────────────────────────────────────────────────────────────────
 
 class InquiryService:
-    DISCOUNTS = {
-        'general':   {'label': 'خصم 30%',     'percent': 30},
-        'insurance': {'label': 'خصم التأمين', 'percent': 50}, 
-    }
 
     def __init__(self, inquiry_id=None, inquiry=None):
         """Initialize with an inquiry_id or a pre-loaded Inquiry instance."""
@@ -198,11 +194,10 @@ class InquiryService:
             logger.exception("[InquiryService.update_status] Error")
             return InquiryResult(False, None, "حدث خطأ أثناء تحديث الحالة")
 
-    def _build_prescription_reply(self, services, discount_type=None):
+    def _build_prescription_reply(self, services):
         """
         Build the doctor's confirmation reply text and a comma-separated
-        services list. Computes the total price across all selected services,
-        and applies an optional discount (general / insurance).
+        services list. Computes the total price across all selected services.
         """
         message_lines = [
             "📋 تمت مراجعة الروشتة الخاصة بك من قبل الطبيب.",
@@ -227,14 +222,6 @@ class InquiryService:
             ])
 
         message_lines.append(f"💰 الإجمالي: {total_price:g} ج.م")
-
-        discount = self.DISCOUNTS.get(discount_type)
-        if discount:
-            discount_amount = round(total_price * discount['percent'] / 100, 2)
-            final_price = total_price - discount_amount
-            message_lines.append(f"🎁 {discount['label']}: -{discount_amount:g} ج.م")
-            message_lines.append(f"✅ الإجمالي بعد الخصم: {final_price:g} ج.م")
-
         message_lines.append('لتأكيد الحجز، ابعتلي كلمة "تأكيد" وهنكمل معاك خطوات الحجز 👍')
 
         return "\n".join(message_lines), ", ".join(service_names)
@@ -321,20 +308,16 @@ class InquiryService:
             )
             return False, "تم حفظ المراجعة في النظام، لكن حدث خطأ أثناء إرسال الرسالة للعميل فعليًا. برجاء إعادة الإرسال يدويًا."
 
-    def confirm_and_reply(self, selected_service_ids, inquiry_id=None, discount_type=None):
+    def confirm_and_reply(self, selected_service_ids, inquiry_id=None):
         """
         Confirm doctor-selected services for an inquiry and dispatch the reply via the origin channel.
-        discount_type is optional: a key of DISCOUNTS ('general' / 'insurance') or None for no discount.
         """
         target_id = inquiry_id or self.inquiry_id
         inquiry, selected_services, error = self._resolve_inquiry_and_services(target_id, selected_service_ids)
         if error:
             return False, error
 
-        if discount_type not in self.DISCOUNTS:
-            discount_type = None
-
-        reply_text, services_mentioned = self._build_prescription_reply(selected_services, discount_type)
+        reply_text, services_mentioned = self._build_prescription_reply(selected_services)
         inquiry.services_mentioned = services_mentioned
         inquiry.status = Status.REVIEWED
 

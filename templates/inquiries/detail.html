@@ -169,21 +169,6 @@
         </div>
       </div>
 
-      <!-- Discount Options (optional) -->
-      <div style="margin-bottom: 18px;">
-        <label style="font-size: 0.82rem; font-weight: 700; color: var(--ink-700); display: block; margin-bottom: 8px;">
-          خصم على التسعيرة (اختياري):
-        </label>
-        <div style="display: flex; gap: 10px;">
-          {% for key, d in discounts.items() %}
-          <button type="button" class="discount-btn" data-key="{{ key }}" data-percent="{{ d.percent }}">
-            <i data-lucide="{{ 'shield-check' if key == 'insurance' else 'percent' }}"></i>
-            <span>{{ d.label }}</span>
-          </button>
-          {% endfor %}
-        </div>
-        <input type="hidden" name="discount_type" id="discountType" value="">
-      </div>
 
       <!-- Live Total Summary -->
       <div style="background: linear-gradient(135deg, #f0f7ff 0%, #e6f0fa 100%); border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;">
@@ -278,38 +263,6 @@
   color: var(--red-500);
   background: #fee2e2;
 }
-
-.discount-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 11px 14px;
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-  background: #ffffff;
-  color: var(--ink-700);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
-}
-
-.discount-btn:hover {
-  border-color: #93c5fd;
-}
-
-.discount-btn.active {
-  background: #eff6ff;
-  border-color: var(--blue-600);
-  color: var(--blue-600);
-}
-
-.discount-btn svg {
-  width: 16px;
-  height: 16px;
-}
 </style>
 
 <script>
@@ -321,8 +274,6 @@
   const clearAllBtn = document.getElementById('clearAllBtn');
   const totalCostEl = document.getElementById('totalCostDisplay');
   const confirmForm = document.getElementById('confirmInquiryForm');
-  const discountBtns = document.querySelectorAll('.discount-btn');
-  const discountInput = document.getElementById('discountType');
 
   const searchEndpoint = "{{ url_for('test.search_tests') }}";
   const inquiryLabId = "{{ inquiry.laboratory_id or '' }}";
@@ -330,7 +281,6 @@
   // Map to store selected services by test ID: id -> {id, name, price, patient_instructions}
   const selectedServices = new Map();
 
-  let discountPercent = 0;
   let debounceTimer = null;
   let currentAbortController = null;
 
@@ -342,21 +292,13 @@
     return div.innerHTML;
   }
 
-  // Recalculate total cost (with optional discount preview)
+  // Recalculate total cost
   function updateTotal() {
     let total = 0;
     selectedServices.forEach(item => {
       total += parseFloat(item.price || 0);
     });
-
-    if (discountPercent) {
-      const finalPrice = total - (total * discountPercent / 100);
-      totalCostEl.innerHTML =
-        '<s style="font-size: 0.85rem; color: var(--ink-400); font-weight: 600;">' + total.toLocaleString() + '</s> ' +
-        finalPrice.toLocaleString() + ' ج.م';
-    } else {
-      totalCostEl.textContent = total.toLocaleString() + ' ج.م';
-    }
+    totalCostEl.textContent = total.toLocaleString() + ' ج.م';
   }
 
   // Render selected services container
@@ -582,24 +524,6 @@
     if (!dropdown.contains(e.target) && e.target !== searchInput) {
       dropdown.style.display = 'none';
     }
-  });
-
-  // Discount buttons: click to activate, click again to cancel
-  discountBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const wasActive = btn.classList.contains('active');
-      discountBtns.forEach(b => b.classList.remove('active'));
-
-      if (wasActive) {
-        discountInput.value = '';
-        discountPercent = 0;
-      } else {
-        btn.classList.add('active');
-        discountInput.value = btn.dataset.key;
-        discountPercent = parseFloat(btn.dataset.percent);
-      }
-      updateTotal();
-    });
   });
 
   // Prevent form submission if no services are selected

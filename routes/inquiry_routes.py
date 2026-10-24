@@ -72,7 +72,6 @@ def inquiry_detail(inquiry_id):
     return render_template(
         'inquiries/detail.html',
         inquiry=result.inquiry,
-        discounts=InquiryService.DISCOUNTS,
     )
 
 
@@ -95,15 +94,8 @@ def confirm_inquiry(inquiry_id):
         flash('يرجى تحديد خدمة واحدة على الأقل.', 'error')
         return redirect(url_for('inquiries.inquiry_detail', inquiry_id=inquiry_id))
 
-    # نوع الخصم اختياري، وأي قيمة مش معروفة بتتتجاهل
-    discount_type = request.form.get('discount_type') or None
-    if discount_type not in InquiryService.DISCOUNTS:
-        discount_type = None
-
     inquiry_service = InquiryService(inquiry_id=inquiry_id)
-    success, message = inquiry_service.confirm_and_reply(
-        selected_service_ids, discount_type=discount_type
-    )
+    success, message = inquiry_service.confirm_and_reply(selected_service_ids)
 
     flash(message, 'success' if success else 'error')
     return redirect(url_for('inquiries.inquiry_detail', inquiry_id=inquiry_id))

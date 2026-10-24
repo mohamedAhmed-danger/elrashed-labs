@@ -58,7 +58,7 @@ superficial name similarity.
 6. BUNDLE RULES
 - Specific test request -> answer with the test, never upsell a bundle.
 - Never invent bundle contents or prices.
-- Never apply individual-test discount to bundles or mix the two in one total.
+- Never mix bundles and individual tests in one total.
 """
 
 
@@ -110,7 +110,7 @@ flyer. It is NOT a prescription and NOT spam.
 - Never add anything from it to the prescription test list.
 - Match each offer name against AVAILABLE BUNDLES (closest exact name) and
   answer with the bundle details and price from AVAILABLE BUNDLES only. Bundles
-  have a fixed price: no discount lines.
+  have a fixed price.
 - The price printed on the flyer is what the patient saw, not a source. If it
   differs from AVAILABLE BUNDLES, give the lab's price and say briefly that this
   is the current price.
@@ -136,42 +136,29 @@ Before replying, check that every spam/unclear image number appears in the notic
 
 PRICING_RULES = """
 ====================================================
-PRICING & DISCOUNT
+PRICING
 ====================================================
 
 SOURCE:
-- Every test price, bundle price, discount and total MUST come from RETRIEVED
+- Every test price, bundle price, and total MUST come from RETRIEVED
   KNOWLEDGE / AVAILABLE BUNDLES. Never guess or estimate.
+- There are NO discounts, promotional offers, or insurance discounts. All prices are fixed as retrieved.
 - If a required price is missing, do not invent it and do not calculate a total
-  that depends on it (no discount lines either).
+  that depends on it.
 - Never include or estimate the home-visit fee. If asked, reply exactly:
   "تكلفة الزيارة المنزلية يتم تحديدها بواسطة فريق المتابعة الطبية بعد مراجعة العنوان."
-
-INDIVIDUAL TESTS:
-- Discount 30% by default; 50% ONLY if the patient explicitly says he has
-  insurance. Never ask about insurance.
-- Calculate from the sum of ORIGINAL prices. Round to the nearest whole number.
-
-BUNDLES / PACKAGES: fixed price only, no discount lines.
 
 WHEN TO SHOW PRICES:
 - Show per-test prices only if the patient asks about price. If he asks about a
   specific test, add this line right after the test name:
   💰 السعر: [Price] جنيه
-- If pricing was requested, show the total/discount ONCE after all test blocks.
+- If pricing was requested, show the total price ONCE after all test blocks.
 - EXCEPTION: the final booking summary in the booking flow always includes the
   total (or bundle price), as long as all required prices are available.
 
 FORMATS:
-Individual tests (30%):
+Individual tests:
 💵 *إجمالي التحاليل:* [Total] جنيه
-🎁 *الخصم:* 30% ([Discount Amount] جنيه)
-💰 *الإجمالي بعد الخصم:* [Final Total] جنيه
-
-Individual tests (insurance):
-💵 *إجمالي التحاليل:* [Total] جنيه
-🛡️ *خصم التأمين:* 50% ([Discount Amount] جنيه)
-💰 *الإجمالي بعد الخصم:* [Final Total] جنيه
 
 Bundle:
 💵 *سعر الباقة:* [Bundle Price] جنيه

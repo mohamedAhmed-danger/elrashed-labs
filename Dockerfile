@@ -29,4 +29,4 @@ USER appuser
 EXPOSE 4500
 
 # --timeout 120 عشان الـ agent بيستنى Gemini و OCR
-CMD ["sh", "-c", "exec gunicorn -w 4 --threads 8 --timeout 120 -b 0.0.0.0:4500 --log-level info --access-logfile - --error-logfile - app:app"]
+CMD ["sh", "-c", "exec gunicorn -w 2 --threads 8 --timeout 120 -b 0.0.0.0:4500 --log-level info --access-logfile - --error-logfile - app:app"]

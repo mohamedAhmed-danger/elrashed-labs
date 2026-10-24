@@ -36,7 +36,7 @@ try:
         app = create_app()
 
     from models.models import db, Laboratory, LabService
-    import services.tests_service as tests_service_module
+    import services.domain.tests_service as tests_service_module
     from services.domain.tests_service import TestsService
     from services.shared.generation_service import generate_test
     from services.shared.vector_service import upsert_test_vector as _real_upsert_test_vector

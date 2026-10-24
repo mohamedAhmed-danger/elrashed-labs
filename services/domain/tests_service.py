@@ -329,10 +329,10 @@ class TestsService:
 
             if not name:
                 return False, "اسم التحليل مطلوب"
-            if not laboratory_id:
-                return False, "يرجى اختيار المعمل"
             if not price:
                 return False, "سعر التحليل مطلوب"
+
+            lab_id = int(laboratory_id) if laboratory_id else None
 
             keywords_raw = _parse_tags(
                 form_data.getlist("keywords") or form_data.getlist("generated_keywords"),
@@ -344,7 +344,7 @@ class TestsService:
             )
 
             service, message = self.create_lab_service(
-                laboratory_id=int(laboratory_id),
+                laboratory_id=lab_id,
                 name=name,
                 price=float(price),
                 duration=int(duration) if duration else None,

@@ -6,10 +6,12 @@
 {% block topbar_sub %}إدارة وتحديث باقات وفحوصات التحاليل الطبية وتحديد الأسعار والشروط{% endblock %}
 
 {% block topbar_actions %}
+{% if current_user.is_authenticated and current_user.is_admin %}
 <a href="{{ url_for('test.create_test') }}" class="btn btn-primary">
   <i data-lucide="plus-circle"></i>
   + إضافة تحليل جديد
 </a>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -91,11 +93,12 @@
       <tr>
         <th style="width: 60px;">#</th>
         <th>اسم التحليل</th>
-        <th>المعمل التابع له</th>
         <th>السعر</th>
         <th>المدة المتوقعة</th>
         <th>نوع العينة</th>
+        {% if current_user.is_authenticated and current_user.is_admin %}
         <th style="width: 170px; text-align: center;">الإجراءات</th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -107,12 +110,6 @@
             <div class="ts-test-avatar"><i data-lucide="test-tube-diagonal"></i></div>
             <div class="ts-test-name-text">{{ service.name }}</div>
           </div>
-        </td>
-        <td>
-          <span class="ts-lab-tag">
-            <i data-lucide="building-2"></i>
-            {{ service.laboratory.name if service.laboratory else 'المعمل الرئيسي' }}
-          </span>
         </td>
         <td>
           <span class="ts-price-badge">
@@ -139,6 +136,7 @@
           <span class="ts-muted-dash">—</span>
           {% endif %}
         </td>
+        {% if current_user.is_authenticated and current_user.is_admin %}
         <td style="text-align: center;">
           <div class="ts-row-actions">
             <a href="{{ url_for('test.edit_test', test_id=service.id) }}"
@@ -156,22 +154,23 @@
             </form>
           </div>
         </td>
+        {% endif %}
       </tr>
       {% else %}
       <tr>
-        <td colspan="7" style="text-align: center; padding: 56px 20px;">
+        <td colspan="{% if current_user.is_authenticated and current_user.is_admin %}6{% else %}5{% endif %}" style="text-align: center; padding: 56px 20px;">
           <div class="ts-empty-icon"><i data-lucide="flask-conical"></i></div>
           <h4 style="font-size: 1.05rem; margin-bottom: 6px;">لا توجد تحاليل طبية مسجلة</h4>
           <p style="color: var(--ink-500); font-size: 0.85rem; margin-bottom: 18px;">
             {% if search %}
             لم يتم العثور على أي نتائج تطابق البحث "{{ search }}".
             {% else %}
-            ابدأ بإضافة فحوصات وتحاليل جديدة إلى دليل التحاليل المخبرية.
+            دليل التحاليل المخبرية العامة للمنظومة.
             {% endif %}
           </p>
           {% if search %}
           <a href="{{ url_for('test.test_service') }}" class="btn btn-outline">إلغاء التصفية</a>
-          {% else %}
+          {% elif current_user.is_authenticated and current_user.is_admin %}
           <a href="{{ url_for('test.create_test') }}" class="btn btn-primary">
             <i data-lucide="plus-circle"></i>
             + إضافة تحليل جديد

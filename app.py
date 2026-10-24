@@ -91,9 +91,13 @@ def create_app(config_class=Config):
     app.register_blueprint(public_bp)
     app.register_blueprint(results_bp)
 
-    # Lab users may only reach the pages that show their own lab's data.
-    # Everything else (users, pages, catalog, subscription, settings...) is admin-only.
-    LAB_USER_BLUEPRINTS = {"main", "bookings", "complaints", "feedbacks", "inquiries", "public", "webhook", "results"}
+    # Lab users may reach pages for their own lab's data,
+    # plus the centralized medical test and bundle catalogs.
+    # Everything else (users, pages, labs management, subscription, settings...) is admin-only.
+    LAB_USER_BLUEPRINTS = {
+        "main", "bookings", "complaints", "feedbacks", "inquiries",
+        "public", "webhook", "results", "test", "bundle"
+    }
 
     @app.before_request
     def restrict_lab_users():

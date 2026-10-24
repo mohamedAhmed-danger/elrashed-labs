@@ -1,6 +1,7 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash, jsonify
 from flask_login import login_required
 from services.domain.tests_service import TestsService
+from services.domain.tenancy import admin_required
 
 test_bp = Blueprint("test", __name__)
 
@@ -48,6 +49,7 @@ def search_tests():
 
 @test_bp.route("/tests/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def create_test():
     tests_service = TestsService()
     if request.method == "GET":
@@ -64,6 +66,7 @@ def create_test():
 
 @test_bp.route("/tests/<int:test_id>/edit", methods=["GET", "POST"])
 @login_required
+@admin_required
 def edit_test(test_id):
     tests_service = TestsService(test_id=test_id)
     service, message = tests_service.get_test()
@@ -91,6 +94,7 @@ def edit_test(test_id):
 
 @test_bp.route("/tests/<int:test_id>/delete", methods=["POST"])
 @login_required
+@admin_required
 def delete_test(test_id):
     tests_service = TestsService(test_id=test_id)
     service, message = tests_service.delete_test()
@@ -100,6 +104,7 @@ def delete_test(test_id):
 
 @test_bp.route("/tests/generate", methods=["POST"])
 @login_required
+@admin_required
 def generate():
     tests_service = TestsService()
     is_ajax = tests_service.is_ajax_request(request)
@@ -126,6 +131,7 @@ def generate():
 
 @test_bp.route("/tests/regenerate", methods=["POST"])
 @login_required
+@admin_required
 def regenerate():
     tests_service = TestsService()
     is_ajax = tests_service.is_ajax_request(request)

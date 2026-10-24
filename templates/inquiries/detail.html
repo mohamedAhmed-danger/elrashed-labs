@@ -519,9 +519,6 @@
     try {
       const url = new URL(searchEndpoint, window.location.origin);
       url.searchParams.set('q', query);
-      if (inquiryLabId) {
-        url.searchParams.set('laboratory_id', inquiryLabId);
-      }
       url.searchParams.set('limit', '15');
 
       const res = await fetch(url.toString(), {

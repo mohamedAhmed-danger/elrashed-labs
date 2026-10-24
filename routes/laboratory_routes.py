@@ -3,19 +3,24 @@ from flask_login import login_required
 from services.domain.laboratory_service import LaboratoryService
 from services.shared.subscription_service import SubscriptionService
 from services.domain.tenancy import admin_required
-from models.models import Laboratory, db
+from models.models import Laboratory, LabService, Bundle, db
 
 laboratory_bp = Blueprint('laboratory', __name__, url_prefix='/laboratories')
 
 @laboratory_bp.route('/')
 @login_required
+@admin_required
 def list_laboratories():
     lab_service = LaboratoryService()
     laboratories, _ = lab_service.get_all_laboratories()
     laboratories = laboratories or []
+    total_tests = LabService.query.count()
+    total_bundles = Bundle.query.count()
     return render_template(
         'laboratory/list.html',
         laboratories=laboratories,
+        total_tests=total_tests,
+        total_bundles=total_bundles,
         ai_info={lab.id: _ai_info(lab, laboratories) for lab in laboratories},
     )
 

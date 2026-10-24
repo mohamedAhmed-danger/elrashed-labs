@@ -95,27 +95,10 @@
         </div>
       </div>
 
-      <!-- 4-Column Balanced Grid (Desktop) -->
-      <div class="basic-info-grid">
+      <!-- 3-Column Balanced Grid (Desktop) -->
+      <div class="basic-info-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
 
-        <!-- 1. Laboratory Selection -->
-        <div>
-          <label for="labSelect" class="field-label">
-            <i data-lucide="building-2" class="tf-field-label-icon"></i>
-            المعمل التابع له <span class="required-star">*</span>
-          </label>
-          <select id="labSelect" name="laboratory_id" class="form-control" required>
-            <option value="">اختر المعمل أو الفرع...</option>
-            {% for lab in laboratories %}
-            <option value="{{ lab.id }}"
-              {% if (service and service.laboratory_id == lab.id) or (form_data and form_data.laboratory_id|int == lab.id) or (not service and loop.first) %}selected{% endif %}>
-              {{ lab.name }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <!-- 2. Price -->
+        <!-- 1. Price -->
         <div>
           <label for="testPriceInput" class="field-label">
             <i data-lucide="banknote" class="tf-field-label-icon"></i>

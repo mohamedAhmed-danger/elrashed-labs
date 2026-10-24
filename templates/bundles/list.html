@@ -5,16 +5,18 @@
 {% block topbar_sub %}قائمة الباقات والعروض المتاحة لمنظومة المعمل{% endblock %}
 
 {% block topbar_actions %}
-  {% if bundles|length < max_bundles %}
-    <a href="{{ url_for('bundle.add_bundle') }}" class="btn btn-primary">
-      <i data-lucide="plus-circle"></i>
-      <span>إضافة باقة جديدة ({{ bundles|length }}/{{ max_bundles }})</span>
-    </a>
-  {% else %}
-    <button class="btn btn-secondary" disabled>
-      <i data-lucide="lock"></i>
-      <span>الحد الأقصى ({{ max_bundles }}/{{ max_bundles }})</span>
-    </button>
+  {% if current_user.is_authenticated and current_user.is_admin %}
+    {% if bundles|length < max_bundles %}
+      <a href="{{ url_for('bundle.add_bundle') }}" class="btn btn-primary">
+        <i data-lucide="plus-circle"></i>
+        <span>إضافة باقة جديدة ({{ bundles|length }}/{{ max_bundles }})</span>
+      </a>
+    {% else %}
+      <button class="btn btn-secondary" disabled>
+        <i data-lucide="lock"></i>
+        <span>الحد الأقصى ({{ max_bundles }}/{{ max_bundles }})</span>
+      </button>
+    {% endif %}
   {% endif %}
 {% endblock %}
 
@@ -115,6 +117,7 @@
     </div>
     {% endif %}
 
+    {% if current_user.is_authenticated and current_user.is_admin %}
     <div class="bundle-actions">
       <a href="{{ url_for('bundle.bundle_detail', bundle_id=b.id) }}" class="btn btn-sm btn-secondary">
         <i data-lucide="edit-3"></i><span>تعديل</span>
@@ -126,6 +129,7 @@
         </button>
       </form>
     </div>
+    {% endif %}
   </article>
   {% endfor %}
 </div>

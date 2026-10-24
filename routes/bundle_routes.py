@@ -1,11 +1,15 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_required
 from services.domain.bundle_service import (
     BundleService, MAX_BUNDLES, BUNDLE_LIMIT_REACHED_MSG,
 )
+from services.domain.tenancy import admin_required
+
 bundle_bp = Blueprint("bundle", __name__, url_prefix="/bundles")
 
 
 @bundle_bp.route("/", methods=["GET"])
+@login_required
 def list_bundles():
     bundles = BundleService.get_all_bundles()
     return render_template(
@@ -14,6 +18,8 @@ def list_bundles():
 
 
 @bundle_bp.route("/add", methods=["GET", "POST"])
+@login_required
+@admin_required
 def add_bundle():
     if not BundleService.can_add_bundle():
         flash(BUNDLE_LIMIT_REACHED_MSG, "danger")
@@ -44,6 +50,7 @@ def add_bundle():
 
 
 @bundle_bp.route("/<int:bundle_id>", methods=["GET", "POST"])
+@login_required
 def bundle_detail(bundle_id):
     service = BundleService(bundle_id=bundle_id)
     bundle, msg = service.get_bundle()
@@ -53,6 +60,11 @@ def bundle_detail(bundle_id):
         return redirect(url_for("bundle.list_bundles"))
 
     if request.method == "POST":
+        from flask_login import current_user
+        if not current_user.is_admin:
+            from flask import abort
+            abort(403)
+
         updated_bundle, update_msg = service.update_bundle(
             name=request.form.get("name"),
             price=request.form.get("price"),
@@ -69,6 +81,8 @@ def bundle_detail(bundle_id):
 
 
 @bundle_bp.route("/<int:bundle_id>/delete", methods=["POST"])
+@login_required
+@admin_required
 def delete_bundle(bundle_id):
     service = BundleService(bundle_id=bundle_id)
     deleted, msg = service.delete_bundle()

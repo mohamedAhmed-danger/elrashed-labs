@@ -20,8 +20,15 @@
   <div class="ts-stat-pill">
     <div class="ts-stat-pill-icon si-purple"><i data-lucide="test-tube-2"></i></div>
     <div>
-      <div class="ts-stat-pill-value">{{ laboratories|map(attribute='lab_services')|map('length')|sum }}</div>
-      <div class="ts-stat-pill-label">إجمالي التحاليل المرتبطة</div>
+      <div class="ts-stat-pill-value">{{ total_tests }}</div>
+      <div class="ts-stat-pill-label">دليل التحاليل العام (مشترك للمنظومة)</div>
+    </div>
+  </div>
+  <div class="ts-stat-pill">
+    <div class="ts-stat-pill-icon si-amber"><i data-lucide="layers"></i></div>
+    <div>
+      <div class="ts-stat-pill-value">{{ total_bundles }}</div>
+      <div class="ts-stat-pill-label">الباقات الفحصية العامة</div>
     </div>
   </div>
 </div>
@@ -34,7 +41,6 @@
         <th>اسم المعمل / الفرع</th>
         <th>الموقع والمدينة</th>
         <th>الوصف</th>
-        <th>التحاليل المرتبطة</th>
         <th style="min-width: 210px;">الذكاء الاصطناعي</th>
         <th style="width: 140px; text-align: center;">الإجراءات</th>
       </tr>
@@ -58,12 +64,6 @@
         <td>
           <span style="font-size: 0.82rem; color: var(--ink-500);">
             {{ lab.description or '—' }}
-          </span>
-        </td>
-        <td>
-          <span class="status-chip new">
-            <i data-lucide="test-tube-2" style="width: 12px; height: 12px;"></i>
-            {{ lab.lab_services|length if lab.lab_services else 0 }} تحليل
           </span>
         </td>
         <td>

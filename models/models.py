@@ -62,7 +62,7 @@ Lab = Laboratory
 class LabService(db.Model):
     __tablename__ = 'lab_services'
     id = db.Column(db.Integer, primary_key=True) # Incremental ID
-    laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable=False) # Foreign Key linking to Laboratory
+    laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable=True) # Optional: test catalog is centralized across all labs
     name = db.Column(db.String(100), nullable=False,unique=True) # Name of the service (used for agent prompt and search)
     price = db.Column(db.Float, nullable=False) # Price of the test (used for agent prompt)
     duration = db.Column(db.Integer) # AI generation field for agent prompt

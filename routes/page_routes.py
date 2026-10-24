@@ -17,12 +17,13 @@ def list_pages():
 def create_page():
     page_service = PageService()
     platforms, _ = page_service.get_all_platforms()
+    laboratories = LaboratoryService.get_laboratories_ordered_by_name()
 
     if request.method == 'POST':
         platform_id = request.form.get('platform_id')
         page_id = request.form.get('page_id')
         token = request.form.get('token')
-        laboratory_id = LaboratoryService().get_current_laboratory_id()
+        laboratory_id = request.form.get('laboratory_id') or LaboratoryService().get_current_laboratory_id()
 
         page, msg = page_service.create_page(laboratory_id=laboratory_id, platform_id=platform_id, page_id=page_id, token=token)
         if page:
@@ -30,7 +31,7 @@ def create_page():
             return redirect(url_for('pages.list_pages'))
         flash(msg, 'error')
 
-    return render_template('pages/create.html', platforms=platforms)
+    return render_template('pages/create.html', platforms=platforms, laboratories=laboratories)
 
 @pages_bp.route('/<int:platform_id>/<page_id>/edit', methods=['GET', 'POST'])
 @login_required

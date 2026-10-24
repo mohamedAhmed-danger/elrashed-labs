@@ -7,6 +7,15 @@ from models.models import Subscription, db
 logger = logging.getLogger(__name__)
 
 
+class BillingError(Exception):
+    """
+    Raised by get_subscription_by_laboratory_id when a DB exception prevents
+    resolving the subscription.  An ERROR is already logged before raising.
+    The message is still dropped — behavior is identical to "no subscription" —
+    but callers can distinguish a DB failure from a genuinely missing row.
+    """
+
+
 class SubscriptionService:
     def __init__(self, laboratory_id=None, subscription=None):
         """Initialize with a laboratory_id or a pre-loaded Subscription instance."""
@@ -36,18 +45,98 @@ class SubscriptionService:
 
     @staticmethod
     def get_subscription_by_laboratory_id(laboratory_id):
-        """Fetch the subscription record for a laboratory ID directly from the database."""
+        """
+        Resolve the Subscription that covers laboratory_id.  Three-tier lookup:
+
+        1. Lab has billing_laboratory_id set  -> use that billing lab's subscription.
+        2. Lab has its own subscription row   -> use it.
+        3. Neither found                      -> fall back to the general subscription
+           (Config.GENERAL_SUBSCRIPTION_LAB_ID, default 1).
+        4. General row also missing           -> no subscription (WARNING, returns None).
+
+        Log levels
+        ----------
+        WARNING : every path that returns None ("no subscription" for any reason).
+        INFO    : successful general-fallback (lab is covered, just not by its own row).
+        ERROR   : unexpected DB exception — raises BillingError instead of returning None
+                  so callers can distinguish a DB failure from a missing row.
+        """
         if not laboratory_id:
+            logger.warning(
+                "[SubscriptionService] No laboratory_id supplied — no subscription."
+            )
             return None
         try:
-            # Shared quota: a lab with billing_laboratory_id set draws from that lab's subscription.
             from models.models import Laboratory
+            from config import Config
+
             lab = db.session.get(Laboratory, laboratory_id)
-            billing_id = lab.billing_laboratory_id if lab and lab.billing_laboratory_id else laboratory_id
-            return Subscription.query.filter_by(laboratory_id=billing_id).first()
-        except Exception:
-            logger.exception("[SubscriptionService.get_subscription_by_laboratory_id] Error")
+            if lab is None:
+                logger.warning(
+                    "[SubscriptionService] lab=%s not found in DB — no subscription.",
+                    laboratory_id,
+                )
+                return None
+
+            # 1. Explicit billing redirect
+            if lab.billing_laboratory_id:
+                sub = Subscription.query.filter_by(
+                    laboratory_id=lab.billing_laboratory_id
+                ).first()
+                if sub:
+                    return sub
+                logger.warning(
+                    "[SubscriptionService] lab=%s has billing_laboratory_id=%s "
+                    "but that billing lab has no subscription row — no subscription.",
+                    laboratory_id, lab.billing_laboratory_id,
+                )
+                return None  # explicit billing redirect — do NOT fall through to general
+
+            # 2. Lab's own subscription row
+            sub = Subscription.query.filter_by(laboratory_id=laboratory_id).first()
+            if sub:
+                return sub
+
+            # 3. General subscription fallback
+            general_lab_id = getattr(Config, "GENERAL_SUBSCRIPTION_LAB_ID", 1)
+            if general_lab_id == laboratory_id:
+                logger.warning(
+                    "[SubscriptionService] lab=%s is the general lab and has no "
+                    "subscription row — no subscription.",
+                    laboratory_id,
+                )
+                return None
+
+            general_sub = Subscription.query.filter_by(
+                laboratory_id=general_lab_id
+            ).first()
+            if general_sub:
+                logger.info(
+                    "[SubscriptionService] lab=%s has no own subscription; "
+                    "using general subscription (billing_lab=%s).",
+                    laboratory_id, general_lab_id,
+                )
+                return general_sub
+
+            # 4. General row also missing
+            logger.warning(
+                "[SubscriptionService] lab=%s: no own subscription and general "
+                "subscription (lab=%s) also missing — no subscription.",
+                laboratory_id, general_lab_id,
+            )
             return None
+
+        except BillingError:
+            raise  # never wrap our own sentinel
+        except Exception:
+            logger.error(
+                "[SubscriptionService] Billing DB error for lab=%s — message will be dropped.",
+                laboratory_id,
+                exc_info=True,
+            )
+            raise BillingError(
+                f"DB error resolving subscription for lab={laboratory_id}"
+            )
 
     @staticmethod
     def get_by_page(page):
@@ -99,18 +188,21 @@ class SubscriptionService:
             - SubscriptionService.can_use_ai(subscription=an_explicit_subscription)
         """
         resolved_subscription = None
-        if isinstance(target, SubscriptionService):
-            resolved_subscription = target._resolve_subscription(subscription)
-        elif isinstance(target, Subscription):
-            resolved_subscription = target
-        elif isinstance(target, int):
-            resolved_subscription = SubscriptionService.get_subscription_by_laboratory_id(target)
-        elif hasattr(target, "laboratory_id"):
-            resolved_subscription = SubscriptionService.get_subscription_by_laboratory_id(
-                target.laboratory_id
-            )
-        elif subscription is not None:
-            resolved_subscription = subscription
+        try:
+            if isinstance(target, SubscriptionService):
+                resolved_subscription = target._resolve_subscription(subscription)
+            elif isinstance(target, Subscription):
+                resolved_subscription = target
+            elif isinstance(target, int):
+                resolved_subscription = SubscriptionService.get_subscription_by_laboratory_id(target)
+            elif hasattr(target, "laboratory_id"):
+                resolved_subscription = SubscriptionService.get_subscription_by_laboratory_id(
+                    target.laboratory_id
+                )
+            elif subscription is not None:
+                resolved_subscription = subscription
+        except BillingError:
+            return False, "Billing error."
 
         if not resolved_subscription:
             return False, "No subscription."

@@ -42,6 +42,7 @@
     </div>
   </div>
   <div class="hero-actions">
+    {% if current_user.is_authenticated and not current_user.is_admin %}
     <a href="{{ url_for('inquiries.list_inquiries') }}" class="btn btn-primary btn-lg">
       <i data-lucide="file-text"></i>
       مراجعة الروشتات
@@ -49,10 +50,20 @@
       <span class="badge-count">{{ pending_inquiries_count }}</span>
       {% endif %}
     </a>
+    <a href="{{ url_for('bookings.list_bookings') }}" class="btn btn-outline btn-lg">
+      <i data-lucide="calendar-check"></i>
+      الحجوزات المنزلية
+    </a>
+    {% else %}
+    <a href="{{ url_for('laboratory.list_laboratories') }}" class="btn btn-primary btn-lg">
+      <i data-lucide="building-2"></i>
+      إدارة المعامل والفروع
+    </a>
     <a href="{{ url_for('test.create_test') }}" class="btn btn-outline btn-lg">
       <i data-lucide="plus-circle"></i>
       إضافة تحليل جديد
     </a>
+    {% endif %}
   </div>
 </div>
 
@@ -70,6 +81,7 @@
     </div>
   </div>
 
+  {% if current_user.is_authenticated and not current_user.is_admin %}
   <div class="stat-card stat-card-hover">
     <div class="stat-icon si-cyan">
       <i data-lucide="calendar-clock"></i>
@@ -77,7 +89,7 @@
     <div class="stat-details">
       <div class="stat-value">{{ booking_stats.total if booking_stats else 0 }}</div>
       <div class="stat-label">إجمالي الحجوزات</div>
-      <div class="stat-sub text-cyan"><i data-lucide="trending-up" class="stat-sub-icon"></i>من الشهر الماضي</div>
+      <div class="stat-sub text-cyan"><i data-lucide="trending-up" class="stat-sub-icon"></i>لهذا المعمل</div>
     </div>
   </div>
 
@@ -88,9 +100,32 @@
     <div class="stat-details">
       <div class="stat-value">{{ pending_inquiries_count or 0 }}</div>
       <div class="stat-label">إجمالي الروشتات</div>
-      <div class="stat-sub text-amber"><i data-lucide="clock" class="stat-sub-icon"></i>تحتاج إلى تأكيد الطبيب</div>
+      <div class="stat-sub text-amber"><i data-lucide="clock" class="stat-sub-icon"></i>تحتاج إلى مراجعة</div>
     </div>
   </div>
+  {% else %}
+  <div class="stat-card stat-card-hover">
+    <div class="stat-icon si-cyan">
+      <i data-lucide="building-2"></i>
+    </div>
+    <div class="stat-details">
+      <div class="stat-value">{{ laboratories_count if laboratories_count is defined else 0 }}</div>
+      <div class="stat-label">إجمالي المعامل والفروع</div>
+      <div class="stat-sub text-cyan"><i data-lucide="building" class="stat-sub-icon"></i>المسجلة بالمنظومة</div>
+    </div>
+  </div>
+
+  <div class="stat-card stat-card-hover">
+    <div class="stat-icon si-amber">
+      <i data-lucide="layers"></i>
+    </div>
+    <div class="stat-details">
+      <div class="stat-value">{{ bundles_count if bundles_count is defined else 0 }}</div>
+      <div class="stat-label">الباقات الفحصية العامة</div>
+      <div class="stat-sub text-amber"><i data-lucide="check" class="stat-sub-icon"></i>متاحة لجميع المعامل</div>
+    </div>
+  </div>
+  {% endif %}
 
   <div class="stat-card stat-card-hover">
     <div class="stat-icon si-purple">
@@ -98,8 +133,8 @@
     </div>
     <div class="stat-details">
       <div class="stat-value">{{ tests_count if tests_count is defined else 0 }}</div>
-      <div class="stat-label">إجمالي التحاليل</div>
-      <div class="stat-sub text-blue"><i data-lucide="book-open" class="stat-sub-icon"></i>في دليل التحاليل</div>
+      <div class="stat-label">دليل التحاليل</div>
+      <div class="stat-sub text-blue"><i data-lucide="book-open" class="stat-sub-icon"></i>مشترك لجميع المعامل</div>
     </div>
   </div>
 
@@ -308,6 +343,7 @@
 
 <div class="quick-grid">
 
+  {% if current_user.is_authenticated and not current_user.is_admin %}
   <a href="{{ url_for('inquiries.list_inquiries') }}" class="quick-card">
     <div class="quick-icon bg-amber">
       <i data-lucide="file-text"></i>
@@ -329,6 +365,29 @@
     </div>
     <i data-lucide="arrow-left" class="quick-arrow"></i>
   </a>
+  {% else %}
+  <a href="{{ url_for('laboratory.list_laboratories') }}" class="quick-card">
+    <div class="quick-icon bg-blue">
+      <i data-lucide="building-2"></i>
+    </div>
+    <div class="quick-info">
+      <h4>إدارة المعامل</h4>
+      <p>عرض وإدارة الفروع والمعامل وربط الاشتراكات والذكاء الاصطناعي</p>
+    </div>
+    <i data-lucide="arrow-left" class="quick-arrow"></i>
+  </a>
+
+  <a href="{{ url_for('bundle.list_bundles') }}" class="quick-card">
+    <div class="quick-icon bg-amber">
+      <i data-lucide="layers"></i>
+    </div>
+    <div class="quick-info">
+      <h4>الباقات الفحصية</h4>
+      <p>إدارة الباقات والعروض العامة المتاحة للمنظومة</p>
+    </div>
+    <i data-lucide="arrow-left" class="quick-arrow"></i>
+  </a>
+  {% endif %}
 
   <a href="{{ url_for('test.test_service') }}" class="quick-card">
     <div class="quick-icon bg-purple">

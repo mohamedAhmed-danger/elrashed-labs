@@ -91,22 +91,31 @@ def create_app(config_class=Config):
     app.register_blueprint(public_bp)
     app.register_blueprint(results_bp)
 
-    # Lab users may reach pages for their own lab's data,
-    # plus the centralized medical test and bundle catalogs.
-    # Everything else (users, pages, labs management, subscription, settings...) is admin-only.
+    # Operational blueprints handled strictly by individual lab accounts
+    OPERATIONAL_BLUEPRINTS = {"bookings", "inquiries", "complaints", "results"}
+
+    # Blueprints accessible by lab users (their operational routes + shared catalogs)
     LAB_USER_BLUEPRINTS = {
         "main", "bookings", "complaints", "feedbacks", "inquiries",
         "public", "webhook", "results", "test", "bundle"
     }
 
     @app.before_request
-    def restrict_lab_users():
+    def enforce_role_access():
         from flask import request, abort
         from flask_login import current_user
-        if not current_user.is_authenticated or current_user.is_admin:
+        if not current_user.is_authenticated:
             return None
         if request.endpoint is None or request.endpoint == "static":
             return None
+
+        # Admin is not allowed to access lab operational routes (bookings, inquiries, complaints, results)
+        if current_user.is_admin:
+            if request.blueprint in OPERATIONAL_BLUEPRINTS:
+                abort(403)
+            return None
+
+        # Lab user may only access their operational routes and shared catalogs
         if request.blueprint not in LAB_USER_BLUEPRINTS:
             abort(403)
         return None
@@ -114,6 +123,15 @@ def create_app(config_class=Config):
     # Context processor for sidebar badges and layout counters
     @app.context_processor
     def inject_global_counts():
+        from flask_login import current_user
+        # Admins do not handle lab operations; suppress operational badges for admin
+        if not current_user.is_authenticated or current_user.is_admin:
+            return dict(
+                pending_inquiries_count=0,
+                pending_results_count=0,
+                lab_brand={"name": None, "logo": None},
+            )
+
         try:
             from services.domain.inquiry_service import InquiryService
             count = InquiryService.get_pending_inquiries_count()
@@ -126,8 +144,7 @@ def create_app(config_class=Config):
             res_count = 0
         brand = {"name": None, "logo": None}
         try:
-            from flask_login import current_user
-            lab = getattr(current_user, "laboratory", None) if current_user.is_authenticated else None
+            lab = getattr(current_user, "laboratory", None)
             if lab:
                 brand["name"] = lab.name
                 if lab.logo_path:

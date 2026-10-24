@@ -51,6 +51,7 @@
       لوحة التحكم
     </a>
 
+    {% if current_user.is_authenticated and not current_user.is_admin %}
     <a href="{{ url_for('inquiries.list_inquiries') }}"
        class="nav-item {% if request.endpoint in ['inquiries.list_inquiries', 'inquiries.inquiry_detail'] %}active{% endif %}">
       <i data-lucide="file-text" class="nav-icon"></i>
@@ -80,6 +81,7 @@
       <span class="nav-badge">{{ pending_results_count }}</span>
       {% endif %}
     </a>
+    {% endif %}
 
     <p class="nav-section-label">الخدمات والباقات</p>
 

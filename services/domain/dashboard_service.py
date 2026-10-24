@@ -122,15 +122,20 @@ class DashboardService:
                 "pending_inquiries_count": 0, "tests_count": 0,
             }
 
+        from models.models import Bundle
+        admin_mode = not is_scoped()
+
         data = {
             "subscription": None,
             "subscription_status": None,
             "usage_percentage": 0,
             "remaining_messages": 0,
             "clients_count": _safe("clients count", ClientService.get_total_clients_count),
-            "booking_stats": {"total": _safe("bookings count", BookingService.get_total_bookings_count)},
-            "pending_inquiries_count": _safe("pending inquiries count", InquiryService.get_pending_inquiries_count),
+            "booking_stats": {"total": 0 if admin_mode else _safe("bookings count", BookingService.get_total_bookings_count)},
+            "pending_inquiries_count": 0 if admin_mode else _safe("pending inquiries count", InquiryService.get_pending_inquiries_count),
             "tests_count": _safe("tests count", TestsService.get_total_tests_count),
+            "laboratories_count": _safe("laboratories count", lambda: Laboratory.query.count()),
+            "bundles_count": _safe("bundles count", lambda: Bundle.query.count()),
         }
 
         if lab_id:

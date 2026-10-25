@@ -24,7 +24,7 @@ services:
     container_name: elrashed-qdrant
     restart: always
     ports:
-      - "6333:6333"
+      - "127.0.0.1:6336:6333"
     volumes:
       - qdrantdata:/qdrant/storage
     networks:
@@ -66,7 +66,7 @@ services:
     restart: always
     shm_size: '2gb'
     ports:
-      - "3014:3000"     
+      - "3020:3000"     
     environment:
       - WAHA_DASHBOARD_USERNAME=${WAHA_DASHBOARD_USERNAME}
       - WAHA_DASHBOARD_PASSWORD=${WAHA_DASHBOARD_PASSWORD}
@@ -97,7 +97,7 @@ services:
     restart: always
     shm_size: '2gb'
     ports:
-      - "3015:3000"     
+      - "3021:3000"     
     environment:
       - WAHA_DASHBOARD_USERNAME=${WAHA_DASHBOARD_USERNAME}
       - WAHA_DASHBOARD_PASSWORD=${WAHA_DASHBOARD_PASSWORD}
@@ -128,7 +128,7 @@ services:
     restart: always
     shm_size: '2gb'
     ports:
-      - "3016:3000"     
+      - "3022:3000"     
     environment:
       - WAHA_DASHBOARD_USERNAME=${WAHA_DASHBOARD_USERNAME}
       - WAHA_DASHBOARD_PASSWORD=${WAHA_DASHBOARD_PASSWORD}
@@ -159,7 +159,7 @@ services:
     restart: always
     shm_size: '2gb'
     ports:
-      - "3017:3000"     
+      - "3023:3000"     
     environment:
       - WAHA_DASHBOARD_USERNAME=${WAHA_DASHBOARD_USERNAME}
       - WAHA_DASHBOARD_PASSWORD=${WAHA_DASHBOARD_PASSWORD}
@@ -190,7 +190,7 @@ services:
     restart: always
     command: ["redis-server", "--appendonly", "yes"]
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6385:6379"
     volumes:
       - redisdata:/data
     networks:

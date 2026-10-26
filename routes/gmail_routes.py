@@ -2,7 +2,10 @@ import json
 import os
 from flask import Blueprint, redirect, request, session, url_for, jsonify, render_template
 from flask_login import login_required
-from google_auth_oauthlib.flow import Flow
+try:
+    from google_auth_oauthlib.flow import Flow
+except ImportError:
+    Flow = None
 from config import Config
 from services.domain.tenant_service import TenantService
 

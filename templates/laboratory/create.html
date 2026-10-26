@@ -67,6 +67,17 @@
         <textarea name="description" class="form-control" rows="3" placeholder="ملاحظات أو وصف إضافي للفرع..."></textarea>
       </div>
 
+      <div class="form-group">
+        <label class="field-label">
+          <i data-lucide="link" class="tf-field-label-icon"></i>
+          رابط / دومين التقييم الخاص بهذا المعمل (اختياري)
+        </label>
+        <input type="url" name="feedback_url" class="form-control" placeholder="https://labs-mangement.revyai.tech">
+        <small style="color: var(--ink-500); font-size: 0.85rem; display: block; margin-top: 4px;">
+          اتركه فارغاً لاستخدام الدومين الافتراضي للمنظومة (https://labs-mangement.revyai.tech).
+        </small>
+      </div>
+
       <div class="form-actions-bar" style="position: static; background: none; border-top: none; padding-top: 20px; margin-bottom: 8px;">
         <button type="submit" class="btn-save-test" style="min-width: 180px;">
           <i data-lucide="check"></i>

@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from app import create_app
-from models.models import Page, Subscription
+from models.models import Page, Subscription, Laboratory
 from schemas.incoming_message import IncomingMessage
 from schemas.prepare_result import PrepareResult
 from services.shared.subscription_service import SubscriptionService
@@ -331,10 +331,18 @@ class TestWebhookSuite(unittest.TestCase):
         self.assertIn("يسعدنا تقييم تجربتك", msg_without_ref)
 
     def test_build_post_booking_feedback_message_default_url(self):
-        """Verifies FEEDBACK_BASE_URL defaults to https://elbedawy-agent.revyai.tech."""
+        """Verifies FEEDBACK_BASE_URL defaults to https://labs-mangement.revyai.tech."""
         with patch.object(Config, "FEEDBACK_BASE_URL", None):
             msg = build_post_booking_feedback_message("REF-ABC")
-            self.assertIn("https://elbedawy-agent.revyai.tech/feedback/REF-ABC", msg)
+            self.assertIn("https://labs-mangement.revyai.tech/feedback/REF-ABC", msg)
+
+    def test_build_post_booking_feedback_message_per_lab(self):
+        """Verifies custom feedback URL is used when laboratory_id is provided."""
+        fake_lab = MagicMock(spec=Laboratory)
+        fake_lab.feedback_url = "https://custom-lab.com"
+        with patch("models.models.db.session.get", return_value=fake_lab):
+            msg = build_post_booking_feedback_message("REF-XYZ", laboratory_id=5)
+            self.assertIn("https://custom-lab.com/feedback/REF-XYZ", msg)
 
     def test_subscription_service_can_use_ai_contract(self):
         """Verifies can_use_ai returns (bool, str) tuple across models, IDs, and instances."""

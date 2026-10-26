@@ -1,4 +1,3 @@
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from config import Config
 from langchain_openai import ChatOpenAI
 
@@ -28,6 +27,14 @@ def get_gemini_embeddings():
     if not api_key:
         raise ValueError(
             "GEMINI_API_KEY or GOOGLE_API_KEY must be set."
+        )
+
+    try:
+        from langchain_google_genai import GoogleGenerativeAIEmbeddings
+    except ImportError:
+        raise ImportError(
+            "langchain_google_genai is required for get_gemini_embeddings. "
+            "Please install langchain-google-genai."
         )
 
     return GoogleGenerativeAIEmbeddings(

@@ -45,6 +45,7 @@ class Laboratory(db.Model):
     support_phone = db.Column(db.String(30), nullable=True) # Customer-service number shown to patients
     notification_email = db.Column(db.String(255), nullable=True) # Where this lab's booking/prescription alerts go (comma separated)
     billing_laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable=True) # NULL = own subscription, else shares that lab's subscription
+    feedback_url = db.Column(db.String(255), nullable=True) # Custom feedback URL / domain for this lab (e.g. https://labs-mangement.revyai.tech)
 
     # Relationships
     users = db.relationship('User', backref='laboratory', lazy=True)
@@ -53,6 +54,14 @@ class Laboratory(db.Model):
     pages = db.relationship('Page', backref='laboratory', lazy=True)
     lab_inquiries = db.relationship('Inquiry', backref='laboratory', lazy=True)
     result_requests = db.relationship('ResultRequest', backref='laboratory', lazy=True)
+    feedbacks = db.relationship('Feedback', backref='laboratory', lazy=True)
+
+    def get_feedback_url(self, reference_id: str | None = None) -> str:
+        from config import Config
+        base = (self.feedback_url or Config.FEEDBACK_BASE_URL or "https://labs-mangement.revyai.tech").rstrip("/")
+        if reference_id:
+            return f"{base}/feedback/{reference_id}"
+        return f"{base}/feedback/lab/{self.id}"
 
 
 # Compatibility alias
@@ -192,7 +201,8 @@ class LabUsage(db.Model):
 class Feedback(db.Model):
     __tablename__ = "feedbacks"
     id = db.Column(db.Integer, primary_key=True) # Incremental ID for the feedback entry
-    reference_id = db.Column(db.String(50), nullable=False) # Reference ID linking feedback to a specific booking or interaction
+    laboratory_id = db.Column(db.Integer, db.ForeignKey('laboratories.id'), nullable=True, index=True) # Laboratory the feedback belongs to
+    reference_id = db.Column(db.String(50), nullable=True, index=True) # Reference ID linking feedback to a specific booking or interaction (optional for direct reviews)
     name = db.Column(db.String(50), nullable=False) # Name of the person leaving the feedback
     phone_number = db.Column(db.String(50), nullable=False) # Phone number of the person leaving the feedback
     overall_rating = db.Column(db.Integer, nullable=False) # Overall rating score (e.g., 1 to 5)

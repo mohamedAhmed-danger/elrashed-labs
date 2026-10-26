@@ -24,12 +24,12 @@ class Config:
 
     # Pagination Defaults
     ITEMS_PER_PAGE = int(os.getenv("ITEMS_PER_PAGE", 10))
-    MAX_BUNDLES = int(os.getenv("MAX_BUNDLES"))
+    MAX_BUNDLES = int(os.getenv("MAX_BUNDLES", 10))
 
     # Qdrant Vector Database
     QDRANT_URL = os.getenv("QDRANT_URL")
     QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-    VECTOR_SIZE = int(os.getenv("VECTOR_SIZE"))
+    VECTOR_SIZE = int(os.getenv("VECTOR_SIZE", 768))
     COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -44,7 +44,7 @@ class Config:
 
     
     
-    FEEDBACK_BASE_URL = os.getenv("FEEDBACK_BASE_URL")
+    FEEDBACK_BASE_URL = os.getenv("FEEDBACK_BASE_URL", "https://labs-mangement.revyai.tech")
     GMAIL_CREDENTIALS_PATH = os.getenv("GMAIL_CREDENTIALS_PATH")
     WEBHOOK_THREAD_POOL_SIZE = int(os.getenv("WEBHOOK_THREAD_POOL_SIZE", "8"))
     REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")

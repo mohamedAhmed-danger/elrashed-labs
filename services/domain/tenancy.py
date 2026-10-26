@@ -54,9 +54,8 @@ def scope_feedback_query(query):
     """
     Limit a Feedback query to the user's lab.
 
-    Feedback has no laboratory_id of its own: it belongs to whichever lab
-    received the booking with the same reference_id. Fails closed, so a
-    feedback whose reference matches no booking is hidden from lab users.
+    Matches either directly by Feedback.laboratory_id or via matching
+    Booking.reference_id for backward compatibility. Fails closed.
     """
     if not is_scoped():
         return query
@@ -68,7 +67,12 @@ def scope_feedback_query(query):
         Booking.laboratory_id == lab_id,
         Booking.reference_id.isnot(None),
     )
-    return query.filter(Feedback.reference_id.in_(lab_refs))
+    return query.filter(
+        db.or_(
+            Feedback.laboratory_id == lab_id,
+            Feedback.reference_id.in_(lab_refs),
+        )
+    )
 
 
 def can_access(record) -> bool:

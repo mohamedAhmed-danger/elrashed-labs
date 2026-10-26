@@ -98,9 +98,10 @@ def create_laboratory():
         name = request.form.get('name', '').strip()
         location = request.form.get('location', '').strip()
         description = request.form.get('description', '').strip()
+        feedback_url = request.form.get('feedback_url', '').strip()
 
         lab_service = LaboratoryService()
-        lab, msg = lab_service.create_laboratory(name, location, description)
+        lab, msg = lab_service.create_laboratory(name, location, description, feedback_url=feedback_url)
         
         if lab:
             flash(msg, 'success')
@@ -123,6 +124,7 @@ def edit_laboratory(lab_id):
         name = request.form.get('name', '').strip()
         location = request.form.get('location', '').strip()
         description = request.form.get('description', '').strip()
+        feedback_url = request.form.get('feedback_url', '').strip()
 
         updated_lab, update_msg = lab_service.update_laboratory(
             name=name, location=location, description=description,
@@ -131,6 +133,7 @@ def edit_laboratory(lab_id):
             notification_email=request.form.get('notification_email', ''),
             billing_laboratory_id=request.form.get('billing_laboratory_id', type=int),
             set_billing=True,
+            feedback_url=feedback_url,
         )
         if updated_lab:
             flash(update_msg, 'success')

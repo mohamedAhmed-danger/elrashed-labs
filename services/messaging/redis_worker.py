@@ -375,7 +375,7 @@ def process_conversation(
             )
 
             _require_ownership(r, conversation_key, owner_token, heartbeat_script)
-            _send_reply(handler, sender_id, reply, pdf_bytes, visit_reference)
+            _send_reply(handler, sender_id, reply, pdf_bytes, visit_reference, laboratory_id=page.laboratory_id)
 
             _require_ownership(r, conversation_key, owner_token, heartbeat_script)
             finished = _finish_processing(r, conversation_key, owner_token, finish_script)

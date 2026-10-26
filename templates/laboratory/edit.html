@@ -83,6 +83,17 @@
       </div>
 
       <div class="form-group">
+        <label class="field-label">
+          <i data-lucide="link" class="tf-field-label-icon"></i>
+          رابط / دومين التقييم الخاص بهذا المعمل (اختياري)
+        </label>
+        <input type="url" name="feedback_url" class="form-control" value="{{ laboratory.feedback_url or '' }}" placeholder="https://labs-mangement.revyai.tech">
+        <small style="color: var(--ink-500); font-size: 0.85rem; display: block; margin-top: 4px;">
+          اتركه فارغاً لاستخدام الدومين الافتراضي للمنظومة (https://labs-mangement.revyai.tech).
+        </small>
+      </div>
+
+      <div class="form-group">
         <label class="field-label">الاشتراك المشترك: يسحب من اشتراك المعمل</label>
         <select name="billing_laboratory_id" class="form-control">
           <option value="">— اشتراك مستقل —</option>

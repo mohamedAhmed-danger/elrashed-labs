@@ -107,11 +107,19 @@
           {% endif %}
         </td>
         <td style="text-align: center;">
-          <a href="{{ url_for('laboratory.edit_laboratory', lab_id=lab.id) }}"
-             class="btn btn-outline btn-sm ts-action-btn">
-            <i data-lucide="edit-2"></i>
-            تعديل
-          </a>
+          <div style="display: inline-flex; align-items: center; gap: 6px;">
+            <a href="{{ lab.get_feedback_url() }}"
+               target="_blank" rel="noopener"
+               class="btn btn-outline btn-sm ts-action-btn"
+               title="معاينة رابط تقييم المعمل">
+              <i data-lucide="star"></i>
+            </a>
+            <a href="{{ url_for('laboratory.edit_laboratory', lab_id=lab.id) }}"
+               class="btn btn-outline btn-sm ts-action-btn">
+              <i data-lucide="edit-2"></i>
+              تعديل
+            </a>
+          </div>
         </td>
       </tr>
       {% else %}

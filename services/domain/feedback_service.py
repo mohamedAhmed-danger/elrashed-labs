@@ -37,10 +37,16 @@ class FeedbackService:
                 ).filter_by(reference_id=self.reference_id).first()
         return self._feedback
 
-    def _save_feedback(self, ref, name, phone_number, overall_rating, ease_of_use, feedback_text):
-        """يحفظ تقييم جديد ويحدّث حالة الـ service. الـ rollback مسؤولية المستدعي."""
+    def _save_feedback(self, ref, name, phone_number, overall_rating, ease_of_use, feedback_text, laboratory_id=None):
+        """يحفظ تقييم جديد ويحدّث حالة الـ service مع ربط المعمل تلقائياً. الـ rollback مسؤولية المستدعي."""
+        if laboratory_id is None and ref:
+            booking = self.get_visit_by_reference(ref)
+            if booking and getattr(booking, "laboratory_id", None):
+                laboratory_id = booking.laboratory_id
+
         feedback = Feedback(
             reference_id=ref,
+            laboratory_id=laboratory_id,
             name=name,
             phone_number=phone_number,
             overall_rating=overall_rating,
@@ -56,13 +62,14 @@ class FeedbackService:
         return feedback
 
     def create_feedback(self, reference_id=None, name=None, phone_number=None,
-                        overall_rating=None, ease_of_use=None, feedback_text=None):
+                        overall_rating=None, ease_of_use=None, feedback_text=None, laboratory_id=None):
         """ينشئ تقييم. يرجّع (Feedback أو None، رسالة)."""
         ref = reference_id or self.reference_id
         try:
             feedback = self._save_feedback(
                 ref, name, phone_number,
                 int(overall_rating), int(ease_of_use), feedback_text,
+                laboratory_id=laboratory_id,
             )
             return feedback, "تم حفظ التقييم بنجاح"
         except Exception:
@@ -100,11 +107,16 @@ class FeedbackService:
         يتحقق من بيانات التقييم القادمة من الفورم/API ويحفظه.
         يرجّع (نجاح، رسالة، HTTP status).
         """
-        ref = data.get("reference_id") or self.reference_id
+        ref = (data.get("reference_id") or self.reference_id or "").strip() or None
+        lab_id = data.get("laboratory_id")
+        try:
+            lab_id = int(lab_id) if lab_id else None
+        except (TypeError, ValueError):
+            lab_id = None
 
         missing = [f for f in ("name", "phone_number", "overall_rating", "ease_of_use") if not data.get(f)]
-        if not ref:
-            missing.append("reference_id")
+        if not ref and not lab_id:
+            missing.append("reference_id or laboratory_id")
         if missing:
             return False, f"الحقول دي ناقصة: {', '.join(missing)}", 400
 
@@ -121,11 +133,12 @@ class FeedbackService:
             self._save_feedback(
                 ref, data.get("name"), data.get("phone_number"),
                 overall_rating, ease_of_use, data.get("feedback_text"),
+                laboratory_id=lab_id,
             )
             return True, "تم إرسال تقييمك بنجاح", 201
         except Exception:
             db.session.rollback()
-            logger.exception("[FeedbackService.submit_feedback] Failed | ref=%s", ref)
+            logger.exception("[FeedbackService.submit_feedback] Failed | ref=%s lab_id=%s", ref, lab_id)
             return False, "حدث خطأ داخلي، يرجى المحاولة لاحقًا", 500
 
     def get_feedbacks_with_stats(self, page=1, per_page=15, ref_id=None, min_rating=None):

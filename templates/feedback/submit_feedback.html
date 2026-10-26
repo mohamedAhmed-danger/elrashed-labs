@@ -245,6 +245,18 @@
         {% else %}
         <form id="feedbackForm" class="form-box">
             <input type="hidden" name="reference_id" value="{{ reference_id or '' }}">
+            <input type="hidden" name="laboratory_id" value="{{ laboratory_id or '' }}">
+
+            {% if is_direct_lab or not visit_name %}
+            <div style="margin-bottom: 14px; text-align: right;">
+                <label style="margin-top:0;"><i data-lucide="user"></i>الاسم بالكامل <span style="color:var(--red-500)">*</span></label>
+                <input type="text" name="name" required placeholder="أدخل اسمك" style="width:100%; border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; font-family:inherit; font-size:14px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom: 16px; text-align: right;">
+                <label><i data-lucide="phone"></i>رقم الهاتف <span style="color:var(--red-500)">*</span></label>
+                <input type="tel" name="phone_number" required placeholder="01XXXXXXXXX" style="width:100%; border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; font-family:inherit; font-size:14px; box-sizing:border-box; text-align:right;" dir="ltr">
+            </div>
+            {% else %}
             <input type="hidden" name="name" value="{{ visit_name or '' }}">
             <input type="hidden" name="phone_number" value="{{ visit_phone or '' }}">
 
@@ -258,6 +270,7 @@
                     <span dir="ltr">{{ visit_phone or '-' }}</span>
                 </div>
             </div>
+            {% endif %}
 
             <label><i data-lucide="star"></i>كيف تقيّم تجربتك معنا؟</label>
             <div class="stars">

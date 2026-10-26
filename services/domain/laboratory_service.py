@@ -20,7 +20,7 @@ class LaboratoryService:
             self._lab = db.session.get(Lab, self.lab_id)
         return self._lab
 
-    def create_laboratory(self, name, location, description):
+    def create_laboratory(self, name, location, description, feedback_url=None):
         """
         Create a laboratory.
 
@@ -30,6 +30,7 @@ class LaboratoryService:
         try:
             name = (name or "").strip()
             location = (location or "").strip()
+            fb_url = (feedback_url or "").strip() or None
 
             if not name:
                 return None, "اسم المعمل مطلوب"
@@ -40,7 +41,7 @@ class LaboratoryService:
             if existing_lab:
                 return None, "Laboratory already exists"
 
-            new_lab = Lab(name=name, location=location, description=description)
+            new_lab = Lab(name=name, location=location, description=description, feedback_url=fb_url)
             db.session.add(new_lab)
             db.session.commit()
             self._lab = new_lab
@@ -93,7 +94,7 @@ class LaboratoryService:
 
     def update_laboratory(self, name=None, location=None, description=None, lab_id=None,
                           logo_path=None, support_phone=None, notification_email=None,
-                          billing_laboratory_id=None, set_billing=False):
+                          billing_laboratory_id=None, set_billing=False, feedback_url=None):
         """
         Update a laboratory's name, location or description.
 
@@ -132,6 +133,8 @@ class LaboratoryService:
                 lab.support_phone = support_phone.strip() or None
             if notification_email is not None:
                 lab.notification_email = notification_email.strip() or None
+            if feedback_url is not None:
+                lab.feedback_url = feedback_url.strip() or None
             if set_billing:
                 if billing_laboratory_id == lab.id:
                     billing_laboratory_id = None  # a lab billing itself == its own subscription

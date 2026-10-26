@@ -140,6 +140,10 @@ class DashboardService:
 
         if lab_id:
             data.update(_safe("subscription data", lambda: self._get_subscription_data(lab_id), default={}))
+            lab = _safe("lab feedback", lambda: db.session.get(Laboratory, lab_id), default=None)
+            if lab:
+                data["feedback_url"] = lab.get_feedback_url()
+                data["laboratory"] = lab
         else:
             data.update(_safe("aggregate subscription data", self._get_aggregate_subscription_data, default={}))
 

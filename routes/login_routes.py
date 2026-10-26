@@ -58,4 +58,5 @@ def dashboard():
         booking_stats=dashboard_data.get('booking_stats', {'total': 0}),
         pending_inquiries_count=dashboard_data.get('pending_inquiries_count', 0),
         tests_count=dashboard_data.get('tests_count', 0),
+        feedback_url=dashboard_data.get('feedback_url'),
     )

@@ -34,11 +34,31 @@ def get_platform_id_for_whatsapp() -> int:
 
 # ── Feedback Helper ───────────────────────────────────────────────────────────
 
-def build_post_booking_feedback_message(reference_id: Optional[str]) -> str:
-    """Post-booking feedback message with a link to reference_id, or a generic version without one."""
-    base_url = (Config.FEEDBACK_BASE_URL or "https://elrashed-agent.revyai.tech").rstrip("/")
+def build_post_booking_feedback_message(
+    reference_id: Optional[str] = None,
+    laboratory_id: Optional[int] = None,
+) -> str:
+    """Post-booking feedback message with a link to reference_id or lab, using the laboratory's specific URL or system default."""
+    base_url = (Config.FEEDBACK_BASE_URL or "https://labs-mangement.revyai.tech").rstrip("/")
+
+    if laboratory_id:
+        from models.models import Laboratory, db
+        lab = db.session.get(Laboratory, laboratory_id)
+        if lab and lab.feedback_url:
+            base_url = lab.feedback_url.rstrip("/")
+    elif reference_id:
+        from models.models import Booking, Laboratory, db
+        booking = Booking.query.filter_by(reference_id=reference_id).first()
+        if booking and booking.laboratory_id:
+            lab = db.session.get(Laboratory, booking.laboratory_id)
+            if lab and lab.feedback_url:
+                base_url = lab.feedback_url.rstrip("/")
+
     if reference_id:
         url = f"{base_url}/feedback/{reference_id}"
+        return f"يسعدنا تقييم تجربتك معنا من خلال الرابط التالي:\n{url}"
+    elif laboratory_id:
+        url = f"{base_url}/feedback/lab/{laboratory_id}"
         return f"يسعدنا تقييم تجربتك معنا من خلال الرابط التالي:\n{url}"
     return "يسعدنا تقييم تجربتك معنا ومشاركتنا رأيك لتحسين خدماتنا دائماً."
 
@@ -66,14 +86,21 @@ def _fetch_page_and_check_quota(page_id: str, platform_id: int, log_prefix: str)
     return page
 
 
-def _send_reply(handler, user_id: str, reply: Optional[str], booking_pdf, visit_reference: Optional[str] = None):
+def _send_reply(
+    handler,
+    user_id: str,
+    reply: Optional[str],
+    booking_pdf,
+    visit_reference: Optional[str] = None,
+    laboratory_id: Optional[int] = None,
+):
     """Send the reply text, the booking PDF (if any), and the post-booking feedback message (if a PDF was sent)."""
     if reply:
         handler.send(user_id, reply)
 
     if booking_pdf:
         handler.send_image(recipient_id=user_id, file_bytes=booking_pdf, filename="booking_ticket.png")
-        handler.send(user_id, build_post_booking_feedback_message(visit_reference))
+        handler.send(user_id, build_post_booking_feedback_message(visit_reference, laboratory_id=laboratory_id))
 
 
 # ── Message Dispatcher ────────────────────────────────────────────────────────
@@ -106,7 +133,7 @@ def dispatch_incoming_message(
 
             if result.mode == "immediate":
                 handler.send_typing(message.sender_id)
-                _send_reply(handler, message.sender_id, result.text, result.extra)
+                _send_reply(handler, message.sender_id, result.text, result.extra, laboratory_id=laboratory_id)
 
             elif result.mode == "agent_text":
                 handler.send_typing(message.sender_id)
